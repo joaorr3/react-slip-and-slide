@@ -1,5 +1,8 @@
 {
   "name": "react-slip-and-slide",
+  "author": "João Ribeiro",
+  "license": "MIT",
+  "version": "0.0.0",
   "description": "react-slip-and-slide",
   "type": "module",
   "files": [
@@ -52,9 +55,6 @@
     "type": "git",
     "url": "git+https://github.com/joaorr3/react-slip-and-slide"
   },
-  "author": "João Ribeiro",
-  "license": "MIT",
-  "version": "1.0.0",
   "bugs": {
     "url": "https://github.com/joaorr3/react-slip-and-slide/issues"
   },
