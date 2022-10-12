@@ -1,14 +1,10 @@
 import { FluidValue } from "@react-spring/shared";
-import {
-  animated,
-  AnimationResult,
-  Interpolation,
-  SpringValue,
-} from "@react-spring/web";
+import { animated, AnimationResult, Interpolation, SpringValue } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
-import { clamp, flatten, range } from "lodash";
+import { clamp, flatten, range, sumBy } from "lodash";
 import React, { CSSProperties } from "react";
 import { displacement } from "./utils/displacement";
+import { getDimensions, getWidth } from "./utils/getWidth";
 import { useScreenDimensions } from "./utils/useScreenDimensions";
 
 type ReactSlipAndSlideRef = {
@@ -50,7 +46,10 @@ export type ReactSlipAndSlideProps<T> = {
   infinite?: boolean;
   pressToSlide?: boolean;
   containerWidth?: number;
-  itemWidth: number;
+  /**
+   * For now if itemWidth is not provided it's assumed that snap and infinite features are turned off.
+   */
+  itemWidth?: number;
   itemHeight: number;
   interpolators?: Interpolators<number>;
   renderItem: RenderItem<T>;
@@ -68,6 +67,7 @@ type ItemProps<T> = {
   interpolators: Interpolators<number>;
   renderItem: RenderItem<T>;
   onPress?: () => void;
+  onMeasure?: (index: number, width: number) => void;
 };
 
 function ReactSlipAndSlideComponent<T>(
@@ -89,9 +89,7 @@ function ReactSlipAndSlideComponent<T>(
   const [index, setIndex] = React.useState(0);
   const prevIndex = React.useRef(0);
   const [lastOffset, setLastOffset] = React.useState(0);
-  const [containerWidth, setContainerWidth] = React.useState<number>(
-    _containerWidth || 0
-  );
+  const [containerWidth, setContainerWidth] = React.useState<number>(_containerWidth || 0);
 
   const containerRef = React.useRef<HTMLDivElement>(null);
   const isDragging = React.useRef<boolean>(false);
@@ -108,8 +106,11 @@ function ReactSlipAndSlideComponent<T>(
     }
   }, [_containerWidth, containerRef, width]);
 
+  const [itemsDimensions, setItemsDimensions] = React.useState<Array<{ index: number; width: number }>>([]);
+  const [_wrapperWidth, setWrapperWidth] = React.useState<number>(0);
+
   const data = React.useMemo(() => {
-    const wrapperWidth = _data.length * itemWidth;
+    const wrapperWidth = _data.length * (itemWidth || 0) || _wrapperWidth;
     const shouldAddClones = wrapperWidth <= containerWidth || _data.length <= 4;
     const amountOfClones = Math.round(containerWidth / wrapperWidth) + 1;
 
@@ -118,25 +119,40 @@ function ReactSlipAndSlideComponent<T>(
       return _data.concat(newData);
     }
     return _data;
-  }, [_data, containerWidth, infinite, itemWidth]);
+  }, [_data, _wrapperWidth, containerWidth, infinite, itemWidth]);
 
-  const { OffsetX, dataLength, wrapperWidth, sideMargins } =
-    React.useMemo(() => {
-      return {
-        dataLength: data.length,
-        wrapperWidth: data.length * itemWidth,
-        sideMargins: (containerWidth - itemWidth) / 2,
-        halfItem: itemWidth / 2,
-        containerWidth,
-        OffsetX: new SpringValue<number>(0, {
-          config: {
-            tension: 260,
-            friction: 32,
-            mass: 1,
-          },
-        }),
-      };
-    }, [containerWidth, data.length, itemWidth]);
+  const [refs] = React.useState<Array<React.RefObject<HTMLDivElement>>>(
+    new Array(data.length).fill(null).map(() => React.createRef())
+  );
+
+  React.useEffect(() => {
+    getDimensions(refs).then((dims) => {
+      setItemsDimensions(dims);
+    });
+  }, [refs]);
+
+  React.useEffect(() => {
+    const sum = sumBy(itemsDimensions, ({ width }) => width);
+    setWrapperWidth(sum);
+  }, [itemsDimensions]);
+
+  const { OffsetX, dataLength, wrapperWidth, sideMargins } = React.useMemo(() => {
+    const _itemWidth = itemWidth || itemsDimensions[index]?.width || 0;
+    return {
+      dataLength: data.length,
+      wrapperWidth: data.length * (itemWidth || 0) || _wrapperWidth,
+      sideMargins: (containerWidth - _itemWidth) / 2,
+      halfItem: _itemWidth / 2,
+      containerWidth,
+      OffsetX: new SpringValue<number>(0, {
+        config: {
+          tension: 260,
+          friction: 32,
+          mass: 1,
+        },
+      }),
+    };
+  }, [_wrapperWidth, containerWidth, data.length, index, itemWidth, itemsDimensions]);
 
   const clampReleaseOffset = React.useCallback(
     (offset: number) => {
@@ -161,30 +177,27 @@ function ReactSlipAndSlideComponent<T>(
     [centered, containerWidth, infinite, sideMargins, wrapperWidth]
   );
 
-  const clampIndex = React.useCallback(
-    (index: number) => clamp(index, 0, dataLength - 1),
-    [dataLength]
-  );
+  const clampIndex = React.useCallback((index: number) => clamp(index, 0, dataLength - 1), [dataLength]);
 
   const processIndex = React.useCallback(
     ({ offset }: { offset: number }) => {
-      const modIndex = (offset / itemWidth) % dataLength;
-      return offset <= 0
-        ? Math.abs(modIndex)
-        : Math.abs(modIndex > 0 ? dataLength - modIndex : 0);
+      const width = itemsDimensions[index]?.width || 0;
+      const modIndex = (offset / width) % dataLength;
+      return offset <= 0 ? Math.abs(modIndex) : Math.abs(modIndex > 0 ? dataLength - modIndex : 0);
     },
-    [dataLength, itemWidth]
+    [dataLength, index, itemsDimensions]
   );
 
   const getCurrentIndex = React.useCallback(
     ({ offset }: { offset: number }) => {
       if (infinite) {
-        return -Math.round(offset / itemWidth);
+        const width = itemsDimensions[index]?.width || 0;
+        return -Math.round(offset / width);
       }
 
       return Math.round(processIndex({ offset }));
     },
-    [infinite, processIndex, itemWidth]
+    [infinite, processIndex, itemsDimensions, index]
   );
 
   const getRelativeIndex = React.useCallback(
@@ -202,10 +215,11 @@ function ReactSlipAndSlideComponent<T>(
 
   const getCurrentOffset = React.useCallback(
     ({ index }: { index: number }) => {
-      const finalOffset = -index * itemWidth;
+      const width = itemsDimensions[index]?.width || 0;
+      const finalOffset = -index * width;
       return finalOffset;
     },
-    [itemWidth]
+    [itemsDimensions]
   );
 
   const springIt = React.useCallback(
@@ -213,18 +227,13 @@ function ReactSlipAndSlideComponent<T>(
       const clampedReleaseOffset = clampReleaseOffset(offset);
       // const { actionType: clampActionType, value } = clampDragOffset(offset);
       OffsetX.start({
-        to:
-          actionType === "drag" || actionType === "correction"
-            ? offset
-            : clampedReleaseOffset,
+        to: actionType === "drag" || actionType === "correction" ? offset : clampedReleaseOffset,
         immediate: immediate || actionType === "drag", // && clampActionType === "drag"),
         onRest: (x) => onRest?.(x),
       });
       if (actionType === "release") {
         setLastOffset(clampedReleaseOffset);
-        setIndex(
-          clampIndex(getRelativeIndex({ offset: clampedReleaseOffset }))
-        );
+        setIndex(clampIndex(getRelativeIndex({ offset: clampedReleaseOffset })));
       }
     },
     [OffsetX, clampIndex, clampReleaseOffset, getRelativeIndex]
@@ -273,25 +282,19 @@ function ReactSlipAndSlideComponent<T>(
   const withSnap = React.useCallback(
     ({ offset }: { offset: number }) => {
       const page = getCurrentIndexByOffset(-offset);
-      const finalOffset = -page * itemWidth;
+      const width = itemsDimensions[page]?.width || 0;
+
+      const finalOffset = -page * width;
       return finalOffset;
     },
-    [getCurrentIndexByOffset, itemWidth]
+    [getCurrentIndexByOffset, itemsDimensions]
   );
 
-  const withMomentum = React.useCallback(
-    ({ offset, v }: { offset: number; v: number }) => {
-      const velocity =
-        direction.current === "left"
-          ? -v
-          : direction.current === "right"
-          ? v
-          : 0;
-      const momentumOffset = offset + velocity;
-      return momentumOffset;
-    },
-    []
-  );
+  const withMomentum = React.useCallback(({ offset, v }: { offset: number; v: number }) => {
+    const velocity = direction.current === "left" ? -v : direction.current === "right" ? v : 0;
+    const momentumOffset = offset + velocity;
+    return momentumOffset;
+  }, []);
 
   const release = React.useCallback(
     ({ offset, v }: { offset: number; v: number }) => {
@@ -329,10 +332,12 @@ function ReactSlipAndSlideComponent<T>(
         const page = getCurrentIndex({ offset: OffsetX.get() });
         if (direction === "next") {
           const nextPage = page + 1;
-          targetOffset = -nextPage * itemWidth;
+          const width = itemsDimensions[nextPage]?.width || 0;
+          targetOffset = -nextPage * width;
         } else if (direction === "prev") {
           const prevPage = page - 1;
-          targetOffset = -prevPage * itemWidth;
+          const width = itemsDimensions[prevPage]?.width || 0;
+          targetOffset = -prevPage * width;
         }
       }
       springIt({
@@ -341,7 +346,7 @@ function ReactSlipAndSlideComponent<T>(
         actionType: "release",
       });
     },
-    [OffsetX, getCurrentIndex, getCurrentOffset, itemWidth, springIt]
+    [OffsetX, getCurrentIndex, getCurrentOffset, itemsDimensions, springIt]
   );
 
   //region FX
@@ -382,26 +387,24 @@ function ReactSlipAndSlideComponent<T>(
 
   // const b = useDrag(({dragging,event}) => {});
 
-  const containerBind = useDrag(
-    ({ active, movement: [mx], direction: [dirX], velocity: [vx] }) => {
-      const dir = dirX < 0 ? "left" : dirX > 0 ? "right" : "center";
-      direction.current = dir;
+  const containerBind = useDrag(({ active, movement: [mx], direction: [dirX], velocity: [vx] }) => {
+    const dir = dirX < 0 ? "left" : dirX > 0 ? "right" : "center";
+    direction.current = dir;
 
-      if (dir !== "center") {
-        lastValidDirection.current = dir;
-      }
-      const offset = lastOffset + mx;
-
-      isIntentionalDrag.current = Math.abs(mx) >= 40;
-      isDragging.current = Math.abs(mx) !== 0;
-
-      if (active) {
-        drag(offset);
-      } else {
-        release({ offset, v: vx * 100 });
-      }
+    if (dir !== "center") {
+      lastValidDirection.current = dir;
     }
-  );
+    const offset = lastOffset + mx;
+
+    isIntentionalDrag.current = Math.abs(mx) >= 40;
+    isDragging.current = Math.abs(mx) !== 0;
+
+    if (active) {
+      drag(offset);
+    } else {
+      release({ offset, v: vx * 100 });
+    }
+  });
 
   const handlePressToSlide = React.useCallback(
     (idx: number) => {
@@ -425,6 +428,7 @@ function ReactSlipAndSlideComponent<T>(
     },
     [dataLength, index, navigate, pressToSlide]
   );
+  console.log("itemsDimensions: ", itemsDimensions);
 
   return (
     <animated.div
@@ -432,6 +436,7 @@ function ReactSlipAndSlideComponent<T>(
       className="wrapper"
       {...containerBind()}
       style={{
+        // x: OffsetX,
         display: "flex",
         justifyContent: centered ? "center" : "flex-start",
         position: "relative",
@@ -444,6 +449,7 @@ function ReactSlipAndSlideComponent<T>(
     >
       {data.map((props, i) => (
         <Item
+          ref={refs[i]}
           key={i}
           index={i}
           item={props}
@@ -451,30 +457,33 @@ function ReactSlipAndSlideComponent<T>(
           renderItem={renderItem}
           infinite={!!infinite}
           itemHeight={itemHeight}
-          itemWidth={itemWidth}
+          itemWidth={itemWidth || itemsDimensions[i]?.width || 0}
           interpolators={interpolators || {}}
           onPress={() => pressToSlide && handlePressToSlide(i)}
-          offsetX={OffsetX.to((offsetX) =>
-            infinite ? offsetX % wrapperWidth : offsetX
-          )}
+          offsetX={OffsetX.to((offsetX) => (infinite ? offsetX % wrapperWidth : offsetX))}
         />
       ))}
     </animated.div>
   );
 }
 
-function Item<T>({
-  offsetX,
-  dataLength,
-  index,
-  infinite,
-  itemWidth,
-  itemHeight,
-  item,
-  interpolators,
-  renderItem,
-  onPress,
-}: React.PropsWithChildren<ItemProps<T>>) {
+function ItemComponent<T>(
+  {
+    offsetX,
+    dataLength,
+    index,
+    infinite,
+    itemWidth,
+    itemHeight,
+    item,
+    interpolators,
+    renderItem,
+    onPress,
+    onMeasure,
+  }: React.PropsWithChildren<ItemProps<T>>,
+  ref?: React.Ref<HTMLDivElement>
+) {
+  console.log("ItemComponent:itemWidth: ", itemWidth);
   const x = displacement({
     offsetX,
     dataLength,
@@ -483,38 +492,35 @@ function Item<T>({
     infinite,
   });
 
-  const keys = Object.entries(interpolators) as [
-    keyof typeof interpolators,
-    number
-  ][];
+  const keys = Object.entries(interpolators) as [keyof typeof interpolators, number][];
 
   const mapInterpolators = React.useMemo(
     () =>
       keys.reduce((acc, [key, val]) => {
-        acc[key] = x
-          .to((val) => val / itemWidth)
-          .to([-1, 0, 1], [val, 1, val], "clamp");
+        acc[key] = x.to((val) => val / itemWidth).to([-1, 0, 1], [val, 1, val], "clamp");
         return acc;
       }, {} as Interpolators<Interpolation<number, any>>),
     [itemWidth, keys, x]
   );
 
+  const translateX = x.to((val) => val / itemWidth).to([-1, 0, 1], [-itemWidth, 0, itemWidth]);
+
   return (
     <animated.div
+      ref={ref}
       onClick={onPress}
       style={{
-        translateX: x
-          .to((val) => val / itemWidth)
-          .to([-1, 0, 1], [-itemWidth, 0, itemWidth]),
+        translateX,
         ...mapInterpolators,
         position: "absolute",
-        width: itemWidth,
+        width: itemWidth || undefined,
         height: itemHeight,
         flexShrink: 0,
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
         overflow: "hidden",
+        backgroundColor: "pink",
       }}
       onDragStart={(e) => e.preventDefault()}
     >
@@ -523,9 +529,13 @@ function Item<T>({
   );
 }
 
-export const ReactSlipAndSlide = React.forwardRef(
-  ReactSlipAndSlideComponent
-) as <T>(
+export const Item = React.forwardRef(ItemComponent) as <T>(
+  props: React.PropsWithChildren<ItemProps<T>> & {
+    ref?: React.Ref<HTMLDivElement>;
+  }
+) => ReturnType<typeof ItemComponent>;
+
+export const ReactSlipAndSlide = React.forwardRef(ReactSlipAndSlideComponent) as <T>(
   props: ReactSlipAndSlideProps<T> & {
     ref?: React.Ref<ReactSlipAndSlideRef>;
   }

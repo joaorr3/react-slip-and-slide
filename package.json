@@ -21,7 +21,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "dist": "npm run build && npm pack"
   },
   "dependencies": {
     "@use-gesture/react": "10.2.20",
