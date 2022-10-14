@@ -44,7 +44,11 @@
   },
   "peerDependencies": {
     "react": "^16.8 || ^17 || ^18",
-    "react-dom": "^16.8 || ^17 || ^18"
+    "react-dom": "^16.8 || ^17 || ^18",
+    "styled-components": "^5.3.6",
+    "lodash": "^4.17.21",
+    "react-spring": "^9.5.5",
+    "@use-gesture/react": "^10.2.20"
   },
   "keywords": [
     "react",
