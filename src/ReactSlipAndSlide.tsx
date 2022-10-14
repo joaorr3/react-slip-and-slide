@@ -1,5 +1,5 @@
 import { FluidValue } from "@react-spring/shared";
-import { AnimationResult, Interpolation, SpringValue } from "@react-spring/web";
+import { AnimationResult, Interpolation, SpringValue } from "react-spring";
 import { useDrag } from "@use-gesture/react";
 import { clamp } from "lodash";
 import React, { CSSProperties } from "react";

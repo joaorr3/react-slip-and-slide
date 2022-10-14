@@ -1,29 +1,31 @@
-import react from "@vitejs/plugin-react";
-import path from "node:path";
+import { resolve } from "path";
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
 
 export default defineConfig({
   plugins: [
-    react(),
     dts({
       insertTypesEntry: true,
     }),
   ],
   build: {
+    target: "modules",
+    minify: "esbuild",
     lib: {
-      entry: path.resolve(__dirname, "src/index.ts"),
+      entry: resolve(__dirname, "src/index.ts"),
       name: "ReactSlipAndSlide",
       formats: ["es", "umd"],
       fileName: (format) => `react-slip-and-slide.${format}.js`,
     },
-    sourcemap: false,
     rollupOptions: {
-      external: ["react", "react-dom", "styled-components"],
+      external: ["react", "styled-components", "lodash", "react-spring", "@use-gesture/react"],
       output: {
         globals: {
           react: "React",
-          "react-dom": "ReactDOM",
+          "styled-components": "styled",
+          "react-spring": "animated",
+          lodash: "_",
+          "@use-gesture/react": "useDrag",
         },
       },
     },
