@@ -17,6 +17,7 @@ export default defineConfig({
       formats: ["es", "umd"],
       fileName: (format) => `react-slip-and-slide.${format}.js`,
     },
+    sourcemap: false,
     rollupOptions: {
       external: ["react", "react-dom", "styled-components"],
       output: {

@@ -1,19 +1,21 @@
 import { FluidValue } from "@react-spring/shared";
-import { animated, AnimationResult, Interpolation, SpringValue } from "@react-spring/web";
+import { AnimationResult, Interpolation, SpringValue } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
-import { clamp, flatten, range, sumBy } from "lodash";
+import { clamp } from "lodash";
 import React, { CSSProperties } from "react";
+import { to } from "react-spring";
+import * as Styled from "./styles";
 import { displacement } from "./utils/displacement";
-import { getDimensions, getWidth } from "./utils/getWidth";
+import { getCurrentDynamicIndex, getNextDynamicOffset, useDynamicWidth, useItemsRange } from "./utils/useDynamicWidth";
 import { useScreenDimensions } from "./utils/useScreenDimensions";
 
-type ReactSlipAndSlideRef = {
+export type ReactSlipAndSlideRef = {
   next: () => void;
   previous: () => void;
   goTo: (params: { index: number; animated?: boolean }) => void;
 };
 
-type ValidDirection = "left" | "right";
+export type ValidDirection = "left" | "right";
 type Direction = ValidDirection | "center";
 type ActionType = "drag" | "release" | "correction";
 type SpringIt = {
@@ -44,14 +46,26 @@ export type ReactSlipAndSlideProps<T> = {
   snap?: boolean;
   centered?: boolean;
   infinite?: boolean;
+  /**
+   * Useful in some edge cases.
+   * For ex, if you have a big container, small items and a small data.length.
+   * @default undefined
+   */
+  // clonesNumber?: number;
   pressToSlide?: boolean;
   containerWidth?: number;
   /**
-   * For now if itemWidth is not provided it's assumed that snap and infinite features are turned off.
+   * If itemWidth is not provided it's assumed that infinite feature is turned off.
+   * Also, be aware that if itemWidth is undefined some extra work is required and that could be expensive.
    */
   itemWidth?: number;
   itemHeight: number;
   interpolators?: Interpolators<number>;
+  /**
+   * Animates opacity on start up
+   * @default true
+   */
+  animateStartup?: boolean;
   renderItem: RenderItem<T>;
   onChange?: (index: number) => void;
 };
@@ -65,27 +79,33 @@ type ItemProps<T> = {
   itemWidth: number;
   itemHeight: number;
   interpolators: Interpolators<number>;
+  dynamicOffset: number;
+  mode: Mode;
   renderItem: RenderItem<T>;
   onPress?: () => void;
-  onMeasure?: (index: number, width: number) => void;
 };
+
+export type Mode = "dynamic" | "fixed";
 
 function ReactSlipAndSlideComponent<T>(
   {
-    data: _data,
+    data,
     snap,
     centered,
     infinite,
     containerWidth: _containerWidth,
     itemHeight,
-    itemWidth,
+    itemWidth = 0,
     pressToSlide,
     interpolators,
+    animateStartup = true,
     renderItem,
     onChange,
   }: ReactSlipAndSlideProps<T>,
   ref: React.Ref<ReactSlipAndSlideRef>
 ) {
+  const mode: Mode = itemWidth ? "fixed" : "dynamic";
+
   const [index, setIndex] = React.useState(0);
   const prevIndex = React.useRef(0);
   const [lastOffset, setLastOffset] = React.useState(0);
@@ -97,6 +117,26 @@ function ReactSlipAndSlideComponent<T>(
   const lastValidDirection = React.useRef<ValidDirection | null>(null);
   const isIntentionalDrag = React.useRef<boolean>(false);
 
+  const OffsetX = React.useMemo(() => {
+    return new SpringValue<number>(0, {
+      config: {
+        tension: 260,
+        friction: 32,
+        mass: 1,
+      },
+    });
+  }, []);
+
+  const Opacity = React.useMemo(() => {
+    return new SpringValue<number>(animateStartup ? 0 : 1, {
+      config: {
+        tension: 260,
+        friction: 32,
+        mass: 1,
+      },
+    });
+  }, [animateStartup]);
+
   const { width } = useScreenDimensions();
 
   React.useEffect(() => {
@@ -106,53 +146,29 @@ function ReactSlipAndSlideComponent<T>(
     }
   }, [_containerWidth, containerRef, width]);
 
-  const [itemsDimensions, setItemsDimensions] = React.useState<Array<{ index: number; width: number }>>([]);
-  const [_wrapperWidth, setWrapperWidth] = React.useState<number>(0);
+  const [_wrapperWidth, _setWrapperWidth] = React.useState<number>(0);
 
-  const data = React.useMemo(() => {
-    const wrapperWidth = _data.length * (itemWidth || 0) || _wrapperWidth;
-    const shouldAddClones = wrapperWidth <= containerWidth || _data.length <= 4;
-    const amountOfClones = Math.round(containerWidth / wrapperWidth) + 1;
+  const { itemRefs, itemWidthMap } = useDynamicWidth({
+    mode,
+    dataLength: data.length,
+    onMeasure: ({ itemWidthSum: itemWithSum }) => {
+      if (itemWithSum) {
+        _setWrapperWidth(itemWithSum);
+      }
+    },
+  });
 
-    if (infinite && shouldAddClones) {
-      const newData = flatten(range(0, amountOfClones).map(() => _data));
-      return _data.concat(newData);
-    }
-    return _data;
-  }, [_data, _wrapperWidth, containerWidth, infinite, itemWidth]);
+  const { ranges } = useItemsRange({ mode, itemWidthMap, offsetX: OffsetX.get() });
 
-  const [refs] = React.useState<Array<React.RefObject<HTMLDivElement>>>(
-    new Array(data.length).fill(null).map(() => React.createRef())
-  );
-
-  React.useEffect(() => {
-    getDimensions(refs).then((dims) => {
-      setItemsDimensions(dims);
-    });
-  }, [refs]);
-
-  React.useEffect(() => {
-    const sum = sumBy(itemsDimensions, ({ width }) => width);
-    setWrapperWidth(sum);
-  }, [itemsDimensions]);
-
-  const { OffsetX, dataLength, wrapperWidth, sideMargins } = React.useMemo(() => {
-    const _itemWidth = itemWidth || itemsDimensions[index]?.width || 0;
+  const { dataLength, sideMargins, wrapperWidth } = React.useMemo(() => {
     return {
       dataLength: data.length,
-      wrapperWidth: data.length * (itemWidth || 0) || _wrapperWidth,
-      sideMargins: (containerWidth - _itemWidth) / 2,
-      halfItem: _itemWidth / 2,
+      wrapperWidth: mode === "fixed" ? data.length * itemWidth : _wrapperWidth,
+      sideMargins: (containerWidth - itemWidth) / 2,
+      halfItem: itemWidth / 2,
       containerWidth,
-      OffsetX: new SpringValue<number>(0, {
-        config: {
-          tension: 260,
-          friction: 32,
-          mass: 1,
-        },
-      }),
     };
-  }, [_wrapperWidth, containerWidth, data.length, index, itemWidth, itemsDimensions]);
+  }, [mode, itemWidth, data.length, _wrapperWidth, containerWidth]);
 
   const clampReleaseOffset = React.useCallback(
     (offset: number) => {
@@ -181,23 +197,21 @@ function ReactSlipAndSlideComponent<T>(
 
   const processIndex = React.useCallback(
     ({ offset }: { offset: number }) => {
-      const width = itemsDimensions[index]?.width || 0;
-      const modIndex = (offset / width) % dataLength;
+      const modIndex = (offset / itemWidth) % dataLength;
       return offset <= 0 ? Math.abs(modIndex) : Math.abs(modIndex > 0 ? dataLength - modIndex : 0);
     },
-    [dataLength, index, itemsDimensions]
+    [dataLength, itemWidth]
   );
 
   const getCurrentIndex = React.useCallback(
     ({ offset }: { offset: number }) => {
       if (infinite) {
-        const width = itemsDimensions[index]?.width || 0;
-        return -Math.round(offset / width);
+        return -Math.round(offset / itemWidth);
       }
 
       return Math.round(processIndex({ offset }));
     },
-    [infinite, processIndex, itemsDimensions, index]
+    [infinite, itemWidth, processIndex]
   );
 
   const getRelativeIndex = React.useCallback(
@@ -215,28 +229,30 @@ function ReactSlipAndSlideComponent<T>(
 
   const getCurrentOffset = React.useCallback(
     ({ index }: { index: number }) => {
-      const width = itemsDimensions[index]?.width || 0;
-      const finalOffset = -index * width;
+      const finalOffset = -index * itemWidth;
       return finalOffset;
     },
-    [itemsDimensions]
+    [itemWidth]
   );
 
   const springIt = React.useCallback(
     ({ offset, immediate, actionType, onRest }: SpringIt) => {
       const clampedReleaseOffset = clampReleaseOffset(offset);
-      // const { actionType: clampActionType, value } = clampDragOffset(offset);
       OffsetX.start({
         to: actionType === "drag" || actionType === "correction" ? offset : clampedReleaseOffset,
-        immediate: immediate || actionType === "drag", // && clampActionType === "drag"),
+        immediate: immediate || actionType === "drag",
         onRest: (x) => onRest?.(x),
       });
       if (actionType === "release") {
         setLastOffset(clampedReleaseOffset);
-        setIndex(clampIndex(getRelativeIndex({ offset: clampedReleaseOffset })));
+        if (mode === "fixed") {
+          setIndex(clampIndex(getRelativeIndex({ offset: clampedReleaseOffset })));
+        } else {
+          setIndex(getCurrentDynamicIndex(offset, ranges));
+        }
       }
     },
-    [OffsetX, clampIndex, clampReleaseOffset, getRelativeIndex]
+    [OffsetX, clampIndex, clampReleaseOffset, getRelativeIndex, mode, ranges]
   );
 
   const getCurrentIndexByOffset = React.useCallback(
@@ -282,12 +298,19 @@ function ReactSlipAndSlideComponent<T>(
   const withSnap = React.useCallback(
     ({ offset }: { offset: number }) => {
       const page = getCurrentIndexByOffset(-offset);
-      const width = itemsDimensions[page]?.width || 0;
-
-      const finalOffset = -page * width;
-      return finalOffset;
+      const finalOffset = -page * itemWidth;
+      if (mode === "fixed") {
+        return finalOffset;
+      } else {
+        return getNextDynamicOffset({
+          offsetX: offset,
+          ranges,
+          dir: lastValidDirection.current,
+          centered: !!centered,
+        });
+      }
     },
-    [getCurrentIndexByOffset, itemsDimensions]
+    [centered, getCurrentIndexByOffset, itemWidth, mode, ranges]
   );
 
   const withMomentum = React.useCallback(({ offset, v }: { offset: number; v: number }) => {
@@ -329,15 +352,22 @@ function ReactSlipAndSlideComponent<T>(
       if (_index) {
         targetOffset = getCurrentOffset({ index: _index });
       } else {
-        const page = getCurrentIndex({ offset: OffsetX.get() });
-        if (direction === "next") {
-          const nextPage = page + 1;
-          const width = itemsDimensions[nextPage]?.width || 0;
-          targetOffset = -nextPage * width;
-        } else if (direction === "prev") {
-          const prevPage = page - 1;
-          const width = itemsDimensions[prevPage]?.width || 0;
-          targetOffset = -prevPage * width;
+        if (mode === "fixed") {
+          const page = getCurrentIndex({ offset: OffsetX.get() });
+          if (direction === "next") {
+            const nextPage = page + 1;
+            targetOffset = -nextPage * itemWidth;
+          } else if (direction === "prev") {
+            const prevPage = page - 1;
+            targetOffset = -prevPage * itemWidth;
+          }
+        } else {
+          targetOffset = getNextDynamicOffset({
+            offsetX: OffsetX.get(),
+            ranges,
+            dir: direction === "next" ? "left" : direction === "prev" ? "right" : null,
+            centered: !!centered,
+          });
         }
       }
       springIt({
@@ -346,10 +376,36 @@ function ReactSlipAndSlideComponent<T>(
         actionType: "release",
       });
     },
-    [OffsetX, getCurrentIndex, getCurrentOffset, itemsDimensions, springIt]
+    [OffsetX, centered, getCurrentIndex, getCurrentOffset, itemWidth, mode, ranges, springIt]
   );
 
   //region FX
+  React.useEffect(() => {
+    if (animateStartup) {
+      if (mode === "dynamic") {
+        Opacity.start({
+          to: ranges.length ? 1 : 0,
+        });
+      } else {
+        Opacity.start({
+          to: 1,
+          delay: 100,
+        });
+      }
+    }
+  }, [Opacity, animateStartup, mode, ranges.length]);
+
+  React.useEffect(() => {
+    if (mode === "dynamic") {
+      const alignment = centered ? "center" : "start";
+
+      springIt({
+        offset: -(ranges[0]?.range[alignment] || 0),
+        actionType: "release",
+        immediate: true,
+      });
+    }
+  }, [centered, mode, ranges, springIt]);
 
   React.useEffect(() => {
     if (index !== prevIndex.current) {
@@ -358,7 +414,9 @@ function ReactSlipAndSlideComponent<T>(
   }, [index, onChange]);
 
   React.useEffect(() => {
-    navigate?.({ index, immediate: true });
+    if (mode === "fixed") {
+      navigate?.({ index, immediate: true });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [containerWidth]);
 
@@ -385,8 +443,6 @@ function ReactSlipAndSlideComponent<T>(
     [navigate]
   );
 
-  // const b = useDrag(({dragging,event}) => {});
-
   const containerBind = useDrag(({ active, movement: [mx], direction: [dirX], velocity: [vx] }) => {
     const dir = dirX < 0 ? "left" : dirX > 0 ? "right" : "center";
     direction.current = dir;
@@ -411,59 +467,65 @@ function ReactSlipAndSlideComponent<T>(
       if (!pressToSlide || isDragging.current || isIntentionalDrag.current) {
         return;
       }
-      const prev = index === 0 && idx === dataLength - 1;
-      const smaller = idx < index;
-      const next = index === dataLength - 1 && idx === 0;
-      const bigger = idx > index;
 
-      if (prev) {
-        navigate({ direction: "prev" });
-      } else if (next) {
-        navigate({ direction: "next" });
-      } else if (smaller) {
-        navigate({ direction: "prev" });
-      } else if (bigger) {
-        navigate({ direction: "next" });
+      if (mode === "fixed") {
+        const prev = index === 0 && idx === dataLength - 1;
+        const next = index === dataLength - 1 && idx === 0;
+        const smaller = idx < index;
+        const bigger = idx > index;
+
+        if (prev) {
+          navigate({ direction: "prev" });
+        } else if (next) {
+          navigate({ direction: "next" });
+        } else if (smaller) {
+          navigate({ direction: "prev" });
+        } else if (bigger) {
+          navigate({ direction: "next" });
+        }
+      } else {
+        const currIndx = getCurrentDynamicIndex(OffsetX.get(), ranges);
+        if (idx < currIndx) {
+          navigate({ direction: "prev" });
+        } else if (idx > currIndx) {
+          navigate({ direction: "next" });
+        }
       }
     },
-    [dataLength, index, navigate, pressToSlide]
+    [OffsetX, dataLength, index, mode, navigate, pressToSlide, ranges]
   );
-  console.log("itemsDimensions: ", itemsDimensions);
 
   return (
-    <animated.div
+    <Styled.Wrapper
       ref={containerRef}
       className="wrapper"
       {...containerBind()}
       style={{
-        // x: OffsetX,
-        display: "flex",
+        opacity: Opacity,
         justifyContent: centered ? "center" : "flex-start",
-        position: "relative",
-        overflow: "hidden",
-        flexDirection: "row",
         width: _containerWidth || "100%",
         height: itemHeight || "100%",
-        touchAction: "none",
       }}
     >
       {data.map((props, i) => (
         <Item
-          ref={refs[i]}
+          ref={itemRefs[i]}
           key={i}
           index={i}
+          mode={mode}
           item={props}
           dataLength={dataLength}
           renderItem={renderItem}
           infinite={!!infinite}
           itemHeight={itemHeight}
-          itemWidth={itemWidth || itemsDimensions[i]?.width || 0}
+          itemWidth={mode === "fixed" ? itemWidth : ranges[i]?.width || 0}
           interpolators={interpolators || {}}
+          dynamicOffset={ranges[i]?.range[centered ? "center" : "start"] || 0}
           onPress={() => pressToSlide && handlePressToSlide(i)}
           offsetX={OffsetX.to((offsetX) => (infinite ? offsetX % wrapperWidth : offsetX))}
         />
       ))}
-    </animated.div>
+    </Styled.Wrapper>
   );
 }
 
@@ -477,55 +539,53 @@ function ItemComponent<T>(
     itemHeight,
     item,
     interpolators,
+    dynamicOffset,
+    mode,
     renderItem,
     onPress,
-    onMeasure,
   }: React.PropsWithChildren<ItemProps<T>>,
   ref?: React.Ref<HTMLDivElement>
 ) {
-  console.log("ItemComponent:itemWidth: ", itemWidth);
   const x = displacement({
     offsetX,
     dataLength,
     index,
     itemWidth,
-    infinite,
+    infinite: infinite && mode === "fixed",
   });
 
   const keys = Object.entries(interpolators) as [keyof typeof interpolators, number][];
 
+  const translateX: Interpolation<number, number> = React.useMemo(() => {
+    if (mode === "fixed") {
+      return x.to((val) => val / itemWidth).to([-1, 0, 1], [-itemWidth, 0, itemWidth]);
+    }
+    return to(offsetX, (x) => x + dynamicOffset);
+  }, [dynamicOffset, itemWidth, mode, offsetX, x]);
+
   const mapInterpolators = React.useMemo(
     () =>
       keys.reduce((acc, [key, val]) => {
-        acc[key] = x.to((val) => val / itemWidth).to([-1, 0, 1], [val, 1, val], "clamp");
+        acc[key] = translateX.to((val) => val / itemWidth).to([-1, 0, 1], [val, 1, val], "clamp");
         return acc;
       }, {} as Interpolators<Interpolation<number, any>>),
-    [itemWidth, keys, x]
+    [itemWidth, keys, translateX]
   );
 
-  const translateX = x.to((val) => val / itemWidth).to([-1, 0, 1], [-itemWidth, 0, itemWidth]);
-
   return (
-    <animated.div
+    <Styled.Item
       ref={ref}
       onClick={onPress}
       style={{
         translateX,
         ...mapInterpolators,
-        position: "absolute",
-        width: itemWidth || undefined,
+        width: itemWidth === 0 ? undefined : itemWidth,
         height: itemHeight,
-        flexShrink: 0,
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        overflow: "hidden",
-        backgroundColor: "pink",
       }}
       onDragStart={(e) => e.preventDefault()}
     >
       {renderItem({ item, index })}
-    </animated.div>
+    </Styled.Item>
   );
 }
 

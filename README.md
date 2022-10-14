@@ -20,7 +20,7 @@ const data = [
 function App() {
   return (
     <div className="App">
-      <ReactCarousel
+      <ReactSlipAndSlide
         data={data}
         snap
         centered

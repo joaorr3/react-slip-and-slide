@@ -1,4 +1,4 @@
-import type { ReactSlipAndSlideProps } from "./ReactSlipAndSlide";
+import type { ReactSlipAndSlideProps, ReactSlipAndSlideRef } from "./ReactSlipAndSlide";
 import { ReactSlipAndSlide } from "./ReactSlipAndSlide";
 export { ReactSlipAndSlide };
-export type { ReactSlipAndSlideProps };
+export type { ReactSlipAndSlideProps, ReactSlipAndSlideRef };
