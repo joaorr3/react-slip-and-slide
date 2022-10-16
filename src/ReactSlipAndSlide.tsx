@@ -18,6 +18,10 @@ export type ReactSlipAndSlideRef = {
   next: () => void;
   previous: () => void;
   goTo: (params: { index: number; animated?: boolean }) => void;
+  /**
+   * Offset in pixels to translate.
+   */
+  move: (offset: number) => void;
 };
 
 export type ValidDirection = "left" | "right";
@@ -436,6 +440,16 @@ function ReactSlipAndSlideComponent<T>(
     [OffsetX, centered, getCurrentIndex, getCurrentOffset, itemWidth, mode, ranges, springIt]
   );
 
+  const move = React.useCallback(
+    (offset: number) => {
+      springIt({
+        offset: OffsetX.get() + offset,
+        actionType: "release",
+      });
+    },
+    [OffsetX, springIt]
+  );
+
   //region FX
   React.useEffect(() => {
     if (animateStartup) {
@@ -516,9 +530,9 @@ function ReactSlipAndSlideComponent<T>(
       next: () => navigate({ direction: "next" }),
       previous: () => navigate({ direction: "prev" }),
       goTo: ({ index, animated }) => navigate({ index, immediate: !animated }),
-      // TODO: () => increaseOffset()
+      move,
     }),
-    [navigate]
+    [move, navigate]
   );
 
   const containerBind = useDrag(({ active, movement: [mx], direction: [dirX], velocity: [vx] }) => {
