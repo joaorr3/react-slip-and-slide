@@ -2,12 +2,13 @@ import { clamp, sumBy, times } from "lodash";
 import React from "react";
 import { Mode, ValidDirection } from "../ReactSlipAndSlide";
 
-type ItemWidthMap = {
+type ItemDimensionMap = {
   index: number;
   width: number;
+  height: number;
 };
 
-type OnMeasureCallback = (args: { itemWidthMap?: ItemWidthMap[]; itemWidthSum?: number }) => void;
+type OnMeasureCallback = (args: { itemDimensionMap?: ItemDimensionMap[]; itemWidthSum?: number }) => void;
 
 type DynamicRangeSum =
   | {
@@ -17,7 +18,7 @@ type DynamicRangeSum =
     }
   | undefined;
 
-type UseDynamicWidth = {
+type UseDynamicDimension = {
   mode: Mode;
   dataLength: number;
   onMeasure?: OnMeasureCallback;
@@ -25,7 +26,7 @@ type UseDynamicWidth = {
 
 type UseItemsRange = {
   mode: Mode;
-  itemWidthMap: ItemWidthMap[];
+  itemDimensionMap: ItemDimensionMap[];
   offsetX: number;
 };
 
@@ -36,22 +37,23 @@ type NextDynamicOffset = {
   centered: boolean;
 };
 
-export const useDynamicWidth = ({ mode, dataLength, onMeasure }: UseDynamicWidth) => {
+export const useDynamicDimension = ({ mode, dataLength, onMeasure }: UseDynamicDimension) => {
   const itemRefs = React.useMemo<Array<React.RefObject<HTMLDivElement>>>(() => {
     return times(dataLength, () => React.createRef());
   }, [dataLength]);
 
-  const [itemWidthMap, setItemWidthMap] = React.useState<ItemWidthMap[]>([]);
+  const [itemDimensionMap, setItemDimensionMap] = React.useState<ItemDimensionMap[]>([]);
   const [itemWidthSum, setItemWidthSum] = React.useState<number>(0);
 
   const measure = React.useCallback(() => {
-    return new Promise<ItemWidthMap[]>((res) => {
+    return new Promise<ItemDimensionMap[]>((res) => {
       setTimeout(() => {
         res(
           itemRefs.map((ref, index) => {
             return {
               index,
               width: ref.current?.offsetWidth ?? 0,
+              height: ref.current?.offsetHeight ?? 0,
             };
           })
         );
@@ -61,9 +63,9 @@ export const useDynamicWidth = ({ mode, dataLength, onMeasure }: UseDynamicWidth
 
   React.useEffect(() => {
     if (mode === "dynamic") {
-      measure().then((_itemWidthMap) => {
-        setItemWidthMap(_itemWidthMap);
-        onMeasure?.({ itemWidthMap: _itemWidthMap });
+      measure().then((_itemDimensionMap) => {
+        setItemDimensionMap(_itemDimensionMap);
+        onMeasure?.({ itemDimensionMap: _itemDimensionMap });
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -71,22 +73,22 @@ export const useDynamicWidth = ({ mode, dataLength, onMeasure }: UseDynamicWidth
 
   React.useEffect(() => {
     if (mode === "dynamic") {
-      const sum = sumBy(itemWidthMap, ({ width }) => width);
+      const sum = sumBy(itemDimensionMap, ({ width }) => width);
       setItemWidthSum(sum);
       onMeasure?.({ itemWidthSum: sum });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [itemWidthMap]);
+  }, [itemDimensionMap]);
 
   if (mode === "fixed") {
-    return { itemRefs: [], itemWidthMap: [], itemWidthSum: 0 };
+    return { itemRefs: [], itemDimensionMap: [], itemWidthSum: 0 };
   }
 
-  return { itemRefs, itemWidthMap, itemWidthSum };
+  return { itemRefs, itemDimensionMap, itemWidthSum };
 };
 
-export const useItemsRange = ({ mode, itemWidthMap, offsetX: _offsetX }: UseItemsRange) => {
-  const ranges = React.useMemo(() => getDynamicRangeSum(itemWidthMap), [itemWidthMap]);
+export const useItemsRange = ({ mode, itemDimensionMap, offsetX: _offsetX }: UseItemsRange) => {
+  const ranges = React.useMemo(() => getDynamicRangeSum(itemDimensionMap), [itemDimensionMap]);
 
   if (mode === "fixed") {
     return { ranges: [], currentIndex: 0 };
@@ -144,11 +146,11 @@ export const getNextDynamicOffset = ({ offsetX, ranges, dir, centered }: NextDyn
   return -off;
 };
 
-const getDynamicRangeSum = (itemWidthMap: ItemWidthMap[]) => {
+const getDynamicRangeSum = (itemDimensionMap: ItemDimensionMap[]) => {
   let previousSum = 0;
   const range: DynamicRangeSum[] = [];
 
-  itemWidthMap.forEach(({ width }, index) => {
+  itemDimensionMap.forEach(({ width }, index) => {
     range.push({
       index,
       width,

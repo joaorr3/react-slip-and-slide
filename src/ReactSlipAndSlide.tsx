@@ -6,7 +6,12 @@ import React, { CSSProperties } from "react";
 import { to } from "react-spring";
 import * as Styled from "./styles";
 import { displacement } from "./utils/displacement";
-import { getCurrentDynamicIndex, getNextDynamicOffset, useDynamicWidth, useItemsRange } from "./utils/useDynamicWidth";
+import {
+  getCurrentDynamicIndex,
+  getNextDynamicOffset,
+  useDynamicDimension,
+  useItemsRange,
+} from "./utils/useDynamicDimension";
 import { useScreenDimensions } from "./utils/useScreenDimensions";
 
 export type ReactSlipAndSlideRef = {
@@ -59,7 +64,7 @@ export type ReactSlipAndSlideProps<T> = {
    * Also, be aware that if itemWidth is undefined some extra work is required and that could be expensive.
    */
   itemWidth?: number;
-  itemHeight: number;
+  itemHeight?: number;
   interpolators?: Interpolators<number>;
   /**
    * Animates opacity on start up
@@ -68,6 +73,8 @@ export type ReactSlipAndSlideProps<T> = {
   animateStartup?: boolean;
   renderItem: RenderItem<T>;
   onChange?: (index: number) => void;
+  onEdges?: (props: { start: boolean; end: boolean }) => void;
+  onReady?: (ready: boolean) => void;
 };
 
 type ItemProps<T> = {
@@ -77,12 +84,17 @@ type ItemProps<T> = {
   offsetX: FluidValue<number>;
   infinite: boolean;
   itemWidth: number;
-  itemHeight: number;
+  itemHeight?: number;
   interpolators: Interpolators<number>;
   dynamicOffset: number;
   mode: Mode;
   renderItem: RenderItem<T>;
   onPress?: () => void;
+};
+
+type ContainerDimensions = {
+  width: number;
+  height: number;
 };
 
 export type Mode = "dynamic" | "fixed";
@@ -92,8 +104,8 @@ function ReactSlipAndSlideComponent<T>(
     data,
     snap,
     centered,
-    infinite,
-    containerWidth: _containerWidth,
+    infinite: _infinite,
+    containerWidth,
     itemHeight,
     itemWidth = 0,
     pressToSlide,
@@ -101,15 +113,25 @@ function ReactSlipAndSlideComponent<T>(
     animateStartup = true,
     renderItem,
     onChange,
+    onEdges,
+    onReady,
   }: ReactSlipAndSlideProps<T>,
   ref: React.Ref<ReactSlipAndSlideRef>
 ) {
-  const mode: Mode = itemWidth ? "fixed" : "dynamic";
+  const mode: Mode = itemWidth && itemHeight ? "fixed" : "dynamic";
+  const infinite = mode === "fixed" && !!_infinite;
 
   const [index, setIndex] = React.useState(0);
   const prevIndex = React.useRef(0);
   const [lastOffset, setLastOffset] = React.useState(0);
-  const [containerWidth, setContainerWidth] = React.useState<number>(_containerWidth || 0);
+  const [container, setContainerDimensions] = React.useState<ContainerDimensions>({
+    width: containerWidth || 0,
+    height: itemHeight || 0,
+  });
+  const [edges, setEdges] = React.useState<{ start: boolean; end: boolean }>({
+    start: false,
+    end: false,
+  });
 
   const containerRef = React.useRef<HTMLDivElement>(null);
   const isDragging = React.useRef<boolean>(false);
@@ -140,57 +162,76 @@ function ReactSlipAndSlideComponent<T>(
   const { width } = useScreenDimensions();
 
   React.useEffect(() => {
-    if (!_containerWidth && containerRef.current) {
-      const { offsetWidth, clientWidth } = containerRef.current;
-      setContainerWidth(offsetWidth || clientWidth);
+    if (containerRef.current && (!containerWidth || !itemHeight)) {
+      const { offsetWidth, clientWidth, offsetHeight, clientHeight } = containerRef.current;
+      setContainerDimensions({
+        width: containerWidth || offsetWidth || clientWidth,
+        height: itemHeight || offsetHeight || clientHeight,
+      });
     }
-  }, [_containerWidth, containerRef, width]);
+  }, [containerWidth, containerRef, itemHeight, width]);
 
   const [_wrapperWidth, _setWrapperWidth] = React.useState<number>(0);
 
-  const { itemRefs, itemWidthMap } = useDynamicWidth({
+  const { itemRefs, itemDimensionMap } = useDynamicDimension({
     mode,
     dataLength: data.length,
-    onMeasure: ({ itemWidthSum: itemWithSum }) => {
-      if (itemWithSum) {
-        _setWrapperWidth(itemWithSum);
+    onMeasure: ({ itemWidthSum }) => {
+      if (itemWidthSum) {
+        _setWrapperWidth(itemWidthSum);
       }
     },
   });
 
-  const { ranges } = useItemsRange({ mode, itemWidthMap, offsetX: OffsetX.get() });
+  const { ranges } = useItemsRange({ mode, itemDimensionMap, offsetX: OffsetX.get() });
 
-  const { dataLength, sideMargins, wrapperWidth } = React.useMemo(() => {
+  React.useEffect(() => {
+    if (!itemHeight && itemDimensionMap.length) {
+      setContainerDimensions((prev) => ({
+        ...prev,
+        height: itemDimensionMap[0].height,
+      }));
+    }
+  }, [itemDimensionMap, itemHeight]);
+
+  const { dataLength, wrapperWidth, clampOffset } = React.useMemo(() => {
+    const wrapperWidth = mode === "fixed" ? data.length * itemWidth : _wrapperWidth;
+    const sideMargins = (container.width - itemWidth) / 2;
+
+    const MIN = 0;
+    const _MAX = -wrapperWidth + container.width;
+    const _MAX_CENTERED = _MAX - sideMargins * 2;
+    const MAX = centered ? _MAX_CENTERED : _MAX;
+
     return {
       dataLength: data.length,
-      wrapperWidth: mode === "fixed" ? data.length * itemWidth : _wrapperWidth,
-      sideMargins: (containerWidth - itemWidth) / 2,
+      wrapperWidth,
+      sideMargins,
       halfItem: itemWidth / 2,
-      containerWidth,
+      clampOffset: {
+        MIN,
+        MAX,
+      },
     };
-  }, [mode, itemWidth, data.length, _wrapperWidth, containerWidth]);
+  }, [_wrapperWidth, centered, container.width, data.length, itemWidth, mode]);
 
   const clampReleaseOffset = React.useCallback(
     (offset: number) => {
-      if (infinite) {
+      if (infinite && mode === "fixed") {
         return offset;
       }
 
-      const MIN = 0;
-
-      const MAX = -wrapperWidth + containerWidth;
-      const MAX_CENTERED = MAX - sideMargins * 2;
-
-      const _MAX = centered ? MAX_CENTERED : MAX;
-
-      if (offset > MIN) {
-        return MIN;
-      } else if (offset < _MAX) {
-        return _MAX;
+      if (offset > clampOffset.MIN) {
+        return clampOffset.MIN;
+      } else if (offset < clampOffset.MAX) {
+        if (wrapperWidth < container.width) {
+          return clampOffset.MIN;
+        }
+        return clampOffset.MAX;
       }
       return offset;
     },
-    [centered, containerWidth, infinite, sideMargins, wrapperWidth]
+    [clampOffset.MAX, clampOffset.MIN, container.width, infinite, mode, wrapperWidth]
   );
 
   const clampIndex = React.useCallback((index: number) => clamp(index, 0, dataLength - 1), [dataLength]);
@@ -235,6 +276,19 @@ function ReactSlipAndSlideComponent<T>(
     [itemWidth]
   );
 
+  const checkEdges = React.useCallback(
+    ({ offset }: { offset: number }) => {
+      if (offset >= clampOffset.MIN) {
+        return { start: true, end: false };
+      } else if (offset <= clampOffset.MAX) {
+        return { start: false, end: true };
+      } else {
+        return { start: false, end: false };
+      }
+    },
+    [clampOffset.MAX, clampOffset.MIN]
+  );
+
   const springIt = React.useCallback(
     ({ offset, immediate, actionType, onRest }: SpringIt) => {
       const clampedReleaseOffset = clampReleaseOffset(offset);
@@ -250,9 +304,12 @@ function ReactSlipAndSlideComponent<T>(
         } else {
           setIndex(getCurrentDynamicIndex(offset, ranges));
         }
+        if (!infinite) {
+          setEdges(checkEdges({ offset }));
+        }
       }
     },
-    [OffsetX, clampIndex, clampReleaseOffset, getRelativeIndex, mode, ranges]
+    [OffsetX, checkEdges, clampIndex, clampReleaseOffset, getRelativeIndex, infinite, mode, ranges]
   );
 
   const getCurrentIndexByOffset = React.useCallback(
@@ -383,20 +440,32 @@ function ReactSlipAndSlideComponent<T>(
   React.useEffect(() => {
     if (animateStartup) {
       if (mode === "dynamic") {
-        Opacity.start({
-          to: ranges.length ? 1 : 0,
-        });
+        if (ranges.length && container.height) {
+          Opacity.start({
+            to: 1,
+            onRest: () => {
+              onReady?.(true);
+            },
+          });
+        }
       } else {
         Opacity.start({
           to: 1,
           delay: 100,
+          onRest: () => {
+            onReady?.(true);
+          },
         });
       }
+    } else {
+      onReady?.(true);
     }
-  }, [Opacity, animateStartup, mode, ranges.length]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [container.height, ranges.length]);
 
+  // Fixes initial offset when: mode === dynamic and centered is true
   React.useEffect(() => {
-    if (mode === "dynamic") {
+    if (mode === "dynamic" && centered) {
       const alignment = centered ? "center" : "start";
 
       springIt({
@@ -413,12 +482,20 @@ function ReactSlipAndSlideComponent<T>(
     }
   }, [index, onChange]);
 
+  // Reset to new clampOffset.MAX if is at the end edge and page is resized
   React.useEffect(() => {
-    if (mode === "fixed") {
-      navigate?.({ index, immediate: true });
+    const { end } = checkEdges({ offset: OffsetX.get() });
+    if (end) {
+      springIt({
+        offset: clampOffset.MAX,
+        actionType: "release",
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [containerWidth]);
+  }, [clampOffset.MAX]);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  React.useEffect(() => onEdges?.(edges), [edges]);
 
   React.useEffect(() => {
     if (!infinite) {
@@ -439,6 +516,7 @@ function ReactSlipAndSlideComponent<T>(
       next: () => navigate({ direction: "next" }),
       previous: () => navigate({ direction: "prev" }),
       goTo: ({ index, animated }) => navigate({ index, immediate: !animated }),
+      // TODO: () => increaseOffset()
     }),
     [navigate]
   );
@@ -503,8 +581,8 @@ function ReactSlipAndSlideComponent<T>(
       style={{
         opacity: Opacity,
         justifyContent: centered ? "center" : "flex-start",
-        width: _containerWidth || "100%",
-        height: itemHeight || "100%",
+        width: containerWidth || "100%",
+        height: container.height || "100%",
       }}
     >
       {data.map((props, i) => (
@@ -516,7 +594,7 @@ function ReactSlipAndSlideComponent<T>(
           item={props}
           dataLength={dataLength}
           renderItem={renderItem}
-          infinite={!!infinite}
+          infinite={infinite}
           itemHeight={itemHeight}
           itemWidth={mode === "fixed" ? itemWidth : ranges[i]?.width || 0}
           interpolators={interpolators || {}}
@@ -551,7 +629,7 @@ function ItemComponent<T>(
     dataLength,
     index,
     itemWidth,
-    infinite: infinite && mode === "fixed",
+    infinite,
   });
 
   const keys = Object.entries(interpolators) as [keyof typeof interpolators, number][];

@@ -18,9 +18,16 @@ const data = [
 ];
 
 function App() {
+
+  const ref = React.useRef<ReactSlipAndSlideRef>(null);
+
+  const prev = () => ref.current?.previous();
+  const next = () => ref.current?.next();
+
   return (
     <div className="App">
       <ReactSlipAndSlide
+        ref={ref}
         data={data}
         snap
         centered
