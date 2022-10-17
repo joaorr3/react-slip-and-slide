@@ -136,6 +136,7 @@ function ReactSlipAndSlideComponent<T>(
     start: false,
     end: false,
   });
+  const [_wrapperWidth, _setWrapperWidth] = React.useState<number>(0);
 
   const containerRef = React.useRef<HTMLDivElement>(null);
   const isDragging = React.useRef<boolean>(false);
@@ -174,8 +175,6 @@ function ReactSlipAndSlideComponent<T>(
       });
     }
   }, [containerWidth, containerRef, itemHeight, width]);
-
-  const [_wrapperWidth, _setWrapperWidth] = React.useState<number>(0);
 
   const { itemRefs, itemDimensionMap } = useDynamicDimension({
     mode,
@@ -664,6 +663,11 @@ function ItemComponent<T>(
     [itemWidth, keys, translateX]
   );
 
+  const memoRenderItem = React.useMemo(() => {
+    return renderItem({ item, index });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index, item]);
+
   return (
     <Styled.Item
       ref={ref}
@@ -676,7 +680,7 @@ function ItemComponent<T>(
       }}
       onDragStart={(e) => e.preventDefault()}
     >
-      {renderItem({ item, index })}
+      {memoRenderItem}
     </Styled.Item>
   );
 }
