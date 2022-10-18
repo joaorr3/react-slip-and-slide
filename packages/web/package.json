@@ -71,5 +71,6 @@
   "bugs": {
     "url": "https://github.com/joaorr3/react-slip-and-slide/issues"
   },
-  "homepage": "https://github.com/joaorr3/react-slip-and-slide#readme"
+  "homepage": "https://github.com/joaorr3/react-slip-and-slide#readme",
+  "gitHead": "24de4d2ef98c563bc70bb3619bb4f3e2dd8435d1"
 }
