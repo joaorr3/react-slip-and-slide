@@ -6,27 +6,23 @@
   "description": "react-slip-and-slide",
   "type": "module",
   "files": [
-    "dist"
+    "dist/*",
+    "README.md"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
-  "main": "./dist/react-slip-and-slide.umd.cjs",
-  "module": "./dist/react-slip-and-slide.es.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/react-slip-and-slide.es.js",
-      "require": "./dist/react-slip-and-slide.umd.cjs"
-    }
-  },
+  "main": "dist/react-slip-and-slide-web.cjs.js",
+  "module": "dist/react-slip-and-slide-web.esm.js",
+  "types": "dist/react-slip-and-slide-web.cjs.d.ts",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "tsc",
     "tsc": "tsc",
     "preview": "vite preview",
     "type-check": "tsc --noEmit",
-    "watch": "nodemon"
+    "watch": "nodemon",
+    "postinstall": "preconstruct dev"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.184",
@@ -47,7 +43,8 @@
     "vite-tsconfig-paths": "^3.5.1"
   },
   "dependencies": {
-    "@react-slip-and-slide/models": "^1.1.9"
+    "@react-slip-and-slide/models": "*",
+    "@react-slip-and-slide/utils": "*"
   },
   "peerDependencies": {
     "@use-gesture/react": "^10.2.20",

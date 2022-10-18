@@ -1,34 +1,44 @@
 {
   "name": "@react-slip-and-slide/utils",
-  "version": "1.1.9",
+  "version": "1.0.0",
+  "main": "dist/react-slip-and-slide-utils.cjs.js",
+  "module": "dist/react-slip-and-slide-utils.esm.js",
+  "types": "dist/react-slip-and-slide-utils.cjs.d.ts",
+  "license": "MIT",
+  "dependencies": {
+    "@react-slip-and-slide/models": "*",
+    "lodash": "^4.17.21",
+    "react-spring": "^9.5.2",
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "typescript": "^4.8.4",
+    "@types/react": "^18.0.17",
+    "@types/lodash": "^4.14.184"
+  },
+  "scripts": {
+    "postinstall": "preconstruct dev"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist/*",
+    "README.md"
+  ],
   "description": "Utils",
   "author": "João Ribeiro",
   "homepage": "https://github.com/joaorr3/react-slip-and-slide#readme",
-  "license": "ISC",
-  "main": "./dist/utils.js",
   "type": "module",
-  "typings": "./dist/utils.d.ts",
+  "typings": "./dist/index.d.ts",
   "directories": {
-    "dist": "dist"
-  },
-  "files": [
-    "dist"
-  ],
-  "publishConfig": {
-    "access": "public"
+    "dist": "./dist"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/joaorr3/react-slip-and-slide.git"
   },
-  "scripts": {
-    "build": "tsc"
-  },
   "bugs": {
     "url": "https://github.com/joaorr3/react-slip-and-slide/issues"
-  },
-  "devDependencies": {
-    "typescript": "^4.8.4"
-  },
-  "gitHead": "4ba565b6802aa96f318f96caa4659af920cc5f4a"
+  }
 }

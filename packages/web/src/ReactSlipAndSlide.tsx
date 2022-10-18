@@ -10,19 +10,19 @@ import {
   SpringIt,
   ValidDirection,
 } from "@react-slip-and-slide/models";
+import {
+  displacement,
+  getCurrentDynamicIndex,
+  getNextDynamicOffset,
+  useDynamicDimension,
+  useItemsRange,
+  useScreenDimensions,
+} from "@react-slip-and-slide/utils";
 import { useDrag } from "@use-gesture/react";
 import { clamp } from "lodash";
 import React from "react";
 import { Interpolation, SpringValue, to } from "react-spring";
 import * as Styled from "./styles";
-import { displacement } from "./utils/displacement";
-import {
-  getCurrentDynamicIndex,
-  getNextDynamicOffset,
-  useDynamicDimension,
-  useItemsRange,
-} from "./utils/useDynamicDimension";
-import { useScreenDimensions } from "./utils/useScreenDimensions";
 
 function ReactSlipAndSlideComponent<T>(
   {
