@@ -7,7 +7,9 @@
     "esModuleInterop": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
-    "lib": ["ESNext"],
+    "lib": [
+      "ESNext"
+    ],
     "module": "CommonJS",
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
@@ -18,11 +20,21 @@
     "target": "ESNext",
     "moduleResolution": "Node",
     "paths": {
-      "@react-slip-and-slide/models/*": ["./packages/models/src/*"],
-      "@react-slip-and-slide/native/*": ["./packages/native/src/*"],
-      "@react-slip-and-slide/utils/*": ["./packages/utils/src/*"],
-      "@react-slip-and-slide/web/*": ["./packages/web/src/*"]
+      "@react-slip-and-slide/models/*": [
+        "./packages/models/src/*"
+      ],
+      "@react-slip-and-slide/native/*": [
+        "./packages/native/src/*"
+      ],
+      "@react-slip-and-slide/utils/*": [
+        "./packages/utils/src/*"
+      ],
+      "@react-slip-and-slide/web/*": [
+        "./packages/web/src/*"
+      ]
     }
   },
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }
