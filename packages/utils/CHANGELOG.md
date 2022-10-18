@@ -1,5 +1,16 @@
 # @react-slip-and-slide/utils
 
+## 1.2.0
+
+### Minor Changes
+
+- Fix: packages should't have preconstruct dev script
+
+### Patch Changes
+
+- Updated dependencies
+  - @react-slip-and-slide/models@1.2.0
+
 ## 1.1.0
 
 ### Minor Changes
