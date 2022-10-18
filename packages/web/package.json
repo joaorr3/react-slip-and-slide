@@ -6,24 +6,23 @@
   "description": "react-slip-and-slide",
   "type": "module",
   "files": [
-    "dist"
+    "dist/*",
+    "README.md"
   ],
-  "main": "./dist/react-slip-and-slide.umd.cjs",
-  "module": "./dist/react-slip-and-slide.es.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/react-slip-and-slide.es.js",
-      "require": "./dist/react-slip-and-slide.umd.cjs"
-    }
-  },
+  "main": "dist/react-slip-and-slide-web.cjs.js",
+  "module": "dist/react-slip-and-slide-web.esm.js",
+  "types": "dist/react-slip-and-slide-web.cjs.d.ts",
   "scripts": {
     "dev": "vite",
     "build": "tsc",
     "tsc": "tsc",
     "preview": "vite preview",
     "type-check": "tsc --noEmit",
-    "watch": "nodemon"
+    "watch": "nodemon",
+    "postinstall": "preconstruct dev"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.184",

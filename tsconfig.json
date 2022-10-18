@@ -1,28 +1,21 @@
 {
+  "include": ["packages/*/src/**/*"],
   "compilerOptions": {
-    "skipLibCheck": true,
-    "outDir": "dist",
-    "declaration": true,
+    "target": "ESNext",
+    "module": "ESNext",
+    "lib": ["DOM", "ESNext"],
+    "jsx": "react",
+    "noEmit": true,
+    "downlevelIteration": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "moduleResolution": "node",
+    "baseUrl": "./",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "isolatedModules": true,
-    "jsx": "react-jsx",
-    "lib": ["ESNext"],
-    "module": "CommonJS",
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitAny": true,
-    "noImplicitReturns": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "strict": true,
-    "target": "ESNext",
-    "moduleResolution": "Node",
-    "paths": {
-      "@react-slip-and-slide/models/*": ["./packages/models/src/*"],
-      "@react-slip-and-slide/native/*": ["./packages/native/src/*"],
-      "@react-slip-and-slide/utils/*": ["./packages/utils/src/*"],
-      "@react-slip-and-slide/web/*": ["./packages/web/src/*"]
-    }
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "strictNullChecks": true
   },
   "exclude": ["node_modules"]
 }
