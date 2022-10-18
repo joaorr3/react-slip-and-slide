@@ -1,41 +1,13 @@
+import {
+  DynamicRangeSum,
+  ItemDimensionMap,
+  NextDynamicOffset,
+  UseDynamicDimension,
+  UseItemsRange,
+  ValidDirection,
+} from "@react-slip-and-slide/models";
 import { clamp, sumBy, times } from "lodash";
 import React from "react";
-import { Mode, ValidDirection } from "../ReactSlipAndSlide";
-
-type ItemDimensionMap = {
-  index: number;
-  width: number;
-  height: number;
-};
-
-type OnMeasureCallback = (args: { itemDimensionMap?: ItemDimensionMap[]; itemWidthSum?: number }) => void;
-
-type DynamicRangeSum =
-  | {
-      index: number;
-      width: number;
-      range: { start: number; center: number; end: number };
-    }
-  | undefined;
-
-type UseDynamicDimension = {
-  mode: Mode;
-  dataLength: number;
-  onMeasure?: OnMeasureCallback;
-};
-
-type UseItemsRange = {
-  mode: Mode;
-  itemDimensionMap: ItemDimensionMap[];
-  offsetX: number;
-};
-
-type NextDynamicOffset = {
-  offsetX: number;
-  ranges: DynamicRangeSum[];
-  dir: ValidDirection | null;
-  centered: boolean;
-};
 
 export const useDynamicDimension = ({ mode, dataLength, onMeasure }: UseDynamicDimension) => {
   const itemRefs = React.useMemo<Array<React.RefObject<HTMLDivElement>>>(() => {

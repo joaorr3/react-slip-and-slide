@@ -1,13 +1,5 @@
-import { FluidValue } from "@react-spring/shared";
+import { DisplacementModel } from "@react-slip-and-slide/models";
 import { to } from "react-spring";
-
-export interface DisplacementModel {
-  offsetX: FluidValue<number>;
-  index: number;
-  itemWidth: number;
-  dataLength: number;
-  infinite: boolean;
-}
 
 export const displacement = ({ offsetX, index = 0, itemWidth = 200, infinite, dataLength }: DisplacementModel) => {
   if (infinite) {

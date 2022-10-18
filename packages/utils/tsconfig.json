@@ -1,10 +1,9 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
-    "noEmit": false,
     "outDir": "dist",
-    "module": "commonjs",
-    "rootDir": "src"
+    "paths": {
+      "@react-slip-and-slide/models/*": ["../models/src/*"]
+    }
   },
   "extends": "../../tsconfig.json",
   "include": ["./src"],

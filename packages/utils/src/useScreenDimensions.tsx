@@ -1,17 +1,12 @@
 import { debounce } from "lodash";
 import React from "react";
-
-type ScreenDimensions = {
-  width?: number;
-  height?: number;
-};
+import { ScreenDimensions } from "@react-slip-and-slide/models";
 
 export const useScreenDimensions = () => {
-  const [screenDimensions, setScreenDimensions] =
-    React.useState<ScreenDimensions>({
-      width: undefined,
-      height: undefined,
-    });
+  const [screenDimensions, setScreenDimensions] = React.useState<ScreenDimensions>({
+    width: undefined,
+    height: undefined,
+  });
 
   const set = debounce(() => {
     setScreenDimensions({

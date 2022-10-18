@@ -90,3 +90,53 @@ export type ContainerDimensions = {
 };
 
 export type Mode = "dynamic" | "fixed";
+
+// -- Utils
+
+export interface DisplacementModel {
+  offsetX: FluidValue<number>;
+  index: number;
+  itemWidth: number;
+  dataLength: number;
+  infinite: boolean;
+}
+
+export type ScreenDimensions = {
+  width?: number;
+  height?: number;
+};
+
+export type ItemDimensionMap = {
+  index: number;
+  width: number;
+  height: number;
+};
+
+export type OnMeasureCallback = (args: { itemDimensionMap?: ItemDimensionMap[]; itemWidthSum?: number }) => void;
+
+export type DynamicRangeSum =
+  | {
+      index: number;
+      width: number;
+      range: { start: number; center: number; end: number };
+    }
+  | undefined;
+
+export type UseDynamicDimension = {
+  mode: Mode;
+  dataLength: number;
+  onMeasure?: OnMeasureCallback;
+};
+
+export type UseItemsRange = {
+  mode: Mode;
+  itemDimensionMap: ItemDimensionMap[];
+  offsetX: number;
+};
+
+export type NextDynamicOffset = {
+  offsetX: number;
+  ranges: DynamicRangeSum[];
+  dir: ValidDirection | null;
+  centered: boolean;
+};
