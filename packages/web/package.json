@@ -8,6 +8,9 @@
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "main": "./dist/react-slip-and-slide.umd.cjs",
   "module": "./dist/react-slip-and-slide.es.js",
   "types": "./dist/index.d.ts",
@@ -72,5 +75,5 @@
     "url": "https://github.com/joaorr3/react-slip-and-slide/issues"
   },
   "homepage": "https://github.com/joaorr3/react-slip-and-slide#readme",
-  "gitHead": "4ba565b6802aa96f318f96caa4659af920cc5f4a"
+  "gitHead": "e12c2c97f1aa1af6b05a5d233faa403baa2614ed"
 }
