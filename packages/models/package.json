@@ -10,9 +10,6 @@
     "@types/react": "^18.0.17",
     "react-spring": "^9.5.2"
   },
-  "scripts": {
-    "postinstall": "preconstruct dev"
-  },
   "publishConfig": {
     "access": "public"
   },

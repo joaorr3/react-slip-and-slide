@@ -13,13 +13,7 @@
   "module": "dist/react-slip-and-slide-web.esm.js",
   "types": "dist/react-slip-and-slide-web.cjs.d.ts",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc",
-    "tsc": "tsc",
-    "preview": "vite preview",
-    "type-check": "tsc --noEmit",
-    "watch": "nodemon",
-    "postinstall": "preconstruct dev"
+    "type-check": "tsc --noEmit"
   },
   "publishConfig": {
     "access": "public"
