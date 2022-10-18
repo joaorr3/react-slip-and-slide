@@ -1,6 +1,5 @@
 {
   "name": "@react-slip-and-slide/workspace",
-  "private": true,
   "workspaces": [
     "packages/*"
   ],
