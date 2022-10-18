@@ -1,0 +1,35 @@
+{
+  "name": "@react-slip-and-slide/models",
+  "version": "1.1.6",
+  "description": "Models",
+  "author": "João Ribeiro",
+  "homepage": "https://github.com/joaorr3/react-slip-and-slide#readme",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "type": "module",
+  "typings": "./dist/index.d.ts",
+  "directories": {
+    "dist": "./dist"
+  },
+  "files": [
+    "./dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joaorr3/react-slip-and-slide.git"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "bugs": {
+    "url": "https://github.com/joaorr3/react-slip-and-slide/issues"
+  },
+  "devDependencies": {
+    "typescript": "^4.8.4",
+    "@types/react": "^18.0.17",
+    "react-spring": "^9.5.2"
+  }
+}

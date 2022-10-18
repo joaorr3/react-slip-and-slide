@@ -1,9 +1,19 @@
-import { FluidValue } from "@react-spring/shared";
-import { AnimationResult, Interpolation, SpringValue } from "react-spring";
+import {
+  ContainerDimensions,
+  Direction,
+  Interpolators,
+  ItemProps,
+  Mode,
+  Navigate,
+  ReactSlipAndSlideProps,
+  ReactSlipAndSlideRef,
+  SpringIt,
+  ValidDirection,
+} from "@react-slip-and-slide/models";
 import { useDrag } from "@use-gesture/react";
 import { clamp } from "lodash";
-import React, { CSSProperties } from "react";
-import { to } from "react-spring";
+import React from "react";
+import { Interpolation, SpringValue, to } from "react-spring";
 import * as Styled from "./styles";
 import { displacement } from "./utils/displacement";
 import {
@@ -13,95 +23,6 @@ import {
   useItemsRange,
 } from "./utils/useDynamicDimension";
 import { useScreenDimensions } from "./utils/useScreenDimensions";
-
-export type ReactSlipAndSlideRef = {
-  next: () => void;
-  previous: () => void;
-  goTo: (params: { index: number; animated?: boolean }) => void;
-  /**
-   * Offset in pixels to translate.
-   */
-  move: (offset: number) => void;
-};
-
-export type ValidDirection = "left" | "right";
-type Direction = ValidDirection | "center";
-type ActionType = "drag" | "release" | "correction";
-type SpringIt = {
-  offset: number;
-  immediate?: boolean;
-  onRest?: (x: AnimationResult<SpringValue<number>>) => void;
-  actionType: ActionType;
-};
-type Navigate = {
-  index?: number;
-  direction?: "next" | "prev";
-  immediate?: boolean;
-};
-
-type RenderItemProps<T> = {
-  item: T;
-  index: number;
-};
-
-type RenderItem<T> = (props: RenderItemProps<T>) => JSX.Element;
-
-type Interpolators<T> = {
-  [key in keyof CSSProperties]: T;
-};
-
-export type ReactSlipAndSlideProps<T> = {
-  data: T[];
-  snap?: boolean;
-  centered?: boolean;
-  infinite?: boolean;
-  /**
-   * Useful in some edge cases.
-   * For ex, if you have a big container, small items and a small data.length.
-   * @default undefined
-   */
-  // clonesNumber?: number;
-  pressToSlide?: boolean;
-  containerWidth?: number;
-  /**
-   * If itemWidth is not provided it's assumed that infinite feature is turned off.
-   * Also, be aware that if itemWidth is undefined some extra work is required and that could be expensive.
-   */
-  itemWidth?: number;
-  itemHeight?: number;
-  interpolators?: Interpolators<number>;
-  /**
-   * Animates opacity on start up
-   * @default true
-   */
-  animateStartup?: boolean;
-  renderItem: RenderItem<T>;
-  onChange?: (index: number) => void;
-  onEdges?: (props: { start: boolean; end: boolean }) => void;
-  onReady?: (ready: boolean) => void;
-};
-
-type ItemProps<T> = {
-  item: T;
-  dataLength: number;
-  index: number;
-  offsetX: FluidValue<number>;
-  infinite: boolean;
-  itemWidth: number;
-  itemHeight?: number;
-  interpolators: Interpolators<number>;
-  dynamicOffset: number;
-  mode: Mode;
-  renderItem: RenderItem<T>;
-  onPress?: () => void;
-};
-
-type ContainerDimensions = {
-  width: number;
-  height: number;
-};
-
-export type Mode = "dynamic" | "fixed";
 
 function ReactSlipAndSlideComponent<T>(
   {

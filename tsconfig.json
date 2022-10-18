@@ -15,8 +15,14 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "strict": true,
-    "target": "ESNext"
+    "target": "ESNext",
+    "moduleResolution": "Node",
+    "paths": {
+      "@react-slip-and-slide/models/*": ["./packages/models/src/*"],
+      "@react-slip-and-slide/native/*": ["./packages/native/src/*"],
+      "@react-slip-and-slide/utils/*": ["./packages/utils/src/*"],
+      "@react-slip-and-slide/web/*": ["./packages/web/src/*"]
+    }
   },
-  "include": ["src"],
   "exclude": ["node_modules"]
 }

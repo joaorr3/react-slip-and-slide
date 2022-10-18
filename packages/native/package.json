@@ -1,0 +1,35 @@
+{
+  "name": "@react-slip-and-slide/native",
+  "version": "1.1.6",
+  "private": true,
+  "description": "React Native support",
+  "author": "João Ribeiro",
+  "homepage": "https://github.com/joaorr3/react-slip-and-slide#readme",
+  "license": "ISC",
+  "main": "./dist/native.js",
+  "type": "module",
+  "typings": "./dist/native.d.ts",
+  "directories": {
+    "dist": "dist"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joaorr3/react-slip-and-slide.git"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "bugs": {
+    "url": "https://github.com/joaorr3/react-slip-and-slide/issues"
+  },
+  "devDependencies": {
+    "typescript": "^4.8.4",
+    "vite-tsconfig-paths": "^3.5.1"
+  }
+}

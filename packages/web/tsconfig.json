@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "@react-slip-and-slide/models/*": ["../models/src/*"],
+      "@react-slip-and-slide/utils/*": ["../utils/src/*"]
+    }
+  },
+  "extends": "../../tsconfig.json",
+  "include": ["./src"],
+  "exclude": ["./dist"]
+}
