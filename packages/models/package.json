@@ -6,9 +6,10 @@
   "types": "dist/react-slip-and-slide-models.cjs.d.ts",
   "license": "MIT",
   "devDependencies": {
-    "typescript": "^4.8.4",
+    "@babel/runtime": "^7.19.4",
     "@types/react": "^18.0.17",
-    "react-spring": "^9.5.2"
+    "react-spring": "^9.5.5",
+    "typescript": "^4.8.4"
   },
   "publishConfig": {
     "access": "public"
