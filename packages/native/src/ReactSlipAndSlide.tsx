@@ -51,20 +51,14 @@ function ReactSlipAndSlideComponent<T>(
   const mode: Mode = itemWidth && itemHeight ? "fixed" : "dynamic";
   const infinite = mode === "fixed" && !!_infinite;
 
-  const [index, setIndex] = React.useState(0);
-  const prevIndex = React.useRef(0);
+  const index = React.useRef(0);
 
   const { width: screenWidth } = useScreenDimensions();
 
-  const [lastOffset, setLastOffset] = React.useState(0);
+  const lastOffset = React.useRef(0);
   const [container, setContainerDimensions] = React.useState<ContainerDimensions>({
     width: containerWidth || screenWidth || 0,
     height: itemHeight || 0,
-  });
-
-  const [edges, setEdges] = React.useState<{ start: boolean; end: boolean }>({
-    start: false,
-    end: false,
   });
 
   const [_wrapperWidth, _setWrapperWidth] = React.useState<number>(0);
@@ -107,11 +101,10 @@ function ReactSlipAndSlideComponent<T>(
 
   const { ranges } = useItemsRange({ mode, itemDimensionMap, offsetX: OffsetX.get() });
 
-  React.useLayoutEffect(() => {
+  React.useEffect(() => {
     if (containerRef.current && (!containerWidth || !itemHeight)) {
       setTimeout(() => {
         containerRef.current?.measure((_, __, width, height) => {
-          console.log("width, height: ", width, height);
           setContainerDimensions({
             width,
             height,
@@ -227,21 +220,26 @@ function ReactSlipAndSlideComponent<T>(
       OffsetX.start({
         to: actionType === "drag" || actionType === "correction" ? offset : clampedReleaseOffset,
         immediate: immediate || actionType === "drag",
-        onRest: (x) => onRest?.(x),
+        onRest: (x) => {
+          onRest?.(x);
+          if (actionType === "release") {
+            if (mode === "fixed") {
+              index.current = clampIndex(getRelativeIndex({ offset: clampedReleaseOffset }));
+            } else {
+              index.current = getCurrentDynamicIndex(offset, ranges);
+            }
+            onChange?.(index.current);
+          }
+        },
       });
       if (actionType === "release") {
-        setLastOffset(clampedReleaseOffset);
-        if (mode === "fixed") {
-          setIndex(clampIndex(getRelativeIndex({ offset: clampedReleaseOffset })));
-        } else {
-          setIndex(getCurrentDynamicIndex(offset, ranges));
-        }
+        lastOffset.current = clampedReleaseOffset;
         if (!infinite) {
-          setEdges(checkEdges({ offset }));
+          onEdges?.(checkEdges({ offset }));
         }
       }
     },
-    [OffsetX, checkEdges, clampIndex, clampReleaseOffset, getRelativeIndex, infinite, mode, ranges]
+    [OffsetX, checkEdges, clampIndex, clampReleaseOffset, getRelativeIndex, infinite, mode, onChange, onEdges, ranges]
   );
 
   const getCurrentIndexByOffset = React.useCallback(
@@ -316,7 +314,7 @@ function ReactSlipAndSlideComponent<T>(
           offsetX = withSnap({ offset });
         } else {
           springIt({
-            offset: lastOffset,
+            offset: lastOffset.current,
             actionType: "correction",
           });
           return;
@@ -330,7 +328,7 @@ function ReactSlipAndSlideComponent<T>(
         actionType: "release",
       });
     },
-    [lastOffset, snap, springIt, withMomentum, withSnap]
+    [snap, springIt, withMomentum, withSnap]
   );
 
   const navigate = React.useCallback(
@@ -390,13 +388,13 @@ function ReactSlipAndSlideComponent<T>(
       isIntentionalDrag.current = Math.abs(translationX) >= 40;
       isDragging.current = state === 4;
 
-      const offset = lastOffset + translationX;
+      const offset = lastOffset.current + translationX;
 
       drag(offset);
     })
     .onEnd(({ velocityX, translationX, state }) => {
       isDragging.current = state === 4;
-      const offset = lastOffset + translationX;
+      const offset = lastOffset.current + translationX;
       release({ offset, v: velocityX / 12 });
     });
 
@@ -407,10 +405,10 @@ function ReactSlipAndSlideComponent<T>(
       }
 
       if (mode === "fixed") {
-        const prev = index === 0 && idx === dataLength - 1;
-        const next = index === dataLength - 1 && idx === 0;
-        const smaller = idx < index;
-        const bigger = idx > index;
+        const prev = index.current === 0 && idx === dataLength - 1;
+        const next = index.current === dataLength - 1 && idx === 0;
+        const smaller = idx < index.current;
+        const bigger = idx > index.current;
 
         if (prev) {
           navigate({ direction: "prev" });
@@ -435,7 +433,6 @@ function ReactSlipAndSlideComponent<T>(
 
   //region FX
   React.useEffect(() => {
-    console.log("ranges.length && container.height: ", ranges.length, container.height);
     if (animateStartup) {
       if (mode === "dynamic") {
         if (ranges.length && container.height) {
@@ -474,12 +471,6 @@ function ReactSlipAndSlideComponent<T>(
     }
   }, [centered, mode, ranges, springIt]);
 
-  React.useEffect(() => {
-    if (index !== prevIndex.current) {
-      onChange?.(index);
-    }
-  }, [index, onChange]);
-
   // Reset to new clampOffset.MAX if is at the end edge and page is resized
   React.useEffect(() => {
     const { end } = checkEdges({ offset: OffsetX.get() });
@@ -492,19 +483,12 @@ function ReactSlipAndSlideComponent<T>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clampOffset.MAX]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  React.useEffect(() => onEdges?.(edges), [edges]);
-
   React.useEffect(() => {
     if (!infinite) {
       navigate({ index: 0, immediate: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [infinite]);
-
-  React.useEffect(() => {
-    prevIndex.current = index;
-  });
 
   //endregion
 
@@ -527,7 +511,7 @@ function ReactSlipAndSlideComponent<T>(
           opacity: Opacity,
           justifyContent: centered ? "center" : "flex-start",
           width: containerWidth || screenWidth,
-          height: container.height || "100%",
+          height: itemHeight || container.height || "100%",
           overflow: overflowHidden ? "hidden" : undefined,
         }}
       >

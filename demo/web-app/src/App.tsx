@@ -1,4 +1,4 @@
-import { ReactSlipAndSlide } from "@react-slip-and-slide/web";
+import { ReactSlipAndSlide } from "@react-slip-and-slide/web/src";
 import "./App.css";
 
 function App() {
@@ -30,6 +30,7 @@ function App() {
           //   opacity: 0.2,
           //   scale: 0.9,
           // }}
+          onChange={(i) => console.log("index: ", i)}
           renderItem={({ index }: { index: number }) => {
             console.info("render:Item:", index);
             return (

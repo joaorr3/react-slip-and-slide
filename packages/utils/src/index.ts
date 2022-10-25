@@ -1,4 +1,4 @@
-export { displacement } from "./shared/displacement";
+export { displacement } from "./web/displacement";
 export { typedMemo, getCurrentDynamicIndex, getNextDynamicIndex, getNextDynamicOffset } from "./shared/helpers";
 export { useItemsRange } from "./shared/useItemsRange";
 export { useDynamicDimension } from "./web/useDynamicDimension";

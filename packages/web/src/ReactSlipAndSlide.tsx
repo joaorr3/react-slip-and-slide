@@ -48,17 +48,13 @@ function ReactSlipAndSlideComponent<T>(
   const mode: Mode = itemWidth && itemHeight ? "fixed" : "dynamic";
   const infinite = mode === "fixed" && !!_infinite;
 
-  const [index, setIndex] = React.useState(0);
-  const prevIndex = React.useRef(0);
-  const [lastOffset, setLastOffset] = React.useState(0);
+  const index = React.useRef(0);
+  const lastOffset = React.useRef(0);
   const [container, setContainerDimensions] = React.useState<ContainerDimensions>({
     width: containerWidth || 0,
     height: itemHeight || 0,
   });
-  const [edges, setEdges] = React.useState<{ start: boolean; end: boolean }>({
-    start: false,
-    end: false,
-  });
+
   const [_wrapperWidth, _setWrapperWidth] = React.useState<number>(0);
 
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -224,18 +220,20 @@ function ReactSlipAndSlideComponent<T>(
         onRest: (x) => onRest?.(x),
       });
       if (actionType === "release") {
-        setLastOffset(clampedReleaseOffset);
+        lastOffset.current = clampedReleaseOffset;
         if (mode === "fixed") {
-          setIndex(clampIndex(getRelativeIndex({ offset: clampedReleaseOffset })));
+          index.current = clampIndex(getRelativeIndex({ offset: clampedReleaseOffset }));
         } else {
-          setIndex(getCurrentDynamicIndex(offset, ranges));
+          index.current = getCurrentDynamicIndex(offset, ranges);
         }
+        onChange?.(index.current);
+
         if (!infinite) {
-          setEdges(checkEdges({ offset }));
+          onEdges?.(checkEdges({ offset }));
         }
       }
     },
-    [OffsetX, checkEdges, clampIndex, clampReleaseOffset, getRelativeIndex, infinite, mode, ranges]
+    [OffsetX, checkEdges, clampIndex, clampReleaseOffset, getRelativeIndex, infinite, mode, onChange, onEdges, ranges]
   );
 
   const getCurrentIndexByOffset = React.useCallback(
@@ -311,7 +309,7 @@ function ReactSlipAndSlideComponent<T>(
           offsetX = withSnap({ offset });
         } else {
           springIt({
-            offset: lastOffset,
+            offset: lastOffset.current,
             actionType: "correction",
           });
           return;
@@ -325,7 +323,7 @@ function ReactSlipAndSlideComponent<T>(
         actionType: "release",
       });
     },
-    [lastOffset, snap, springIt, withMomentum, withSnap]
+    [snap, springIt, withMomentum, withSnap]
   );
 
   const navigate = React.useCallback(
@@ -379,7 +377,7 @@ function ReactSlipAndSlideComponent<T>(
     if (dir !== "center") {
       lastValidDirection.current = dir;
     }
-    const offset = lastOffset + mx;
+    const offset = lastOffset.current + mx;
 
     isIntentionalDrag.current = Math.abs(mx) >= 40;
     isDragging.current = Math.abs(mx) !== 0;
@@ -398,10 +396,10 @@ function ReactSlipAndSlideComponent<T>(
       }
 
       if (mode === "fixed") {
-        const prev = index === 0 && idx === dataLength - 1;
-        const next = index === dataLength - 1 && idx === 0;
-        const smaller = idx < index;
-        const bigger = idx > index;
+        const prev = index.current === 0 && idx === dataLength - 1;
+        const next = index.current === dataLength - 1 && idx === 0;
+        const smaller = idx < index.current;
+        const bigger = idx > index.current;
 
         if (prev) {
           navigate({ direction: "prev" });
@@ -464,12 +462,6 @@ function ReactSlipAndSlideComponent<T>(
     }
   }, [centered, mode, ranges, springIt]);
 
-  React.useEffect(() => {
-    if (index !== prevIndex.current) {
-      onChange?.(index);
-    }
-  }, [index, onChange]);
-
   // Reset to new clampOffset.MAX if is at the end edge and page is resized
   React.useEffect(() => {
     const { end } = checkEdges({ offset: OffsetX.get() });
@@ -482,19 +474,12 @@ function ReactSlipAndSlideComponent<T>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clampOffset.MAX]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  React.useEffect(() => onEdges?.(edges), [edges]);
-
   React.useEffect(() => {
     if (!infinite) {
       navigate({ index: 0, immediate: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [infinite]);
-
-  React.useEffect(() => {
-    prevIndex.current = index;
-  });
 
   //endregion
 
@@ -518,7 +503,7 @@ function ReactSlipAndSlideComponent<T>(
         opacity: Opacity,
         justifyContent: centered ? "center" : "flex-start",
         width: containerWidth || "100%",
-        height: container.height || "100%",
+        height: itemHeight || container.height || "100%",
         overflow: overflowHidden ? "hidden" : undefined,
       }}
     >
