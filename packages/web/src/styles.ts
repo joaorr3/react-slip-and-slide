@@ -4,7 +4,6 @@ import styled from "styled-components";
 export const Wrapper = styled(animated.div)`
   display: flex;
   position: relative;
-  overflow: hidden;
   flex-direction: row;
   touch-action: none;
 `;
