@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "module": "ESNext",
-    "lib": ["DOM", "ESNext"],
+    "target": "ES2019",
+
     "jsx": "react-jsx",
     "downlevelIteration": true,
     "strict": true,
