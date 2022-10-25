@@ -1,5 +1,17 @@
 # react-slip-and-slide
 
+## 1.3.0
+
+### Minor Changes
+
+- improve performance on native + split displacement function
+
+### Patch Changes
+
+- Updated dependencies
+  - @react-slip-and-slide/native@1.5.0
+  - @react-slip-and-slide/web@1.5.0
+
 ## 1.2.3
 
 ### Patch Changes

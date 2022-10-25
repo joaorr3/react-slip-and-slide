@@ -1,5 +1,11 @@
 # @react-slip-and-slide/models
 
+## 1.4.0
+
+### Minor Changes
+
+- improve performance on native + split displacement function
+
 ## 1.3.4
 
 ### Patch Changes
