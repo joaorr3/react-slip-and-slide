@@ -20,7 +20,7 @@ import {
   useScreenDimensions,
 } from "@react-slip-and-slide/utils";
 import { Interpolation, SpringValue, to } from "@react-spring/native";
-import { clamp, isEqual } from "lodash";
+import { clamp } from "lodash";
 import React from "react";
 import { TouchableWithoutFeedback, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";

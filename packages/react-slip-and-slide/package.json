@@ -1,0 +1,45 @@
+{
+  "name": "react-slip-and-slide",
+  "description": "react-slip-and-slide",
+  "main": "./dist",
+  "types": "./dist/index.d.ts",
+  "author": "João Ribeiro <joaodrr3@gmail.com>",
+  "version": "1.1.6",
+  "license": "MIT",
+  "type": "module",
+  "files": [
+    "dist/*",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "typescript": "^4.8.4"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@react-slip-and-slide/web": "*",
+    "@react-slip-and-slide/native": "*"
+  },
+  "keywords": [
+    "react-slip-and-slide",
+    "react",
+    "carousel",
+    "slider",
+    "swipe",
+    "drag",
+    "spring",
+    "use-gesture"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joaorr3/react-slip-and-slide"
+  },
+  "bugs": {
+    "url": "https://github.com/joaorr3/react-slip-and-slide/issues"
+  },
+  "homepage": "https://github.com/joaorr3/react-slip-and-slide#readme"
+}

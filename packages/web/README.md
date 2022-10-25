@@ -83,8 +83,6 @@ function App() {
 }
 ```
 
-### A longer version of this readme may come soon. Check the **d.ts** files for more detailed info.
-
 ## License
 
 Licensed under the terms of the [MIT License](https://opensource.org/licenses/MIT).
