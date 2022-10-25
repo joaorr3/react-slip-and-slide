@@ -21,8 +21,8 @@
     "access": "public"
   },
   "dependencies": {
-    "@react-slip-and-slide/web": "*",
-    "@react-slip-and-slide/native": "*"
+    "@react-slip-and-slide/web": "~1.4.1",
+    "@react-slip-and-slide/native": "~1.4.1"
   },
   "keywords": [
     "react-slip-and-slide",

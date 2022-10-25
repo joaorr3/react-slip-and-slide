@@ -35,8 +35,8 @@
     "typescript": "^4.6.4"
   },
   "dependencies": {
-    "@react-slip-and-slide/models": "*",
-    "@react-slip-and-slide/utils": "*"
+    "@react-slip-and-slide/models": "~1.3.1",
+    "@react-slip-and-slide/utils": "~1.3.1"
   },
   "peerDependencies": {
     "@react-spring/native": "^9.5.5",
