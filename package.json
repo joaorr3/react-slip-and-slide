@@ -10,9 +10,9 @@
     "build": "yarn build:utils && preconstruct build",
     "dev:link": "preconstruct dev",
     "watch": "preconstruct watch",
-    "changeset": "changeset add",
-    "version": "changeset version",
-    "publish": "changeset publish"
+    "changeset:add": "changeset add",
+    "changeset:version": "changeset version",
+    "changeset:publish": "changeset publish"
   },
   "preconstruct": {
     "packages": [
