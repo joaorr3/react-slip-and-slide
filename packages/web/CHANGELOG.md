@@ -1,5 +1,13 @@
 # @react-slip-and-slide/web
 
+## 1.4.3
+
+### Patch Changes
+
+- Lock packages version
+- Updated dependencies
+  - @react-slip-and-slide/utils@1.3.4
+
 ## 1.4.2
 
 ### Patch Changes

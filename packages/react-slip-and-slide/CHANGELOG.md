@@ -1,5 +1,14 @@
 # react-slip-and-slide
 
+## 1.2.3
+
+### Patch Changes
+
+- Lock packages version
+- Updated dependencies
+  - @react-slip-and-slide/native@1.4.3
+  - @react-slip-and-slide/web@1.4.3
+
 ## 1.2.2
 
 ### Patch Changes

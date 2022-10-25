@@ -1,5 +1,11 @@
 # @react-slip-and-slide/models
 
+## 1.3.4
+
+### Patch Changes
+
+- Lock packages version
+
 ## 1.3.3
 
 ### Patch Changes
