@@ -1,5 +1,11 @@
 # @react-slip-and-slide/models
 
+## 1.3.3
+
+### Patch Changes
+
+- Change target to ES2019
+
 ## 1.3.2
 
 ### Patch Changes
