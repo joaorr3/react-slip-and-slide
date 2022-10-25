@@ -1,5 +1,11 @@
 # @react-slip-and-slide/models
 
+## 1.3.1
+
+### Patch Changes
+
+- Fix d.ts files
+
 ## 1.3.0
 
 ### Minor Changes

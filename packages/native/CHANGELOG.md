@@ -1,5 +1,14 @@
 # @react-slip-and-slide/native
 
+## 1.4.1
+
+### Patch Changes
+
+- Fix d.ts files
+- Updated dependencies
+  - @react-slip-and-slide/models@1.3.1
+  - @react-slip-and-slide/utils@1.3.1
+
 ## 1.4.0
 
 ### Minor Changes
