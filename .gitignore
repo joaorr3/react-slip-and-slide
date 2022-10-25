@@ -25,3 +25,8 @@ dist-ssr
 *.tgz
 
 packages/*/dist
+
+# CocoaPods
+demo/NativeApp/ios/Pods/
+demo/NativeApp/ios/build/
+
