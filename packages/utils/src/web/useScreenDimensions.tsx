@@ -4,8 +4,8 @@ import { ScreenDimensions } from "@react-slip-and-slide/models";
 
 export const useScreenDimensions = () => {
   const [screenDimensions, setScreenDimensions] = React.useState<ScreenDimensions>({
-    width: undefined,
-    height: undefined,
+    width: 0,
+    height: 0,
   });
 
   const set = debounce(() => {

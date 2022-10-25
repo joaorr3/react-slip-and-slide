@@ -1,0 +1,12 @@
+// prettier-ignore
+{
+  "extends": "@tsconfig/react-native/tsconfig.json",     /* Recommended React Native TSConfig base */
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@react-slip-and-slide": ["../../packages"],
+      // "@internal": ["./components"]
+    },
+    "skipLibCheck": true
+  }
+}

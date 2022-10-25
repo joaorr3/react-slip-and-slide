@@ -1,15 +1,23 @@
 {
-  "name": "react-slip-and-slide--root",
+  "name": "react-slip-and-slide",
   "private": true,
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
-    "postinstall": "preconstruct dev"
+    "postinstall": "preconstruct dev",
+    "build:utils": "cd packages/utils && rm -rf dist && yarn build",
+    "build": "yarn build:utils && preconstruct build",
+    "dev:link": "preconstruct dev",
+    "watch": "preconstruct watch",
+    "changeset": "changeset add",
+    "version": "changeset version",
+    "publish": "changeset publish"
   },
   "preconstruct": {
     "packages": [
-      "packages/*"
+      "packages/*",
+      "!packages/utils"
     ]
   },
   "publishConfig": {

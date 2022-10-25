@@ -14,6 +14,7 @@ import {
   displacement,
   getCurrentDynamicIndex,
   getNextDynamicOffset,
+  typedMemo,
   useDynamicDimension,
   useItemsRange,
   useScreenDimensions,
@@ -31,6 +32,7 @@ function ReactSlipAndSlideComponent<T>(
     centered,
     infinite: _infinite,
     containerWidth,
+    overflowHidden = true,
     itemHeight,
     itemWidth = 0,
     pressToSlide,
@@ -370,6 +372,58 @@ function ReactSlipAndSlideComponent<T>(
     [OffsetX, springIt]
   );
 
+  const containerBind = useDrag(({ active, movement: [mx], direction: [dirX], velocity: [vx] }) => {
+    const dir = dirX < 0 ? "left" : dirX > 0 ? "right" : "center";
+    direction.current = dir;
+
+    if (dir !== "center") {
+      lastValidDirection.current = dir;
+    }
+    const offset = lastOffset + mx;
+
+    isIntentionalDrag.current = Math.abs(mx) >= 40;
+    isDragging.current = Math.abs(mx) !== 0;
+
+    if (active) {
+      drag(offset);
+    } else {
+      release({ offset, v: vx * 100 });
+    }
+  });
+
+  const handlePressToSlide = React.useCallback(
+    (idx: number) => {
+      if (!pressToSlide || isDragging.current || isIntentionalDrag.current) {
+        return;
+      }
+
+      if (mode === "fixed") {
+        const prev = index === 0 && idx === dataLength - 1;
+        const next = index === dataLength - 1 && idx === 0;
+        const smaller = idx < index;
+        const bigger = idx > index;
+
+        if (prev) {
+          navigate({ direction: "prev" });
+        } else if (next) {
+          navigate({ direction: "next" });
+        } else if (smaller) {
+          navigate({ direction: "prev" });
+        } else if (bigger) {
+          navigate({ direction: "next" });
+        }
+      } else {
+        const currIndx = getCurrentDynamicIndex(OffsetX.get(), ranges);
+        if (idx < currIndx) {
+          navigate({ direction: "prev" });
+        } else if (idx > currIndx) {
+          navigate({ direction: "next" });
+        }
+      }
+    },
+    [OffsetX, dataLength, index, mode, navigate, pressToSlide, ranges]
+  );
+
   //region FX
   React.useEffect(() => {
     if (animateStartup) {
@@ -455,58 +509,6 @@ function ReactSlipAndSlideComponent<T>(
     [move, navigate]
   );
 
-  const containerBind = useDrag(({ active, movement: [mx], direction: [dirX], velocity: [vx] }) => {
-    const dir = dirX < 0 ? "left" : dirX > 0 ? "right" : "center";
-    direction.current = dir;
-
-    if (dir !== "center") {
-      lastValidDirection.current = dir;
-    }
-    const offset = lastOffset + mx;
-
-    isIntentionalDrag.current = Math.abs(mx) >= 40;
-    isDragging.current = Math.abs(mx) !== 0;
-
-    if (active) {
-      drag(offset);
-    } else {
-      release({ offset, v: vx * 100 });
-    }
-  });
-
-  const handlePressToSlide = React.useCallback(
-    (idx: number) => {
-      if (!pressToSlide || isDragging.current || isIntentionalDrag.current) {
-        return;
-      }
-
-      if (mode === "fixed") {
-        const prev = index === 0 && idx === dataLength - 1;
-        const next = index === dataLength - 1 && idx === 0;
-        const smaller = idx < index;
-        const bigger = idx > index;
-
-        if (prev) {
-          navigate({ direction: "prev" });
-        } else if (next) {
-          navigate({ direction: "next" });
-        } else if (smaller) {
-          navigate({ direction: "prev" });
-        } else if (bigger) {
-          navigate({ direction: "next" });
-        }
-      } else {
-        const currIndx = getCurrentDynamicIndex(OffsetX.get(), ranges);
-        if (idx < currIndx) {
-          navigate({ direction: "prev" });
-        } else if (idx > currIndx) {
-          navigate({ direction: "next" });
-        }
-      }
-    },
-    [OffsetX, dataLength, index, mode, navigate, pressToSlide, ranges]
-  );
-
   return (
     <Styled.Wrapper
       ref={containerRef}
@@ -517,6 +519,7 @@ function ReactSlipAndSlideComponent<T>(
         justifyContent: centered ? "center" : "flex-start",
         width: containerWidth || "100%",
         height: container.height || "100%",
+        overflow: overflowHidden ? "hidden" : undefined,
       }}
     >
       {data.map((props, i) => (
@@ -612,8 +615,10 @@ export const Item = React.forwardRef(ItemComponent) as <T>(
   }
 ) => ReturnType<typeof ItemComponent>;
 
-export const ReactSlipAndSlide = React.forwardRef(ReactSlipAndSlideComponent) as <T>(
+export const ForwardReactSlipAndSlideRef = React.forwardRef(ReactSlipAndSlideComponent) as <T>(
   props: ReactSlipAndSlideProps<T> & {
     ref?: React.Ref<ReactSlipAndSlideRef>;
   }
 ) => ReturnType<typeof ReactSlipAndSlideComponent>;
+
+export const ReactSlipAndSlide = typedMemo(ForwardReactSlipAndSlideRef);

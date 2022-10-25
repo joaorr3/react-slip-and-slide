@@ -19,6 +19,7 @@
     "access": "public"
   },
   "devDependencies": {
+    "@babel/runtime": "^7.19.4",
     "@types/lodash": "^4.14.184",
     "@types/react": "^18.0.17",
     "@types/styled-components": "^5.1.26",
@@ -29,7 +30,7 @@
     "lodash": "^4.17.21",
     "nodemon": "^2.0.20",
     "react": "^18.2.0",
-    "react-spring": "^9.5.2",
+    "react-spring": "^9.5.5",
     "styled-components": "^5.3.6",
     "typescript": "^4.6.4",
     "vite": "^3.0.7",
@@ -65,6 +66,5 @@
   "bugs": {
     "url": "https://github.com/joaorr3/react-slip-and-slide/issues"
   },
-  "homepage": "https://github.com/joaorr3/react-slip-and-slide#readme",
-  "gitHead": "e12c2c97f1aa1af6b05a5d233faa403baa2614ed"
+  "homepage": "https://github.com/joaorr3/react-slip-and-slide#readme"
 }

@@ -1,4 +1,4 @@
-# @react-slip-and-slide/utils
+# @react-slip-and-slide/models
 
 ## 1.2.0
 
@@ -6,18 +6,8 @@
 
 - Fix: packages should't have preconstruct dev script
 
-### Patch Changes
-
-- Updated dependencies
-  - @react-slip-and-slide/models@1.2.0
-
 ## 1.1.0
 
 ### Minor Changes
 
 - Restructure repo to support multiple packages (react-native version comming soon)
-
-### Patch Changes
-
-- Updated dependencies
-  - @react-slip-and-slide/models@1.1.0

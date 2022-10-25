@@ -1,9 +1,5 @@
-export { displacement } from "./displacement";
-export {
-  getCurrentDynamicIndex,
-  getNextDynamicIndex,
-  getNextDynamicOffset,
-  useDynamicDimension,
-  useItemsRange,
-} from "./useDynamicDimension";
-export { useScreenDimensions } from "./useScreenDimensions";
+export { displacement } from "./shared/displacement";
+export { typedMemo, getCurrentDynamicIndex, getNextDynamicIndex, getNextDynamicOffset } from "./shared/helpers";
+export { useItemsRange } from "./shared/useItemsRange";
+export { useDynamicDimension } from "./web/useDynamicDimension";
+export { useScreenDimensions } from "./web/useScreenDimensions";
