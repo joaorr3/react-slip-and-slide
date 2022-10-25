@@ -1,5 +1,11 @@
 # @react-slip-and-slide/models
 
+## 1.3.0
+
+### Minor Changes
+
+- 14a41d9: React Native support + demo projects + minor improvements
+
 ## 1.2.0
 
 ### Minor Changes
