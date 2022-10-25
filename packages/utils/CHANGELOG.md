@@ -1,5 +1,13 @@
 # @react-slip-and-slide/models
 
+## 1.3.2
+
+### Patch Changes
+
+- Fix package references
+- Updated dependencies
+  - @react-slip-and-slide/models@1.3.2
+
 ## 1.3.1
 
 ### Patch Changes

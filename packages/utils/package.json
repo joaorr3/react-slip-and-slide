@@ -1,11 +1,11 @@
 {
   "name": "@react-slip-and-slide/utils",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "main": "./dist",
   "types": "./dist/index.d.ts",
   "license": "MIT",
   "dependencies": {
-    "@react-slip-and-slide/models": "~1.3.1"
+    "@react-slip-and-slide/models": "~1.3.2"
   },
   "scripts": {
     "build": "tsc"
