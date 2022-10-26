@@ -1,5 +1,11 @@
 # @react-slip-and-slide/web
 
+## 1.5.1
+
+### Patch Changes
+
+- Add renderItem to deps array
+
 ## 1.5.0
 
 ### Minor Changes

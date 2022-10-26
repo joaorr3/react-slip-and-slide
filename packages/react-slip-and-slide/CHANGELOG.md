@@ -1,5 +1,14 @@
 # react-slip-and-slide
 
+## 1.3.1
+
+### Patch Changes
+
+- Add renderItem to deps array
+- Updated dependencies
+  - @react-slip-and-slide/native@1.5.1
+  - @react-slip-and-slide/web@1.5.1
+
 ## 1.3.0
 
 ### Minor Changes
