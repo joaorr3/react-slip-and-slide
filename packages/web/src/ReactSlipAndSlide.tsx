@@ -574,8 +574,7 @@ function ItemComponent<T>(
 
   const memoRenderItem = React.useMemo(() => {
     return renderItem({ item, index });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [index, item]);
+  }, [index, item, renderItem]);
 
   return (
     <Styled.Item
