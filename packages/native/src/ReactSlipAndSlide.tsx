@@ -560,10 +560,9 @@ function ReactSlipAndSlideComponent<T>(
         }}
       >
         {data.map((props, i) => (
-          <LazyLoad render={shouldRender(i)}>
+          <LazyLoad key={i} render={shouldRender(i)}>
             <Item
               ref={itemRefs[i]}
-              key={i}
               index={i}
               mode={mode}
               item={props}
