@@ -1,5 +1,11 @@
 # @react-slip-and-slide/native
 
+## 1.7.0
+
+### Minor Changes
+
+- move key in LazyLoad component
+
 ## 1.6.0
 
 ### Minor Changes
