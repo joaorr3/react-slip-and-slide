@@ -682,9 +682,9 @@ function ItemComponent<T>(
     >
       <AnimatedBox
         style={{
+          width: "100%",
+          height: "100%",
           opacity: Opacity,
-          display: "flex",
-          flex: 1,
         }}
       >
         {memoRenderItem}
