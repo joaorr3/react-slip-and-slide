@@ -1,6 +1,6 @@
 {
   "name": "@react-slip-and-slide/models",
-  "version": "1.3.2",
+  "version": "1.4.0",
   "main": "dist/react-slip-and-slide-models.cjs.js",
   "module": "dist/react-slip-and-slide-models.esm.js",
   "types": "dist/react-slip-and-slide-models.cjs.d.ts",

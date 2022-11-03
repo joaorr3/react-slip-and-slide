@@ -1,5 +1,17 @@
 # @react-slip-and-slide/native
 
+## 1.6.0
+
+### Minor Changes
+
+- add rubberband effect + lazyloading + move styles to utils + improve code reuse
+
+### Patch Changes
+
+- Updated dependencies
+  - @react-slip-and-slide/models@1.4.0
+  - @react-slip-and-slide/utils@1.5.0
+
 ## 1.5.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @react-slip-and-slide/models
 
+## 1.4.0
+
+### Minor Changes
+
+- add rubberband effect + lazyloading + move styles to utils + improve code reuse
+
 ## 1.3.2
 
 ### Patch Changes
