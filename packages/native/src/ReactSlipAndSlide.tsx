@@ -18,13 +18,17 @@ import {
   useDynamicDimension,
   useItemsRange,
   useScreenDimensions,
-} from "@react-slip-and-slide/utils";
+  Styled,
+  LazyLoad,
+  rubberband,
+  isInRange,
+  AnimatedBox,
+} from "@react-slip-and-slide/utils/dist/index.native";
 import { Interpolation, SpringValue, to } from "@react-spring/native";
 import { clamp } from "lodash";
 import React from "react";
 import { TouchableWithoutFeedback, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import * as Styled from "./styles";
 
 //TODO: Reuse almost all code from web implementation
 
@@ -41,6 +45,8 @@ function ReactSlipAndSlideComponent<T>(
     pressToSlide,
     interpolators,
     animateStartup = true,
+    rubberbandElasticity = 4,
+    visibleItems = 0,
     renderItem,
     onChange,
     onEdges,
@@ -50,8 +56,12 @@ function ReactSlipAndSlideComponent<T>(
 ) {
   const mode: Mode = itemWidth && itemHeight ? "fixed" : "dynamic";
   const infinite = mode === "fixed" && !!_infinite;
+  // LazyLoad only if necessary
+  const eagerLoading = mode === "dynamic" || visibleItems === 0;
 
   const index = React.useRef(0);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, reRender] = React.useState<number>(0);
 
   const { width: screenWidth } = useScreenDimensions();
 
@@ -228,6 +238,9 @@ function ReactSlipAndSlideComponent<T>(
             } else {
               index.current = getCurrentDynamicIndex(offset, ranges);
             }
+            if (!eagerLoading) {
+              reRender(index.current);
+            }
             onChange?.(index.current);
           }
         },
@@ -239,7 +252,19 @@ function ReactSlipAndSlideComponent<T>(
         }
       }
     },
-    [OffsetX, checkEdges, clampIndex, clampReleaseOffset, getRelativeIndex, infinite, mode, onChange, onEdges, ranges]
+    [
+      OffsetX,
+      checkEdges,
+      clampIndex,
+      clampReleaseOffset,
+      eagerLoading,
+      getRelativeIndex,
+      infinite,
+      mode,
+      onChange,
+      onEdges,
+      ranges,
+    ]
   );
 
   const getCurrentIndexByOffset = React.useCallback(
@@ -275,29 +300,34 @@ function ReactSlipAndSlideComponent<T>(
     [dataLength, snap, wrapperWidth]
   );
 
-  const drag = (x: number) => {
-    springIt({
-      offset: x,
-      actionType: "drag",
-    });
-  };
+  const drag = React.useCallback(
+    (x: number) => {
+      const offset = infinite ? x : rubberband(x, rubberbandElasticity, [clampOffset.MIN, clampOffset.MAX]);
+      springIt({
+        offset,
+        actionType: "drag",
+      });
+    },
+    [clampOffset, infinite, rubberbandElasticity, springIt]
+  );
 
   const withSnap = React.useCallback(
     ({ offset }: { offset: number }) => {
-      const page = getCurrentIndexByOffset(-offset);
-      const finalOffset = -page * itemWidth;
       if (mode === "fixed") {
+        const page = getCurrentIndexByOffset(-offset);
+        const finalOffset = -page * itemWidth;
         return finalOffset;
       } else {
+        const edges = checkEdges({ offset });
         return getNextDynamicOffset({
-          offsetX: offset,
+          offsetX: edges.start ? clampOffset.MIN : offset,
           ranges,
           dir: lastValidDirection.current,
           centered: !!centered,
         });
       }
     },
-    [centered, getCurrentIndexByOffset, itemWidth, mode, ranges]
+    [centered, checkEdges, clampOffset.MIN, getCurrentIndexByOffset, itemWidth, mode, ranges]
   );
 
   const withMomentum = React.useCallback(({ offset, v }: { offset: number; v: number }) => {
@@ -376,7 +406,6 @@ function ReactSlipAndSlideComponent<T>(
   );
 
   const panGesture = Gesture.Pan()
-    // .onBegin(() => {})
     .onUpdate(({ translationX, velocityX, state }) => {
       const dir = velocityX > 0 ? "right" : velocityX < 0 ? "left" : "center";
       direction.current = dir;
@@ -503,6 +532,21 @@ function ReactSlipAndSlideComponent<T>(
     [move, navigate]
   );
 
+  const shouldRender = React.useCallback(
+    (i: number) => {
+      if (eagerLoading) {
+        return true;
+      }
+      return isInRange(i, {
+        dataLength,
+        viewSize: itemWidth,
+        visibleItems: visibleItems || Math.round(dataLength / 2),
+        offsetX: OffsetX.get(),
+      });
+    },
+    [OffsetX, dataLength, eagerLoading, itemWidth, visibleItems]
+  );
+
   return (
     <GestureDetector gesture={panGesture}>
       <Styled.Wrapper
@@ -516,22 +560,24 @@ function ReactSlipAndSlideComponent<T>(
         }}
       >
         {data.map((props, i) => (
-          <Item
-            ref={itemRefs[i] as unknown as React.Ref<View>} //TODO: Find a way to reference index.native.d.ts
-            key={i}
-            index={i}
-            mode={mode}
-            item={props}
-            dataLength={dataLength}
-            renderItem={renderItem}
-            infinite={infinite}
-            itemHeight={itemHeight}
-            itemWidth={mode === "fixed" ? itemWidth : ranges[i]?.width || 0}
-            interpolators={interpolators || {}}
-            dynamicOffset={ranges[i]?.range[centered ? "center" : "start"] || 0}
-            onPress={() => pressToSlide && handlePressToSlide(i)}
-            offsetX={OffsetX.to((offsetX) => (infinite ? offsetX % wrapperWidth : offsetX))}
-          />
+          <LazyLoad render={shouldRender(i)}>
+            <Item
+              ref={itemRefs[i]}
+              key={i}
+              index={i}
+              mode={mode}
+              item={props}
+              dataLength={dataLength}
+              renderItem={renderItem}
+              infinite={infinite}
+              itemHeight={itemHeight}
+              itemWidth={mode === "fixed" ? itemWidth : ranges[i]?.width || 0}
+              interpolators={interpolators || {}}
+              dynamicOffset={ranges[i]?.range[centered ? "center" : "start"] || 0}
+              onPress={() => pressToSlide && handlePressToSlide(i)}
+              offsetX={OffsetX.to((offsetX) => (infinite ? offsetX % wrapperWidth : offsetX))}
+            />
+          </LazyLoad>
         ))}
       </Styled.Wrapper>
     </GestureDetector>
@@ -555,6 +601,16 @@ function ItemComponent<T>(
   }: ItemProps<T>,
   ref?: React.Ref<View>
 ) {
+  const Opacity = React.useMemo(() => {
+    return new SpringValue<number>(0, {
+      config: {
+        tension: 260,
+        friction: 32,
+        mass: 1,
+      },
+    });
+  }, []);
+
   const x = displacement({
     offsetX,
     dataLength,
@@ -585,6 +641,13 @@ function ItemComponent<T>(
     };
   }, [itemWidth, keys, translateX]);
 
+  React.useEffect(() => {
+    Opacity.start({
+      to: 1,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const memoRenderItem = React.useMemo(() => {
     return renderItem({ item, index });
   }, [index, item, renderItem]);
@@ -607,7 +670,13 @@ function ItemComponent<T>(
           height: itemHeight,
         }}
       >
-        {memoRenderItem}
+        <AnimatedBox
+          style={{
+            opacity: Opacity,
+          }}
+        >
+          {memoRenderItem}
+        </AnimatedBox>
       </Styled.Item>
     </TouchableWithoutFeedback>
   );

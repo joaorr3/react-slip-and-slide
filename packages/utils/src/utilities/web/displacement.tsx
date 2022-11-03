@@ -1,7 +1,13 @@
 import { DisplacementModel } from "@react-slip-and-slide/models";
-import { to } from "@react-spring/native";
+import { Interpolation, to } from "react-spring";
 
-export const displacement = ({ offsetX, index = 0, itemWidth = 200, infinite, dataLength }: DisplacementModel) => {
+export const displacement = ({
+  offsetX,
+  index = 0,
+  itemWidth = 200,
+  infinite,
+  dataLength,
+}: DisplacementModel): Interpolation<number, number> => {
   if (infinite) {
     const halfData = Math.round((dataLength - 1) / 2) + 1;
     const halfItem = itemWidth / 2;

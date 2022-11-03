@@ -17,22 +17,32 @@ function App() {
             { width: 200 },
             { width: 200 },
             { width: 200 },
+            { width: 300 },
+            { width: 200 },
+            { width: 100 },
+            { width: 200 },
+            { width: 400 },
+            { width: 400 },
+            { width: 500 },
+            { width: 200 },
+            { width: 200 },
+            { width: 200 },
+            //
           ]}
-          snap
+          // snap
           // centered
           // infinite
           itemWidth={400}
           itemHeight={200}
           containerWidth={800}
           overflowHidden={false}
+          visibleItems={10}
           // pressToSlide
           // interpolators={{
           //   opacity: 0.2,
           //   scale: 0.9,
           // }}
-          onChange={(i) => console.log("index: ", i)}
-          renderItem={({ index }: { index: number }) => {
-            console.info("render:Item:", index);
+          renderItem={({ index, item: { width } }) => {
             return (
               <div
                 style={{

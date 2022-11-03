@@ -4,6 +4,7 @@ import {
   NextDynamicOffset,
   ValidDirection,
   TypedMemo,
+  IsInRange,
 } from "@react-slip-and-slide/models";
 import { clamp } from "lodash";
 import React from "react";
@@ -70,4 +71,33 @@ export const getDynamicRangeSum = (itemDimensionMap: ItemDimension[]) => {
   });
 
   return range;
+};
+
+export const isInRange = (index: number, { dataLength, viewSize, offsetX, visibleItems }: IsInRange) => {
+  const upperAmount = Math.round(visibleItems / 2);
+  const lowerAmount = visibleItems - upperAmount;
+
+  const fixedIndex = Math.round(-offsetX / viewSize);
+  const currentIndex = fixedIndex < 0 ? (fixedIndex % dataLength) + dataLength : fixedIndex;
+
+  const lowerRange = [
+    (currentIndex + dataLength - lowerAmount) % dataLength,
+    (currentIndex + dataLength - 1) % dataLength,
+  ];
+
+  const upperRange = [currentIndex % dataLength, (currentIndex + upperAmount) % dataLength];
+
+  if ((lowerRange[0] < dataLength && lowerRange[0] > lowerRange[1]) || upperRange[0] > upperRange[1]) {
+    lowerRange[1] = dataLength - 1;
+    upperRange[0] = 0;
+  }
+
+  const isInLowerRange = index >= lowerRange[0] && index <= lowerRange[1];
+  const isInUpperRange = index >= upperRange[0] && index <= upperRange[1];
+
+  if (isInLowerRange || isInUpperRange) {
+    return true;
+  }
+
+  return false;
 };

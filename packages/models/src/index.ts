@@ -80,6 +80,22 @@ export type ReactSlipAndSlideProps<T> = {
    * @default true
    */
   animateStartup?: boolean;
+  /**
+   * The amount of elasticity when dragging beyond the container edges.
+   * 0: zero elasticity / disabled
+   * @default 4
+   */
+  rubberbandElasticity?: number;
+  /**
+   * The amount of rendered items at the same time.
+   * Ex: If your dataset have a length of 1000 and you pass 10 to the prop, the browser will only paint 10 elements.
+   *
+   * Default is zero, which means LazyLoading is disabled by default.
+   *
+   * Be aware that lower values can produce weird behaviors. Play safe with this prop.
+   * @default 0
+   */
+  visibleItems?: number;
   renderItem: RenderItem<T>;
   onChange?: (index: number) => void;
   onEdges?: (props: { start: boolean; end: boolean }) => void;
@@ -155,6 +171,13 @@ export type NextDynamicOffset = {
   ranges: DynamicRangeSum[];
   dir: ValidDirection | null;
   centered: boolean;
+};
+
+export type IsInRange = {
+  dataLength: number;
+  viewSize: number;
+  offsetX: number;
+  visibleItems: number;
 };
 
 // -- Helper
