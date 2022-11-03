@@ -1,5 +1,11 @@
 # @react-slip-and-slide/web
 
+## 1.9.0
+
+### Minor Changes
+
+- allow AnimatedBox to grow to the size of Styled.Item
+
 ## 1.8.0
 
 ### Minor Changes

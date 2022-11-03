@@ -2,7 +2,7 @@
   "name": "@react-slip-and-slide/web",
   "author": "João Ribeiro",
   "license": "MIT",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "react-slip-and-slide",
   "type": "module",
   "files": [
