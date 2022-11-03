@@ -56,6 +56,8 @@ function ReactSlipAndSlideComponent<T>(
   // LazyLoad only if necessary
   const eagerLoading = mode === "dynamic" || visibleItems === 0;
 
+  const shouldAnimatedStartup = animateStartup && eagerLoading;
+
   const index = React.useRef(0);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, reRender] = React.useState<number>(0);
@@ -84,14 +86,15 @@ function ReactSlipAndSlideComponent<T>(
   }, []);
 
   const Opacity = React.useMemo(() => {
-    return new SpringValue<number>(animateStartup ? 0 : 1, {
+    const initialOpacity = shouldAnimatedStartup ? 0 : 1;
+    return new SpringValue<number>(initialOpacity, {
       config: {
         tension: 260,
         friction: 32,
         mass: 1,
       },
     });
-  }, [animateStartup]);
+  }, [shouldAnimatedStartup]);
 
   const { width } = useScreenDimensions();
 
@@ -126,14 +129,34 @@ function ReactSlipAndSlideComponent<T>(
     }
   }, [itemDimensionMap, itemHeight]);
 
+  const processClampOffsets = React.useCallback(
+    ({ wrapperWidth, sideMargins }: { wrapperWidth: number; sideMargins: number }) => {
+      const MIN = 0;
+      let MAX = -wrapperWidth + container.width;
+
+      if (centered) {
+        const _MAX_CENTERED = MAX - sideMargins * 2;
+        MAX = _MAX_CENTERED;
+      } else {
+        // In this case i guess you don't need a slider.
+        if (wrapperWidth < container.width) {
+          MAX = MIN;
+        }
+      }
+
+      return {
+        MIN,
+        MAX,
+      };
+    },
+    [centered, container.width]
+  );
+
   const { dataLength, wrapperWidth, clampOffset } = React.useMemo(() => {
     const wrapperWidth = mode === "fixed" ? data.length * itemWidth : _wrapperWidth;
     const sideMargins = (container.width - itemWidth) / 2;
 
-    const MIN = 0;
-    const _MAX = -wrapperWidth + container.width;
-    const _MAX_CENTERED = _MAX - sideMargins * 2;
-    const MAX = centered ? _MAX_CENTERED : _MAX;
+    const { MIN, MAX } = processClampOffsets({ wrapperWidth, sideMargins });
 
     return {
       dataLength: data.length,
@@ -145,7 +168,7 @@ function ReactSlipAndSlideComponent<T>(
         MAX,
       },
     };
-  }, [_wrapperWidth, centered, container.width, data.length, itemWidth, mode]);
+  }, [_wrapperWidth, container.width, data.length, itemWidth, mode, processClampOffsets]);
 
   const clampReleaseOffset = React.useCallback(
     (offset: number) => {
@@ -156,14 +179,11 @@ function ReactSlipAndSlideComponent<T>(
       if (offset > clampOffset.MIN) {
         return clampOffset.MIN;
       } else if (offset < clampOffset.MAX) {
-        if (wrapperWidth < container.width) {
-          return clampOffset.MIN;
-        }
         return clampOffset.MAX;
       }
       return offset;
     },
-    [clampOffset.MAX, clampOffset.MIN, container.width, infinite, mode, wrapperWidth]
+    [clampOffset.MAX, clampOffset.MIN, infinite, mode]
   );
 
   const clampIndex = React.useCallback((index: number) => clamp(index, 0, dataLength - 1), [dataLength]);
@@ -459,7 +479,7 @@ function ReactSlipAndSlideComponent<T>(
 
   //region FX
   React.useEffect(() => {
-    if (animateStartup) {
+    if (shouldAnimatedStartup) {
       if (mode === "dynamic") {
         if (ranges.length && container.height) {
           Opacity.start({
@@ -482,7 +502,7 @@ function ReactSlipAndSlideComponent<T>(
       onReady?.(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [container.height, ranges.length]);
+  }, [Opacity, container.height, ranges.length, shouldAnimatedStartup]);
 
   // Fixes initial offset when: mode === dynamic and centered is true
   React.useEffect(() => {
@@ -573,6 +593,7 @@ function ReactSlipAndSlideComponent<T>(
             dynamicOffset={ranges[i]?.range[centered ? "center" : "start"] || 0}
             onPress={() => pressToSlide && handlePressToSlide(i)}
             offsetX={OffsetX.to((offsetX) => (infinite ? offsetX % wrapperWidth : offsetX))}
+            isLazy={!eagerLoading}
           />
         </LazyLoad>
       ))}
@@ -592,20 +613,21 @@ function ItemComponent<T>(
     interpolators,
     dynamicOffset,
     mode,
+    isLazy,
     renderItem,
     onPress,
   }: React.PropsWithChildren<ItemProps<T>>,
   ref?: React.Ref<HTMLDivElement>
 ) {
   const Opacity = React.useMemo(() => {
-    return new SpringValue<number>(0, {
+    return new SpringValue<number>(isLazy ? 0 : 1, {
       config: {
         tension: 260,
         friction: 32,
         mass: 1,
       },
     });
-  }, []);
+  }, [isLazy]);
 
   const x = displacement({
     offsetX,
@@ -634,11 +656,13 @@ function ItemComponent<T>(
   );
 
   React.useEffect(() => {
-    Opacity.start({
-      to: 1,
-    });
+    if (isLazy) {
+      Opacity.start({
+        to: 1,
+      });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isLazy]);
 
   const memoRenderItem = React.useMemo(() => {
     return renderItem({ item, index });

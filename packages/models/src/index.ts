@@ -113,6 +113,7 @@ export type ItemProps<T> = {
   interpolators: Interpolators<number>;
   dynamicOffset: number;
   mode: Mode;
+  isLazy?: boolean;
   renderItem: RenderItem<T>;
   onPress?: () => void;
 };
