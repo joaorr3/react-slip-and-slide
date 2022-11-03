@@ -1,5 +1,11 @@
 # @react-slip-and-slide/native
 
+## 1.10.0
+
+### Minor Changes
+
+- react-native likes width/height: 100% more, instead of flex: 1
+
 ## 1.9.0
 
 ### Minor Changes
