@@ -2,7 +2,7 @@
   "name": "@react-slip-and-slide/web",
   "author": "João Ribeiro",
   "license": "MIT",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "react-slip-and-slide",
   "type": "module",
   "files": [
@@ -38,8 +38,8 @@
     "vite-tsconfig-paths": "^3.5.1"
   },
   "dependencies": {
-    "@react-slip-and-slide/models": "1.4.0",
-    "@react-slip-and-slide/utils": "1.5.0"
+    "@react-slip-and-slide/models": "1.5.0",
+    "@react-slip-and-slide/utils": "1.5.1"
   },
   "peerDependencies": {
     "@use-gesture/react": "^10.2.20",

@@ -1,5 +1,11 @@
 # @react-slip-and-slide/models
 
+## 1.5.0
+
+### Minor Changes
+
+- clampOffset.MAX gets a wrong value if wrapperWidth < container.width which cause the rubberband effect to have a weird behavior + add shouldAnimatedStartup validation
+
 ## 1.4.0
 
 ### Minor Changes
