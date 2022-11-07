@@ -1,7 +1,8 @@
 {
   "name": "@react-slip-and-slide/utils",
   "version": "1.5.1",
-  "main": "./dist",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "license": "MIT",
   "dependencies": {
@@ -35,7 +36,6 @@
   "description": "utils",
   "author": "João Ribeiro",
   "homepage": "https://github.com/joaorr3/react-slip-and-slide#readme",
-  "type": "module",
   "directories": {
     "dist": "./dist"
   },
