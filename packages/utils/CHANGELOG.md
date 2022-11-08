@@ -1,5 +1,11 @@
 # @react-slip-and-slide/models
 
+## 1.6.0
+
+### Minor Changes
+
+- Update package.json from utils package
+
 ## 1.5.1
 
 ### Patch Changes

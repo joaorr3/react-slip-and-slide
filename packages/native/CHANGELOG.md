@@ -1,5 +1,12 @@
 # @react-slip-and-slide/native
 
+## 1.10.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @react-slip-and-slide/utils@1.6.0
+
 ## 1.10.0
 
 ### Minor Changes

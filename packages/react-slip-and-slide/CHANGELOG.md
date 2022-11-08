@@ -1,5 +1,12 @@
 # react-slip-and-slide
 
+## 1.4.5
+
+### Patch Changes
+
+- @react-slip-and-slide/native@1.10.1
+- @react-slip-and-slide/web@1.10.1
+
 ## 1.4.4
 
 ### Patch Changes
