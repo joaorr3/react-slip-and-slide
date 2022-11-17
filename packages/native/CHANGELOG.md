@@ -1,5 +1,17 @@
 # @react-slip-and-slide/native
 
+## 1.11.0
+
+### Minor Changes
+
+- remove type module from all packages
+
+### Patch Changes
+
+- Updated dependencies
+  - @react-slip-and-slide/models@1.6.0
+  - @react-slip-and-slide/utils@1.6.1
+
 ## 1.10.1
 
 ### Patch Changes

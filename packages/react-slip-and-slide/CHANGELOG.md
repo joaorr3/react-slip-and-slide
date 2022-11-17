@@ -1,5 +1,17 @@
 # react-slip-and-slide
 
+## 1.5.0
+
+### Minor Changes
+
+- remove type module from all packages
+
+### Patch Changes
+
+- Updated dependencies
+  - @react-slip-and-slide/native@1.11.0
+  - @react-slip-and-slide/web@1.11.0
+
 ## 1.4.5
 
 ### Patch Changes

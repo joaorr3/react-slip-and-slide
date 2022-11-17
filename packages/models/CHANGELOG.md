@@ -1,5 +1,11 @@
 # @react-slip-and-slide/models
 
+## 1.6.0
+
+### Minor Changes
+
+- remove type module from all packages
+
 ## 1.5.0
 
 ### Minor Changes
