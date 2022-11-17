@@ -21,7 +21,6 @@
   "description": "Models",
   "author": "João Ribeiro",
   "homepage": "https://github.com/joaorr3/react-slip-and-slide#readme",
-  "type": "module",
   "directories": {
     "dist": "./dist"
   },

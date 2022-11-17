@@ -6,7 +6,6 @@
   "author": "João Ribeiro <joaodrr3@gmail.com>",
   "version": "1.4.5",
   "license": "MIT",
-  "type": "module",
   "files": [
     "dist/*",
     "README.md"

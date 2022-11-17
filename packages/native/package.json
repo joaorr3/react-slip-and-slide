@@ -4,7 +4,6 @@
   "license": "MIT",
   "version": "1.10.1",
   "description": "react-slip-and-slide native",
-  "type": "module",
   "files": [
     "dist/*",
     "README.md"
