@@ -69,6 +69,17 @@ export type ReactSlipAndSlideProps<T> = {
   overflowHidden?: boolean;
 
   /**
+   * If true the items will assume the width of it's container.
+   * Useful if you leave `containerWidth` undefined to force it to fallback to 100%.
+   * The containerWidth will be measured for you and them `containerWidth` and `itemWidth` will be the same.
+   *
+   * *Overrides `itemWidth`.
+   *
+   * @default false
+   */
+  fullWidthItem?: boolean;
+
+  /**
    * If itemWidth is not provided it's assumed that infinite feature is turned off.
    * Also, be aware that if itemWidth is undefined some extra work is required and that could be expensive.
    */

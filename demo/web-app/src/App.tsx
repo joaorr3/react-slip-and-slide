@@ -4,7 +4,15 @@ import "./App.css";
 function App() {
   return (
     <div className="App">
-      <div className="Inner" style={{ width: "100%", overflow: "hidden", display: "flex", justifyContent: "center" }}>
+      <div
+        className="Inner"
+        style={{
+          width: 800,
+          overflow: "hidden",
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
         <ReactSlipAndSlide
           data={[
             { width: 300 },
@@ -29,13 +37,14 @@ function App() {
             { width: 200 },
             //
           ]}
-          // snap
-          // centered
-          // infinite
-          itemWidth={400}
+          snap
+          centered
+          infinite
+          // itemWidth={400}
           itemHeight={200}
-          containerWidth={800}
-          overflowHidden={false}
+          fullWidthItem
+          // containerWidth={800}
+          // overflowHidden={false}
           visibleItems={10}
           // pressToSlide
           // interpolators={{
@@ -46,8 +55,8 @@ function App() {
             return (
               <div
                 style={{
-                  // width,
-                  width: 400,
+                  width: "100%",
+                  // width: 400,
                   height: 200,
                   backgroundColor: "#858585",
                   color: "#d6d6d6",

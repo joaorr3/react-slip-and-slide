@@ -38,12 +38,13 @@ function ReactSlipAndSlideComponent<T>(
     containerWidth,
     overflowHidden = true,
     itemHeight,
-    itemWidth = 0,
+    itemWidth: _itemWidth = 0,
     pressToSlide,
     interpolators,
     animateStartup = true,
     rubberbandElasticity = 4,
     visibleItems = 0,
+    fullWidthItem,
     renderItem,
     onChange,
     onEdges,
@@ -51,7 +52,7 @@ function ReactSlipAndSlideComponent<T>(
   }: ReactSlipAndSlideProps<T>,
   ref: React.Ref<ReactSlipAndSlideRef>
 ) {
-  const mode: Mode = itemWidth && itemHeight ? "fixed" : "dynamic";
+  const mode: Mode = (_itemWidth && itemHeight) || fullWidthItem ? "fixed" : "dynamic";
   const infinite = mode === "fixed" && !!_infinite;
   // LazyLoad only if necessary
   const eagerLoading = mode === "dynamic" || visibleItems === 0;
@@ -66,6 +67,8 @@ function ReactSlipAndSlideComponent<T>(
     width: containerWidth || 0,
     height: itemHeight || 0,
   });
+
+  const itemWidth = fullWidthItem ? container.width : _itemWidth;
 
   const [_wrapperWidth, _setWrapperWidth] = React.useState<number>(0);
 
