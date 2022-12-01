@@ -2,7 +2,7 @@
   "name": "@react-slip-and-slide/native",
   "author": "João Ribeiro",
   "license": "MIT",
-  "version": "1.11.0",
+  "version": "1.11.1",
   "description": "react-slip-and-slide native",
   "files": [
     "dist/*",
@@ -34,8 +34,8 @@
     "typescript": "^4.6.4"
   },
   "dependencies": {
-    "@react-slip-and-slide/models": "1.6.0",
-    "@react-slip-and-slide/utils": "1.6.1"
+    "@react-slip-and-slide/models": "1.7.0",
+    "@react-slip-and-slide/utils": "1.6.2"
   },
   "peerDependencies": {
     "@react-spring/native": "^9.5.5",

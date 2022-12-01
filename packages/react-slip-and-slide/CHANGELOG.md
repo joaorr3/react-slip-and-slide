@@ -1,5 +1,13 @@
 # react-slip-and-slide
 
+## 1.5.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @react-slip-and-slide/web@1.12.0
+  - @react-slip-and-slide/native@1.11.1
+
 ## 1.5.0
 
 ### Minor Changes

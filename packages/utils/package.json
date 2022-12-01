@@ -1,12 +1,12 @@
 {
   "name": "@react-slip-and-slide/utils",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "license": "MIT",
   "dependencies": {
-    "@react-slip-and-slide/models": "1.6.0"
+    "@react-slip-and-slide/models": "1.7.0"
   },
   "scripts": {
     "build": "tsc"

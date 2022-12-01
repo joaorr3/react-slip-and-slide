@@ -1,5 +1,17 @@
 # @react-slip-and-slide/web
 
+## 1.12.0
+
+### Minor Changes
+
+- feat(`web`): added fullWidthItem prop
+
+### Patch Changes
+
+- Updated dependencies
+  - @react-slip-and-slide/models@1.7.0
+  - @react-slip-and-slide/utils@1.6.2
+
 ## 1.11.0
 
 ### Minor Changes
