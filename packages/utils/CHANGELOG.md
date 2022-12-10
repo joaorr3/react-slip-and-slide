@@ -1,5 +1,11 @@
 # @react-slip-and-slide/models
 
+## 1.7.0
+
+### Minor Changes
+
+- Check edges if window is resized and check if wrapperWidth is smaller than the container. This allow onEdges callback to fire with meaningful flags when the sum of all the items is smaller than the parent container.
+
 ## 1.6.2
 
 ### Patch Changes
