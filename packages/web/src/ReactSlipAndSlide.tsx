@@ -23,6 +23,8 @@ import {
   useScreenDimensions,
   isInRange,
   AnimatedBox,
+  usePreviousValue,
+  useIsFirstRender,
 } from "@react-slip-and-slide/utils";
 import { useDrag } from "@use-gesture/react";
 import { clamp } from "lodash";
@@ -58,6 +60,8 @@ function ReactSlipAndSlideComponent<T>(
   const eagerLoading = mode === "dynamic" || visibleItems === 0;
 
   const shouldAnimatedStartup = animateStartup && eagerLoading;
+
+  const isFirstRender = useIsFirstRender();
 
   const index = React.useRef(0);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -233,15 +237,27 @@ function ReactSlipAndSlideComponent<T>(
 
   const checkEdges = React.useCallback(
     ({ offset }: { offset: number }) => {
+      let start = false;
+      let end = false;
+
       if (offset >= clampOffset.MIN) {
-        return { start: true, end: false };
+        start = true;
       } else if (offset <= clampOffset.MAX) {
-        return { start: false, end: true };
+        end = true;
       } else {
-        return { start: false, end: false };
+        start = false;
+        end = false;
       }
+
+      // Refer to line 148
+      if (clampOffset.MIN === clampOffset.MAX) {
+        start = true;
+        end = true;
+      }
+
+      return { start, end };
     },
-    [clampOffset.MAX, clampOffset.MIN]
+    [clampOffset]
   );
 
   const springIt = React.useCallback(
@@ -518,7 +534,8 @@ function ReactSlipAndSlideComponent<T>(
         immediate: true,
       });
     }
-  }, [centered, mode, ranges, springIt]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [centered, mode, ranges]);
 
   // Reset to new clampOffset.MAX if is at the end edge and page is resized
   React.useEffect(() => {
@@ -531,6 +548,26 @@ function ReactSlipAndSlideComponent<T>(
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clampOffset.MAX]);
+
+  // Check edges if the window is resized
+  React.useEffect(() => {
+    if (!isFirstRender) {
+      onEdges?.(checkEdges({ offset: OffsetX.get() }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [width, clampOffset.MAX]);
+
+  // Check containerWidth
+  const prevContainerWidth = usePreviousValue(containerWidth);
+  React.useEffect(() => {
+    if (containerWidth && containerWidth !== prevContainerWidth) {
+      setContainerDimensions((prev) => ({
+        ...prev,
+        width: containerWidth,
+      }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [containerWidth]);
 
   React.useEffect(() => {
     if (!infinite) {

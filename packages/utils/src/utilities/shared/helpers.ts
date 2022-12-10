@@ -101,3 +101,24 @@ export const isInRange = (index: number, { dataLength, viewSize, offsetX, visibl
 
   return false;
 };
+
+export const usePreviousValue = <T>(value: T) => {
+  const ref = React.useRef<T>(value);
+
+  React.useEffect(() => {
+    ref.current = value;
+  });
+
+  return ref.current;
+};
+
+export const useIsFirstRender = () => {
+  const isFirst = React.useRef<boolean>(true);
+
+  if (isFirst.current) {
+    isFirst.current = false;
+    return true;
+  }
+
+  return isFirst.current;
+};

@@ -8,6 +8,8 @@ export {
   getNextDynamicOffset,
   isInRange,
   typedMemo,
+  usePreviousValue,
+  useIsFirstRender,
 } from "./shared/helpers";
 export { rubberband } from "./shared/rubberband";
 export { useItemsRange } from "./shared/useItemsRange";
