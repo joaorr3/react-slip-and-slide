@@ -1,5 +1,11 @@
 # @react-slip-and-slide/web
 
+## 1.14.0
+
+### Minor Changes
+
+- allow vertical scroll on web mobile
+
 ## 1.13.0
 
 ### Minor Changes
