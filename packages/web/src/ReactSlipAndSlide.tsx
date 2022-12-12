@@ -460,6 +460,7 @@ function ReactSlipAndSlideComponent<T>(
     },
     {
       filterTaps: true,
+      axis: "x",
     }
   );
 
@@ -615,6 +616,7 @@ function ReactSlipAndSlideComponent<T>(
         width: containerWidth || "100%",
         height: itemHeight || container.height || "100%",
         overflow: overflowHidden ? "hidden" : undefined,
+        touchAction: "pan-y",
       }}
     >
       {data.map((props, i) => (
