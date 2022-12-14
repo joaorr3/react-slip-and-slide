@@ -1,5 +1,11 @@
 # @react-slip-and-slide/web
 
+## 1.15.0
+
+### Minor Changes
+
+- fix onChange(NaN) bug when fullWidthItem is true and a containerWidth is being defined by the parent
+
 ## 1.14.0
 
 ### Minor Changes

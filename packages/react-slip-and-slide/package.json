@@ -4,7 +4,7 @@
   "main": "./dist",
   "types": "./dist/index.d.ts",
   "author": "João Ribeiro <joaodrr3@gmail.com>",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "license": "MIT",
   "files": [
     "dist/*",
@@ -20,7 +20,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@react-slip-and-slide/web": "1.14.0",
+    "@react-slip-and-slide/web": "1.15.0",
     "@react-slip-and-slide/native": "1.11.2"
   },
   "keywords": [
