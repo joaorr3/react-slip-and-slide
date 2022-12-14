@@ -197,8 +197,11 @@ function ReactSlipAndSlideComponent<T>(
 
   const processIndex = React.useCallback(
     ({ offset }: { offset: number }) => {
-      const modIndex = (offset / itemWidth) % dataLength;
-      return offset <= 0 ? Math.abs(modIndex) : Math.abs(modIndex > 0 ? dataLength - modIndex : 0);
+      if (itemWidth) {
+        const modIndex = (offset / itemWidth) % dataLength;
+        return offset <= 0 ? Math.abs(modIndex) : Math.abs(modIndex > 0 ? dataLength - modIndex : 0);
+      }
+      return 0;
     },
     [dataLength, itemWidth]
   );

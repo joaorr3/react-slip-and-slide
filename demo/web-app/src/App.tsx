@@ -51,6 +51,9 @@ function App() {
           //   opacity: 0.2,
           //   scale: 0.9,
           // }}
+          onChange={(index) => {
+            console.log("onChange:index: ", index);
+          }}
           renderItem={({ index, item: { width } }) => {
             return (
               <div
