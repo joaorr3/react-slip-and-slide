@@ -26,6 +26,11 @@
     "react-spring": "^9.5.5",
     "react-native": "^0.70"
   },
+  "peerDependenciesMeta": {
+    "react-native": {
+      "optional": true
+    }
+  },
   "publishConfig": {
     "access": "public"
   },

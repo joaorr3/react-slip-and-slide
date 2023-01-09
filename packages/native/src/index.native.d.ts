@@ -15,6 +15,7 @@ type NativeComponent = StyledComponent<AnimatedComponent<RNView>, any, {}, never
 declare module "@react-slip-and-slide/utils/dist/index.native" {
   const Styled: {
     Item: NativeComponent;
+    FloatingItem: NativeComponent;
     Wrapper: NativeComponent;
   };
 }

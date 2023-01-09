@@ -1,1 +1,1 @@
-export { default as styled } from "styled-components/native";
+export { default as styled, css } from "styled-components/native";

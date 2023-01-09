@@ -38,7 +38,8 @@
   },
   "dependencies": {
     "@react-slip-and-slide/models": "1.7.0",
-    "@react-slip-and-slide/utils": "1.7.0"
+    "@react-slip-and-slide/utils": "1.7.0",
+    "immer": "^9.0.17"
   },
   "peerDependencies": {
     "@use-gesture/react": "^10.2.20",

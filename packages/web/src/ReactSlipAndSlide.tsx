@@ -1,9 +1,8 @@
 import {
+  BoxRef,
   ContainerDimensions,
   Direction,
-  Interpolators,
-  ItemProps,
-  Mode,
+  ItemDimensionMode,
   Navigate,
   ReactSlipAndSlideProps,
   ReactSlipAndSlideRef,
@@ -11,42 +10,40 @@ import {
   ValidDirection,
 } from "@react-slip-and-slide/models";
 import {
-  displacement,
   getCurrentDynamicIndex,
   getNextDynamicOffset,
-  LazyLoad,
   rubberband,
   Styled,
   typedMemo,
   useDynamicDimension,
-  useItemsRange,
-  useScreenDimensions,
-  isInRange,
-  AnimatedBox,
-  usePreviousValue,
   useIsFirstRender,
+  useItemsRange,
+  usePreviousValue,
+  useScreenDimensions,
 } from "@react-slip-and-slide/utils";
 import { useDrag } from "@use-gesture/react";
 import { clamp } from "lodash";
 import React from "react";
-import { Interpolation, SpringValue, to } from "react-spring";
+import { SpringValue } from "react-spring";
+import { DataProvider, initializeContextData, useDataContext } from "./Context";
+import { Engine, EngineMode, LoadingType } from "./Engine";
 
 function ReactSlipAndSlideComponent<T>(
   {
-    data,
+    // data,
     snap,
-    centered,
-    infinite: _infinite,
+    // centered,
+    // infinite: _infinite,
     containerWidth,
     overflowHidden = true,
-    itemHeight,
-    itemWidth: _itemWidth = 0,
+    // itemHeight,
+    // itemWidth: _itemWidth = 0,
     pressToSlide,
     interpolators,
     animateStartup = true,
     rubberbandElasticity = 4,
-    visibleItems = 0,
-    fullWidthItem,
+    // visibleItems = 0,
+    // fullWidthItem,
     renderItem,
     onChange,
     onEdges,
@@ -54,29 +51,31 @@ function ReactSlipAndSlideComponent<T>(
   }: ReactSlipAndSlideProps<T>,
   ref: React.Ref<ReactSlipAndSlideRef>
 ) {
-  const mode: Mode = (_itemWidth && itemHeight) || fullWidthItem ? "fixed" : "dynamic";
-  const infinite = mode === "fixed" && !!_infinite;
-  // LazyLoad only if necessary
-  const eagerLoading = mode === "dynamic" || visibleItems === 0;
-
-  const shouldAnimatedStartup = animateStartup && eagerLoading;
+  const {
+    state: {
+      data,
+      dataLength,
+      engineMode,
+      itemDimensions: { height: itemHeight, width: itemWidth = 0 },
+      loadingType,
+      centered,
+      visibleItems,
+      infinite,
+      itemDimensionMode,
+      container,
+      wrapperWidth,
+      clampOffset,
+    },
+    actions: { setContainerDimensions, setWrapperWidth },
+  } = useDataContext<T>();
 
   const isFirstRender = useIsFirstRender();
 
   const index = React.useRef(0);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_, reRender] = React.useState<number>(0);
+  const [, reRender] = React.useState<number>(0);
   const lastOffset = React.useRef(0);
-  const [container, setContainerDimensions] = React.useState<ContainerDimensions>({
-    width: containerWidth || 0,
-    height: itemHeight || 0,
-  });
 
-  const itemWidth = fullWidthItem ? container.width : _itemWidth;
-
-  const [_wrapperWidth, _setWrapperWidth] = React.useState<number>(0);
-
-  const containerRef = React.useRef<HTMLDivElement>(null);
+  const containerRef = React.useRef<BoxRef>(null);
   const isDragging = React.useRef<boolean>(false);
   const direction = React.useRef<Direction>("center");
   const lastValidDirection = React.useRef<ValidDirection | null>(null);
@@ -93,7 +92,7 @@ function ReactSlipAndSlideComponent<T>(
   }, []);
 
   const Opacity = React.useMemo(() => {
-    const initialOpacity = shouldAnimatedStartup ? 0 : 1;
+    const initialOpacity = animateStartup ? 0 : 1;
     return new SpringValue<number>(initialOpacity, {
       config: {
         tension: 260,
@@ -101,85 +100,51 @@ function ReactSlipAndSlideComponent<T>(
         mass: 1,
       },
     });
-  }, [shouldAnimatedStartup]);
+  }, [animateStartup]);
 
   const { width } = useScreenDimensions();
 
   React.useEffect(() => {
     if (containerRef.current && (!containerWidth || !itemHeight)) {
-      const { offsetWidth, clientWidth, offsetHeight, clientHeight } = containerRef.current;
-      setContainerDimensions({
-        width: containerWidth || offsetWidth || clientWidth,
-        height: itemHeight || offsetHeight || clientHeight,
+      containerRef.current.measure().then((m) => {
+        if (m) {
+          setContainerDimensions({
+            width: containerWidth || m.width || 0,
+            height: itemHeight || m.height || 0,
+          });
+        }
       });
     }
-  }, [containerWidth, containerRef, itemHeight, width]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [containerRef, containerWidth, itemHeight]);
 
-  const { itemRefs, itemDimensionMap } = useDynamicDimension({
-    mode,
+  // This is doing nothing
+  const { itemDimensionMap } = useDynamicDimension({
+    itemDimensionMode,
     dataLength: data.length,
     onMeasure: ({ itemWidthSum }) => {
       if (itemWidthSum) {
-        _setWrapperWidth(itemWidthSum);
+        // _setWrapperWidth(itemWidthSum);
+        setWrapperWidth(itemWidthSum);
       }
     },
   });
 
-  const { ranges } = useItemsRange({ mode, itemDimensionMap, offsetX: OffsetX.get() });
+  const { ranges } = useItemsRange({ itemDimensionMode, itemDimensionMap, offsetX: OffsetX.get() });
 
   React.useEffect(() => {
     if (!itemHeight && itemDimensionMap.length) {
-      setContainerDimensions((prev) => ({
-        ...prev,
-        height: itemDimensionMap[0].height,
-      }));
+      setContainerDimensions({
+        ...container,
+        height: itemDimensionMap[0].height || 0,
+      });
     }
-  }, [itemDimensionMap, itemHeight]);
-
-  const processClampOffsets = React.useCallback(
-    ({ wrapperWidth, sideMargins }: { wrapperWidth: number; sideMargins: number }) => {
-      const MIN = 0;
-      let MAX = -wrapperWidth + container.width;
-
-      if (centered) {
-        const _MAX_CENTERED = MAX - sideMargins * 2;
-        MAX = _MAX_CENTERED;
-      } else {
-        // In this case i guess you don't need a slider.
-        if (wrapperWidth < container.width) {
-          MAX = MIN;
-        }
-      }
-
-      return {
-        MIN,
-        MAX,
-      };
-    },
-    [centered, container.width]
-  );
-
-  const { dataLength, wrapperWidth, clampOffset } = React.useMemo(() => {
-    const wrapperWidth = mode === "fixed" ? data.length * itemWidth : _wrapperWidth;
-    const sideMargins = (container.width - itemWidth) / 2;
-
-    const { MIN, MAX } = processClampOffsets({ wrapperWidth, sideMargins });
-
-    return {
-      dataLength: data.length,
-      wrapperWidth,
-      sideMargins,
-      halfItem: itemWidth / 2,
-      clampOffset: {
-        MIN,
-        MAX,
-      },
-    };
-  }, [_wrapperWidth, container.width, data.length, itemWidth, mode, processClampOffsets]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itemDimensionMap]);
 
   const clampReleaseOffset = React.useCallback(
     (offset: number) => {
-      if (infinite && mode === "fixed") {
+      if (infinite && itemDimensionMode === "fixed") {
         return offset;
       }
 
@@ -190,7 +155,7 @@ function ReactSlipAndSlideComponent<T>(
       }
       return offset;
     },
-    [clampOffset.MAX, clampOffset.MIN, infinite, mode]
+    [clampOffset.MAX, clampOffset.MIN, infinite, itemDimensionMode]
   );
 
   const clampIndex = React.useCallback((index: number) => clamp(index, 0, dataLength - 1), [dataLength]);
@@ -273,12 +238,12 @@ function ReactSlipAndSlideComponent<T>(
       });
       if (actionType === "release") {
         lastOffset.current = clampedReleaseOffset;
-        if (mode === "fixed") {
+        if (itemDimensionMode === "fixed") {
           index.current = clampIndex(getRelativeIndex({ offset: clampedReleaseOffset }));
         } else {
           index.current = getCurrentDynamicIndex(offset, ranges);
         }
-        if (!eagerLoading) {
+        if (loadingType === "lazy") {
           reRender(index.current);
         }
         onChange?.(index.current);
@@ -293,10 +258,10 @@ function ReactSlipAndSlideComponent<T>(
       checkEdges,
       clampIndex,
       clampReleaseOffset,
-      eagerLoading,
       getRelativeIndex,
       infinite,
-      mode,
+      itemDimensionMode,
+      loadingType,
       onChange,
       onEdges,
       ranges,
@@ -349,7 +314,7 @@ function ReactSlipAndSlideComponent<T>(
 
   const withSnap = React.useCallback(
     ({ offset }: { offset: number }) => {
-      if (mode === "fixed") {
+      if (itemDimensionMode === "fixed") {
         const page = getCurrentIndexByOffset(-offset);
         const finalOffset = -page * itemWidth;
         return finalOffset;
@@ -363,7 +328,7 @@ function ReactSlipAndSlideComponent<T>(
         });
       }
     },
-    [centered, checkEdges, clampOffset.MIN, getCurrentIndexByOffset, itemWidth, mode, ranges]
+    [centered, checkEdges, clampOffset.MIN, getCurrentIndexByOffset, itemWidth, itemDimensionMode, ranges]
   );
 
   const withMomentum = React.useCallback(({ offset, v }: { offset: number; v: number }) => {
@@ -405,7 +370,7 @@ function ReactSlipAndSlideComponent<T>(
       if (_index) {
         targetOffset = getCurrentOffset({ index: _index });
       } else {
-        if (mode === "fixed") {
+        if (itemDimensionMode === "fixed") {
           const page = getCurrentIndex({ offset: OffsetX.get() });
           if (direction === "next") {
             const nextPage = page + 1;
@@ -429,7 +394,7 @@ function ReactSlipAndSlideComponent<T>(
         actionType: "release",
       });
     },
-    [OffsetX, centered, getCurrentIndex, getCurrentOffset, itemWidth, mode, ranges, springIt]
+    [OffsetX, centered, getCurrentIndex, getCurrentOffset, itemWidth, itemDimensionMode, ranges, springIt]
   );
 
   const move = React.useCallback(
@@ -473,7 +438,7 @@ function ReactSlipAndSlideComponent<T>(
         return;
       }
 
-      if (mode === "fixed") {
+      if (itemDimensionMode === "fixed") {
         const prev = index.current === 0 && idx === dataLength - 1;
         const next = index.current === dataLength - 1 && idx === 0;
         const smaller = idx < index.current;
@@ -497,13 +462,13 @@ function ReactSlipAndSlideComponent<T>(
         }
       }
     },
-    [OffsetX, dataLength, index, mode, navigate, pressToSlide, ranges]
+    [OffsetX, dataLength, index, itemDimensionMode, navigate, pressToSlide, ranges]
   );
 
   //region FX
   React.useEffect(() => {
-    if (shouldAnimatedStartup) {
-      if (mode === "dynamic") {
+    if (animateStartup) {
+      if (itemDimensionMode === "dynamic") {
         if (ranges.length && container.height) {
           Opacity.start({
             to: 1,
@@ -525,11 +490,11 @@ function ReactSlipAndSlideComponent<T>(
       onReady?.(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [Opacity, container.height, ranges.length, shouldAnimatedStartup]);
+  }, [Opacity, container.height, ranges.length, animateStartup]);
 
   // Fixes initial offset when: mode === dynamic and centered is true
   React.useEffect(() => {
-    if (mode === "dynamic" && centered) {
+    if (itemDimensionMode === "dynamic" && centered) {
       const alignment = centered ? "center" : "start";
 
       springIt({
@@ -539,7 +504,7 @@ function ReactSlipAndSlideComponent<T>(
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [centered, mode, ranges]);
+  }, [centered, itemDimensionMode, ranges]);
 
   // Reset to new clampOffset.MAX if is at the end edge and page is resized
   React.useEffect(() => {
@@ -565,10 +530,10 @@ function ReactSlipAndSlideComponent<T>(
   const prevContainerWidth = usePreviousValue(containerWidth);
   React.useEffect(() => {
     if (containerWidth && containerWidth !== prevContainerWidth) {
-      setContainerDimensions((prev) => ({
-        ...prev,
+      setContainerDimensions({
+        ...container,
         width: containerWidth,
-      }));
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [containerWidth]);
@@ -593,156 +558,46 @@ function ReactSlipAndSlideComponent<T>(
     [move, navigate]
   );
 
-  const shouldRender = React.useCallback(
-    (i: number) => {
-      if (eagerLoading) {
-        return true;
-      }
-      return isInRange(i, {
-        dataLength,
-        viewSize: itemWidth,
-        visibleItems: visibleItems || Math.round(dataLength / 2),
-        offsetX: OffsetX.get(),
-      });
-    },
-    [OffsetX, dataLength, eagerLoading, itemWidth, visibleItems]
-  );
-
   return (
     <Styled.Wrapper
       ref={containerRef}
-      className="wrapper"
+      willMeasure
       {...containerBind()}
-      style={{
-        opacity: Opacity,
+      styles={{
         justifyContent: centered ? "center" : "flex-start",
         width: containerWidth || "100%",
         height: itemHeight || container.height || "100%",
         overflow: overflowHidden ? "hidden" : undefined,
         touchAction: "pan-y",
       }}
+      style={{
+        opacity: Opacity,
+      }}
     >
-      {data.map((props, i) => (
-        <LazyLoad key={i} render={shouldRender(i)}>
-          <Item
-            ref={itemRefs[i]}
-            index={i}
-            mode={mode}
-            item={props}
-            dataLength={dataLength}
-            renderItem={renderItem}
-            infinite={infinite}
-            itemHeight={itemHeight}
-            itemWidth={mode === "fixed" ? itemWidth : ranges[i]?.width || 0}
-            interpolators={interpolators || {}}
-            dynamicOffset={ranges[i]?.range[centered ? "center" : "start"] || 0}
-            onPress={() => pressToSlide && handlePressToSlide(i)}
-            offsetX={OffsetX.to((offsetX) => (infinite ? offsetX % wrapperWidth : offsetX))}
-            isLazy={!eagerLoading}
-          />
-        </LazyLoad>
-      ))}
+      <Engine
+        data={data}
+        OffsetX={OffsetX}
+        engineMode={engineMode}
+        itemDimensions={{
+          height: itemHeight,
+          width: itemWidth,
+        }}
+        loadingType={loadingType}
+        renderItem={renderItem}
+        centered={centered}
+        interpolators={interpolators}
+        onPress={(i) => pressToSlide && handlePressToSlide(i)}
+        visibleItems={visibleItems}
+        onLayout={(onLayoutRes) => {
+          if (onLayoutRes.wrapperWidth) {
+            // _setWrapperWidth(onLayoutRes.wrapperWidth);
+            setWrapperWidth(onLayoutRes.wrapperWidth);
+          }
+        }}
+      />
     </Styled.Wrapper>
   );
 }
-
-function ItemComponent<T>(
-  {
-    offsetX,
-    dataLength,
-    index,
-    infinite,
-    itemWidth,
-    itemHeight,
-    item,
-    interpolators,
-    dynamicOffset,
-    mode,
-    isLazy,
-    renderItem,
-    onPress,
-  }: React.PropsWithChildren<ItemProps<T>>,
-  ref?: React.Ref<HTMLDivElement>
-) {
-  const Opacity = React.useMemo(() => {
-    return new SpringValue<number>(isLazy ? 0 : 1, {
-      config: {
-        tension: 260,
-        friction: 32,
-        mass: 1,
-      },
-    });
-  }, [isLazy]);
-
-  const x = displacement({
-    offsetX,
-    dataLength,
-    index,
-    itemWidth,
-    infinite,
-  });
-
-  const keys = Object.entries(interpolators) as [keyof typeof interpolators, number][];
-
-  const translateX: Interpolation<number, number> = React.useMemo(() => {
-    if (mode === "fixed") {
-      return x.to((val) => val / itemWidth).to([-1, 0, 1], [-itemWidth, 0, itemWidth]);
-    }
-    return to(offsetX, (x) => x + dynamicOffset);
-  }, [dynamicOffset, itemWidth, mode, offsetX, x]);
-
-  const mapInterpolators = React.useMemo(
-    () =>
-      keys.reduce((acc, [key, val]) => {
-        acc[key] = translateX.to((val) => val / itemWidth).to([-1, 0, 1], [val, 1, val], "clamp");
-        return acc;
-      }, {} as Interpolators<Interpolation<number, any>>),
-    [itemWidth, keys, translateX]
-  );
-
-  React.useEffect(() => {
-    if (isLazy) {
-      Opacity.start({
-        to: 1,
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLazy]);
-
-  const memoRenderItem = React.useMemo(() => {
-    return renderItem({ item, index });
-  }, [index, item, renderItem]);
-
-  return (
-    <Styled.Item
-      ref={ref}
-      onClick={onPress}
-      style={{
-        translateX,
-        ...mapInterpolators,
-        width: itemWidth === 0 ? undefined : itemWidth,
-        height: itemHeight,
-      }}
-      onDragStart={(e) => e.preventDefault()}
-    >
-      <AnimatedBox
-        style={{
-          width: "100%",
-          height: "100%",
-          opacity: Opacity,
-        }}
-      >
-        {memoRenderItem}
-      </AnimatedBox>
-    </Styled.Item>
-  );
-}
-
-export const Item = React.forwardRef(ItemComponent) as <T>(
-  props: React.PropsWithChildren<ItemProps<T>> & {
-    ref?: React.Ref<HTMLDivElement>;
-  }
-) => ReturnType<typeof ItemComponent>;
 
 export const ForwardReactSlipAndSlideRef = React.forwardRef(ReactSlipAndSlideComponent) as <T>(
   props: ReactSlipAndSlideProps<T> & {
@@ -750,4 +605,18 @@ export const ForwardReactSlipAndSlideRef = React.forwardRef(ReactSlipAndSlideCom
   }
 ) => ReturnType<typeof ReactSlipAndSlideComponent>;
 
-export const ReactSlipAndSlide = typedMemo(ForwardReactSlipAndSlideRef);
+function ReactSlipAndSlideWithContext<T>(props: ReactSlipAndSlideProps<T>, ref: React.Ref<ReactSlipAndSlideRef>) {
+  return (
+    <DataProvider initialData={initializeContextData<T>(props)}>
+      <ForwardReactSlipAndSlideRef ref={ref} {...props} />
+    </DataProvider>
+  );
+}
+
+export const ForwardReactSlipAndSlideWithContextRef = React.forwardRef(ReactSlipAndSlideWithContext) as <T>(
+  props: ReactSlipAndSlideProps<T> & {
+    ref?: React.Ref<ReactSlipAndSlideRef>;
+  }
+) => ReturnType<typeof ReactSlipAndSlideWithContext>;
+
+export const ReactSlipAndSlide = typedMemo(ForwardReactSlipAndSlideWithContextRef);

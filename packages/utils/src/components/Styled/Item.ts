@@ -1,10 +1,18 @@
-import { styled } from "../../utilities";
+import { styled, css } from "../../utilities";
 import { AnimatedBox } from "../AnimatedBox";
 
-export const Item = styled(AnimatedBox)`
-  position: absolute;
+const itemBaseStyle = css`
   flex-shrink: 0;
   display: flex;
   justify-content: center;
   align-items: center;
+`;
+
+export const FloatingItem = styled(AnimatedBox)`
+  ${itemBaseStyle}
+  position: absolute;
+`;
+
+export const Item = styled(AnimatedBox)`
+  ${itemBaseStyle}
 `;

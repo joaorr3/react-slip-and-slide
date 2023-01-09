@@ -1,10 +1,10 @@
 import {
   DynamicRangeSum,
-  ItemDimension,
   NextDynamicOffset,
   ValidDirection,
   TypedMemo,
   IsInRange,
+  BoxMeasurements,
 } from "@react-slip-and-slide/models";
 import { clamp } from "lodash";
 import React from "react";
@@ -53,11 +53,10 @@ export const getNextDynamicOffset = ({ offsetX, ranges, dir, centered }: NextDyn
   return -off;
 };
 
-export const getDynamicRangeSum = (itemDimensionMap: ItemDimension[]) => {
+export const getDynamicRangeSum = (itemDimensionMap: BoxMeasurements[]) => {
   let previousSum = 0;
   const range: DynamicRangeSum[] = [];
-
-  itemDimensionMap.forEach(({ width }, index) => {
+  itemDimensionMap.forEach(({ width = 0 }, index) => {
     range.push({
       index,
       width,
@@ -121,4 +120,34 @@ export const useIsFirstRender = () => {
   }
 
   return isFirst.current;
+};
+
+export const processClampOffsets = ({
+  wrapperWidth,
+  sideMargins,
+  centered,
+  containerWidth,
+}: {
+  wrapperWidth: number;
+  sideMargins: number;
+  centered: boolean;
+  containerWidth: number;
+}) => {
+  const MIN = 0;
+  let MAX = -wrapperWidth + containerWidth;
+
+  if (centered) {
+    const _MAX_CENTERED = MAX - sideMargins * 2;
+    MAX = _MAX_CENTERED;
+  } else {
+    // In this case i guess you don't need a slider.
+    if (wrapperWidth < containerWidth) {
+      MAX = MIN;
+    }
+  }
+
+  return {
+    MIN,
+    MAX,
+  };
 };

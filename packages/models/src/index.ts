@@ -14,12 +14,14 @@ export type ReactSlipAndSlideRef = {
 export type ValidDirection = "left" | "right";
 export type Direction = ValidDirection | "center";
 export type ActionType = "drag" | "release" | "correction";
+
 export type SpringIt = {
   offset: number;
   immediate?: boolean;
   onRest?: (x: AnimationResult<SpringValue<number>>) => void;
   actionType: ActionType;
 };
+
 export type Navigate = {
   index?: number;
   direction?: "next" | "prev";
@@ -123,18 +125,20 @@ export type ItemProps<T> = {
   itemHeight?: number;
   interpolators: Interpolators<number>;
   dynamicOffset: number;
-  mode: Mode;
+  itemDimensionMode: ItemDimensionMode;
   isLazy?: boolean;
   renderItem: RenderItem<T>;
   onPress?: () => void;
 };
 
-export type ContainerDimensions = {
+export type BaseDimensions = {
   width: number;
   height: number;
 };
 
-export type Mode = "dynamic" | "fixed";
+export type ContainerDimensions = BaseDimensions;
+
+export type ItemDimensionMode = "dynamic" | "fixed";
 
 // -- Utils
 
@@ -146,36 +150,28 @@ export interface DisplacementModel {
   infinite: boolean;
 }
 
-export type ScreenDimensions = {
-  width: number;
-  height: number;
-};
+export type ScreenDimensions = BaseDimensions;
 
-export type ItemDimension = {
-  width: number;
-  height: number;
-};
+export type ItemDimension = BaseDimensions;
 
-export type OnMeasureCallback = (args: { itemDimensionMap?: ItemDimension[]; itemWidthSum?: number }) => void;
+export type OnMeasureCallback = (args: { itemDimensionMap?: BoxMeasurements[]; itemWidthSum?: number }) => void;
 
 export type DynamicRangeSum =
-  | {
+  | (Pick<ItemDimension, "width"> & {
       index: number;
-      width: number;
       range: { start: number; center: number; end: number };
-    }
+    })
   | undefined;
 
 export type UseDynamicDimension = {
-  mode: Mode;
+  itemDimensionMode: ItemDimensionMode;
   dataLength: number;
   onMeasure?: OnMeasureCallback;
 };
 
 export type UseItemsRange = {
-  mode: Mode;
-  itemDimensionMap: ItemDimension[];
-  offsetX: number;
+  itemDimensionMode: ItemDimensionMode;
+  itemDimensionMap: BoxMeasurements[];
 };
 
 export type NextDynamicOffset = {
@@ -190,6 +186,14 @@ export type IsInRange = {
   viewSize: number;
   offsetX: number;
   visibleItems: number;
+};
+
+// -- Utils.Components
+
+export type BoxMeasurements = Partial<ItemDimension>;
+
+export type BoxRef = {
+  measure: () => Promise<BoxMeasurements>;
 };
 
 // -- Helper

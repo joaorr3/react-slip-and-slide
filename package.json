@@ -13,7 +13,8 @@
     "watch": "preconstruct watch",
     "changeset:add": "changeset add",
     "changeset:version": "changeset version",
-    "changeset:publish": "changeset publish"
+    "changeset:publish": "changeset publish",
+    "type-check": "tsc --noEmit"
   },
   "preconstruct": {
     "packages": [
