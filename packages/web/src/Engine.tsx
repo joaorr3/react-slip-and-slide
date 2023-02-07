@@ -1,10 +1,4 @@
-import {
-  Interpolators,
-  ItemProps,
-  ItemDimensionMode,
-  ReactSlipAndSlideProps,
-  BoxRef,
-} from "@react-slip-and-slide/models";
+import { BoxRef, Interpolators, ItemProps, ReactSlipAndSlideProps } from "@react-slip-and-slide/models";
 import {
   AnimatedBox,
   Box,
@@ -13,7 +7,6 @@ import {
   LazyLoad,
   Styled,
   useDynamicDimension,
-  useItemsRange,
 } from "@react-slip-and-slide/utils";
 import React from "react";
 import { Interpolation, SpringValue, to } from "react-spring";
@@ -22,87 +15,87 @@ import { useDataContext } from "./Context";
 export type EngineMode = "multi" | "single";
 export type LoadingType = "lazy" | "eager";
 
-export type BaseEngineProps<T> = Pick<
-  ReactSlipAndSlideProps<T>,
-  "data" | "centered" | "interpolators" | "visibleItems" | "renderItem"
-> & {
-  engineMode: EngineMode;
-  loadingType: LoadingType;
+export type BaseEngineProps<T> = Pick<ReactSlipAndSlideProps<T>, "renderItem"> & {
   OffsetX: SpringValue<number>;
-  itemDimensions: {
-    width: number;
-    height?: number;
-  };
   onPress?: (index: number) => void;
-  onLayout?: (props: { wrapperWidth?: number }) => void;
 };
 
 export type EngineProps<T> = BaseEngineProps<T>;
-export type EngineHookProps<T> = BaseEngineProps<T>;
 
-function usePrepareEngine<T>({}: EngineHookProps<T>) {
+function usePrepareEngine<T>() {
   const {
-    state: {
-      data,
-      dataLength,
-      engineMode,
-      itemDimensions: { height: itemHeight, width: itemWidth = 0 },
-      loadingType,
-      centered,
-      visibleItems,
-      infinite,
-      itemDimensionMode,
-      container,
-      wrapperWidth,
-      clampOffset,
-    },
-    actions: { setContainerDimensions, setWrapperWidth, setItemDimensionMap },
+    state: { dataLength, itemDimensionMode, wrapperWidth },
+    actions: { setContainerDimensions, setWrapperWidth, setItemDimensionMap, setRanges },
   } = useDataContext<T>();
 
-  // const [wrapperWidth, _setWrapperWidth] = React.useState<number>(data.length * itemDimensions.width);
+  const wrapperRef = React.useRef<BoxRef>(null);
 
-  const { itemRefs, itemDimensionMap, ranges } = useDynamicDimension({
+  const { itemRefs, itemDimensionMap, ranges, itemWidthSum } = useDynamicDimension({
     itemDimensionMode,
     dataLength,
-    onMeasure: ({ itemWidthSum }) => {
-      if (itemWidthSum) {
-        setWrapperWidth(itemWidthSum);
-      }
-    },
   });
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
+    console.log("itemDimensionMap: ", itemDimensionMap);
     if (itemDimensionMap.length > 0) {
       setItemDimensionMap(itemDimensionMap);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [itemDimensionMap]);
 
-  console.log("ranges: ", ranges);
+  React.useLayoutEffect(() => {
+    if (ranges.length > 0) {
+      setRanges(ranges);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ranges]);
+
+  React.useLayoutEffect(() => {
+    wrapperRef.current?.measure().then(({ width, height }) => {
+      if (width) {
+        setWrapperWidth(width);
+      }
+
+      setContainerDimensions({
+        height,
+      });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  React.useEffect(() => {
+    // If wrapperRef measure fail, fallback to itemWidthSum
+    if (!wrapperWidth && itemWidthSum) {
+      setWrapperWidth(itemWidthSum);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itemWidthSum]);
 
   return {
     itemRefs,
-    ranges,
-    wrapperWidth,
+    wrapperRef,
   };
 }
 
 export function Engine<T>(props: EngineProps<T>): JSX.Element {
-  const {
-    engineMode,
-    data,
-    loadingType,
-    OffsetX,
-    itemDimensions,
-    visibleItems,
-    centered,
-    interpolators,
-    onPress,
-    onLayout,
-    renderItem,
-  } = props;
+  const { OffsetX, onPress, renderItem } = props;
 
-  const { itemRefs, ranges, wrapperWidth } = usePrepareEngine(props);
+  const {
+    state: {
+      data,
+      engineMode,
+      itemDimensions,
+      loadingType,
+      centered,
+      visibleItems,
+      wrapperWidth,
+      ranges,
+      interpolators,
+      infinite,
+    },
+  } = useDataContext<T>();
+
+  const { itemRefs, wrapperRef } = usePrepareEngine();
 
   const shouldRender = React.useCallback(
     (i: number) => {
@@ -119,22 +112,11 @@ export function Engine<T>(props: EngineProps<T>): JSX.Element {
     [OffsetX, data.length, itemDimensions.width, loadingType, visibleItems]
   );
 
-  const boxRef = React.useRef<BoxRef>(null);
-
-  React.useLayoutEffect(() => {
-    boxRef.current?.measure().then((props) => {
-      if (props) {
-        onLayout?.({
-          wrapperWidth: props.width,
-        });
-      }
-    });
-  }, [onLayout]);
-
-  if (engineMode === "single") {
+  // if (engineMode === "single") {
+  if (!infinite) {
     return (
       <Styled.Wrapper
-        ref={boxRef}
+        ref={wrapperRef}
         willMeasure
         style={{
           translateX: OffsetX,

@@ -2,6 +2,7 @@ import {
   BoxMeasurements,
   ContainerDimensions,
   DynamicRangeSum,
+  Interpolators,
   ItemDimensionMode,
   ReactSlipAndSlideProps,
 } from "@react-slip-and-slide/models";
@@ -16,10 +17,7 @@ export type ContextModel<T extends unknown = unknown> = Required<
   itemDimensionMode: ItemDimensionMode;
   engineMode: EngineMode;
   loadingType: LoadingType;
-  itemDimensions: {
-    width?: number;
-    height?: number;
-  };
+  itemDimensions: Required<BoxMeasurements>;
   container: ContainerDimensions;
   dataLength: number;
   wrapperWidth: number;
@@ -29,6 +27,7 @@ export type ContextModel<T extends unknown = unknown> = Required<
   };
   itemDimensionMap: BoxMeasurements[];
   ranges: DynamicRangeSum[];
+  interpolators?: Interpolators<number>;
 };
 
 export enum ActionTypes {
@@ -46,7 +45,7 @@ type InitActionType = {
 
 type SetContainerDimensionsActionType = {
   type: ActionTypes.SET_CONTAINER_DIMENSIONS;
-  payload: ContainerDimensions;
+  payload: Partial<ContainerDimensions>;
 };
 
 type SetWrapperWidthActionType = {
@@ -76,7 +75,7 @@ export interface ContextHandlers<T extends unknown = unknown> {
   dispatch: React.Dispatch<Actions>;
   actions: {
     init: (payload: Partial<ContextModel>) => void;
-    setContainerDimensions: (payload: ContainerDimensions) => void;
+    setContainerDimensions: (payload: Partial<ContainerDimensions>) => void;
     setWrapperWidth: (payload: number) => void;
     setItemDimensionMap: (payload: BoxMeasurements[]) => void;
     setRanges: (payload: DynamicRangeSum[]) => void;
@@ -89,8 +88,13 @@ const LateralMenuProducer = produce<Reducer<ContextModel, Actions>>((draft, acti
       draft.centered = true;
       break;
     case ActionTypes.SET_CONTAINER_DIMENSIONS:
-      draft.container.height = action.payload.height;
-      draft.container.width = action.payload.width;
+      const { width, height } = action.payload;
+      if (height) {
+        draft.container.height = height;
+      }
+      if (width) {
+        draft.container.width = width;
+      }
       break;
     case ActionTypes.SET_WRAPPER_WIDTH:
       const {
@@ -106,6 +110,9 @@ const LateralMenuProducer = produce<Reducer<ContextModel, Actions>>((draft, acti
       break;
     case ActionTypes.SET_ITEM_DIMENSION_MAP:
       draft.itemDimensionMap = action.payload;
+      break;
+    case ActionTypes.SET_RANGES:
+      draft.ranges = action.payload;
       break;
   }
 });
@@ -188,7 +195,16 @@ function processContextData<T>(data: ContextModel<T>): ContextModel<T> {
  *
  */
 export function initializeContextData<T>(props: ReactSlipAndSlideProps<T>) {
-  const { data, itemHeight, itemWidth = 0, fullWidthItem, infinite: _infinite, visibleItems, containerWidth } = props;
+  const {
+    data,
+    itemHeight,
+    itemWidth = 0,
+    fullWidthItem,
+    infinite: _infinite,
+    visibleItems,
+    containerWidth,
+    interpolators,
+  } = props;
 
   const itemDimensionMode: ItemDimensionMode = (itemWidth && itemHeight) || fullWidthItem ? "fixed" : "dynamic";
   const infinite = itemDimensionMode === "fixed" && !!_infinite;
@@ -221,6 +237,7 @@ export function initializeContextData<T>(props: ReactSlipAndSlideProps<T>) {
     fullWidthItem: false,
     itemDimensionMap: [],
     ranges: [],
+    interpolators,
   };
 
   return initialContextData;

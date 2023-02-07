@@ -1,8 +1,6 @@
 import {
   BoxRef,
-  ContainerDimensions,
   Direction,
-  ItemDimensionMode,
   Navigate,
   ReactSlipAndSlideProps,
   ReactSlipAndSlideRef,
@@ -15,9 +13,7 @@ import {
   rubberband,
   Styled,
   typedMemo,
-  useDynamicDimension,
   useIsFirstRender,
-  useItemsRange,
   usePreviousValue,
   useScreenDimensions,
 } from "@react-slip-and-slide/utils";
@@ -26,24 +22,16 @@ import { clamp } from "lodash";
 import React from "react";
 import { SpringValue } from "react-spring";
 import { DataProvider, initializeContextData, useDataContext } from "./Context";
-import { Engine, EngineMode, LoadingType } from "./Engine";
+import { Engine } from "./Engine";
 
 function ReactSlipAndSlideComponent<T>(
   {
-    // data,
     snap,
-    // centered,
-    // infinite: _infinite,
-    containerWidth,
+    containerWidth: containerWidthProp,
     overflowHidden = true,
-    // itemHeight,
-    // itemWidth: _itemWidth = 0,
     pressToSlide,
-    interpolators,
     animateStartup = true,
     rubberbandElasticity = 4,
-    // visibleItems = 0,
-    // fullWidthItem,
     renderItem,
     onChange,
     onEdges,
@@ -53,20 +41,18 @@ function ReactSlipAndSlideComponent<T>(
 ) {
   const {
     state: {
-      data,
       dataLength,
-      engineMode,
-      itemDimensions: { height: itemHeight, width: itemWidth = 0 },
+      itemDimensions: { width: itemWidth = 0 },
       loadingType,
       centered,
-      visibleItems,
       infinite,
       itemDimensionMode,
       container,
       wrapperWidth,
       clampOffset,
+      ranges,
     },
-    actions: { setContainerDimensions, setWrapperWidth },
+    actions: { setContainerDimensions },
   } = useDataContext<T>();
 
   const isFirstRender = useIsFirstRender();
@@ -102,45 +88,20 @@ function ReactSlipAndSlideComponent<T>(
     });
   }, [animateStartup]);
 
-  const { width } = useScreenDimensions();
+  const { width: screenWidth } = useScreenDimensions();
 
-  React.useEffect(() => {
-    if (containerRef.current && (!containerWidth || !itemHeight)) {
-      containerRef.current.measure().then((m) => {
-        if (m) {
-          setContainerDimensions({
-            width: containerWidth || m.width || 0,
-            height: itemHeight || m.height || 0,
-          });
-        }
+  // If containerWidthProp if undefined or 0 the fallback is 100% and we need to measure it
+  React.useLayoutEffect(() => {
+    if (!containerWidthProp) {
+      containerRef.current?.measure().then((m) => {
+        console.log("m: ", m);
+        setContainerDimensions({
+          width: m.width,
+        });
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [containerRef, containerWidth, itemHeight]);
-
-  // This is doing nothing
-  const { itemDimensionMap } = useDynamicDimension({
-    itemDimensionMode,
-    dataLength: data.length,
-    onMeasure: ({ itemWidthSum }) => {
-      if (itemWidthSum) {
-        // _setWrapperWidth(itemWidthSum);
-        setWrapperWidth(itemWidthSum);
-      }
-    },
-  });
-
-  const { ranges } = useItemsRange({ itemDimensionMode, itemDimensionMap, offsetX: OffsetX.get() });
-
-  React.useEffect(() => {
-    if (!itemHeight && itemDimensionMap.length) {
-      setContainerDimensions({
-        ...container,
-        height: itemDimensionMap[0].height || 0,
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [itemDimensionMap]);
+  }, [container, screenWidth]);
 
   const clampReleaseOffset = React.useCallback(
     (offset: number) => {
@@ -524,19 +485,18 @@ function ReactSlipAndSlideComponent<T>(
       onEdges?.(checkEdges({ offset: OffsetX.get() }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [width, clampOffset.MAX]);
+  }, [screenWidth, clampOffset.MAX]);
 
-  // Check containerWidth
-  const prevContainerWidth = usePreviousValue(containerWidth);
+  // Check containerWidthProp
+  const prevContainerWidth = usePreviousValue(containerWidthProp);
   React.useEffect(() => {
-    if (containerWidth && containerWidth !== prevContainerWidth) {
+    if (containerWidthProp && containerWidthProp !== prevContainerWidth) {
       setContainerDimensions({
-        ...container,
-        width: containerWidth,
+        width: containerWidthProp,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [containerWidth]);
+  }, [containerWidthProp]);
 
   React.useEffect(() => {
     if (!infinite) {
@@ -565,8 +525,8 @@ function ReactSlipAndSlideComponent<T>(
       {...containerBind()}
       styles={{
         justifyContent: centered ? "center" : "flex-start",
-        width: containerWidth || "100%",
-        height: itemHeight || container.height || "100%",
+        width: containerWidthProp || "100%",
+        height: container.height || "100%",
         overflow: overflowHidden ? "hidden" : undefined,
         touchAction: "pan-y",
       }}
@@ -574,27 +534,7 @@ function ReactSlipAndSlideComponent<T>(
         opacity: Opacity,
       }}
     >
-      <Engine
-        data={data}
-        OffsetX={OffsetX}
-        engineMode={engineMode}
-        itemDimensions={{
-          height: itemHeight,
-          width: itemWidth,
-        }}
-        loadingType={loadingType}
-        renderItem={renderItem}
-        centered={centered}
-        interpolators={interpolators}
-        onPress={(i) => pressToSlide && handlePressToSlide(i)}
-        visibleItems={visibleItems}
-        onLayout={(onLayoutRes) => {
-          if (onLayoutRes.wrapperWidth) {
-            // _setWrapperWidth(onLayoutRes.wrapperWidth);
-            setWrapperWidth(onLayoutRes.wrapperWidth);
-          }
-        }}
-      />
+      <Engine OffsetX={OffsetX} renderItem={renderItem} onPress={(i) => pressToSlide && handlePressToSlide(i)} />
     </Styled.Wrapper>
   );
 }
