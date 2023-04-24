@@ -1,10 +1,11 @@
 {
   "root": true,
   "ignorePatterns": ["**/*"],
-  "plugins": ["@nrwl/nx"],
+  "plugins": ["@nrwl/nx", "react"],
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
+      "extends": ["plugin:@nrwl/nx/typescript", "plugin:@nrwl/nx/react"],
       "rules": {
         "@nrwl/nx/enforce-module-boundaries": [
           "error",
@@ -17,6 +18,29 @@
                 "onlyDependOnLibsWithTags": ["*"]
               }
             ]
+          }
+        ],
+        "@typescript-eslint/consistent-type-imports": [
+          "error",
+          {
+            "prefer": "type-imports",
+            "fixStyle": "inline-type-imports"
+          }
+        ],
+        "eqeqeq": ["warn", "always"],
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-empty-function": "off",
+        "@typescript-eslint/ban-ts-comment": "off",
+        "react/jsx-no-useless-fragment": "off",
+        "@typescript-eslint/prefer-optional-chain": "error",
+        "jsx-a11y/aria-role": "off",
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "no-case-declarations": "off",
+        "@typescript-eslint/no-unused-vars": [
+          "error",
+          {
+            "argsIgnorePattern": "^_",
+            "varsIgnorePattern": "^_"
           }
         ]
       }

@@ -1,5 +1,23 @@
 {
   "name": "react-slip-and-slide",
-  "version": "0.0.1",
-  "type": "commonjs"
+  "version": "1.5.4",
+  "keywords": [
+    "react-slip-and-slide",
+    "react",
+    "carousel",
+    "slider",
+    "swipe",
+    "drag",
+    "spring",
+    "use-gesture"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joaorr3/react-slip-and-slide"
+  },
+  "bugs": {
+    "url": "https://github.com/joaorr3/react-slip-and-slide/issues"
+  },
+  "homepage": "https://github.com/joaorr3/react-slip-and-slide#readme",
+  "license": "MIT"
 }

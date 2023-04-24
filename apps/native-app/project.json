@@ -1,0 +1,79 @@
+{
+  "name": "native-app",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/native-app/src",
+  "projectType": "application",
+  "targets": {
+    "start": {
+      "executor": "@nrwl/react-native:start",
+      "options": {
+        "port": 8081
+      }
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "nx start native-app"
+      }
+    },
+    "run-ios": {
+      "executor": "@nrwl/react-native:run-ios",
+      "options": {}
+    },
+    "bundle-ios": {
+      "executor": "@nrwl/react-native:bundle",
+      "outputs": ["{options.bundleOutput}"],
+      "options": {
+        "entryFile": "src/main.tsx",
+        "platform": "ios",
+        "bundleOutput": "dist/apps/native-app/ios/main.jsbundle"
+      }
+    },
+    "run-android": {
+      "executor": "@nrwl/react-native:run-android",
+      "options": {}
+    },
+    "build-android": {
+      "executor": "@nrwl/react-native:build-android",
+      "outputs": [
+        "{projectRoot}/android/app/build/outputs/bundle",
+        "{projectRoot}/android/app/build/outputs/apk"
+      ],
+      "options": {}
+    },
+    "build-ios": {
+      "executor": "@nrwl/react-native:build-ios",
+      "outputs": ["{projectRoot}/ios/build/Build"],
+      "options": {}
+    },
+    "pod-install": {
+      "executor": "@nrwl/react-native:pod-install",
+      "options": {}
+    },
+    "bundle-android": {
+      "executor": "@nrwl/react-native:bundle",
+      "outputs": ["{options.bundleOutput}"],
+      "options": {
+        "entryFile": "src/main.tsx",
+        "platform": "android",
+        "bundleOutput": "dist/apps/native-app/android/main.jsbundle"
+      }
+    },
+    "sync-deps": {
+      "executor": "@nrwl/react-native:sync-deps",
+      "options": {}
+    },
+    "ensure-symlink": {
+      "executor": "@nrwl/react-native:ensure-symlink",
+      "options": {}
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/native-app/**/*.{ts,tsx,js,jsx}"]
+      }
+    }
+  },
+  "tags": []
+}

@@ -2,22 +2,33 @@
   "compileOnSave": false,
   "compilerOptions": {
     "rootDir": ".",
-    "sourceMap": true,
-    "declaration": false,
+    "sourceMap": false,
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "composite": true,
     "importHelpers": true,
-    "target": "es2015",
-    "module": "esnext",
+    "esModuleInterop": true,
+    "target": "ES2015",
+    "module": "ESNext",
     "lib": ["es2017", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "jsx": "react",
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
       "@react-slip-and-slide/models": ["packages/models/src/index.ts"],
       "@react-slip-and-slide/native": ["packages/native/src/index.ts"],
       "@react-slip-and-slide/utils": ["packages/utils/src/index.ts"],
+      "@react-slip-and-slide/utils/src/index.native": [
+        "packages/utils/src/index.native.ts"
+      ],
       "@react-slip-and-slide/web": ["packages/web/src/index.ts"],
       "react-slip-and-slide": ["packages/react-slip-and-slide/src/index.ts"]
     }

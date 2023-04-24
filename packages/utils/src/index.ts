@@ -1,1 +1,2 @@
-export * from './lib/Utils';
+export * from "./components";
+export * from "./utilities";
