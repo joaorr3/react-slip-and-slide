@@ -14,7 +14,13 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@react-slip-and-slide/models": ["packages/models/src/index.ts"],
+      "@react-slip-and-slide/native": ["packages/native/src/index.ts"],
+      "@react-slip-and-slide/utils": ["packages/utils/src/index.ts"],
+      "@react-slip-and-slide/web": ["packages/web/src/index.ts"],
+      "react-slip-and-slide": ["packages/react-slip-and-slide/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

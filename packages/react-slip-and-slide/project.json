@@ -1,0 +1,33 @@
+{
+  "name": "react-slip-and-slide",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/react-slip-and-slide/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/react-slip-and-slide",
+        "main": "packages/react-slip-and-slide/src/index.ts",
+        "tsConfig": "packages/react-slip-and-slide/tsconfig.lib.json",
+        "assets": ["packages/react-slip-and-slide/*.md"]
+      }
+    },
+    "publish": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node tools/scripts/publish.mjs react-slip-and-slide {args.ver} {args.tag}"
+      },
+      "dependsOn": ["build"]
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/react-slip-and-slide/**/*.ts"]
+      }
+    }
+  },
+  "tags": []
+}
