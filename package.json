@@ -3,8 +3,9 @@
   "version": "1.5.5",
   "license": "MIT",
   "scripts": {
-    "build": "npx nx run-many --target=build",
+    "build": "npx nx run-many --target=build --exclude root",
     "version": "npx nx run root:version --syncVersions",
+    "publish": "npx nx run-many --target=publish --exclude root",
     "web": "npx nx run web-app:serve",
     "clear": "watchman watch-del-all && rm -rf $TMPDIR/metro-cache",
     "native:start": "npx nx run native-app:start",
@@ -24,9 +25,9 @@
     "styled-components": "^5.3.10"
   },
   "devDependencies": {
-    "babel-plugin-module-resolver": "^5.0.0",
     "@babel/preset-react": "^7.14.5",
     "@jscutlery/semver": "^2.30.1",
+    "@nrwl/devkit": "^15.9.2",
     "@nrwl/eslint-plugin-nx": "15.9.2",
     "@nrwl/js": "15.9.2",
     "@nrwl/linter": "15.9.2",
@@ -54,6 +55,7 @@
     "@vitejs/plugin-react": "^3.0.0",
     "@vitest/coverage-c8": "~0.25.8",
     "@vitest/ui": "^0.25.8",
+    "babel-plugin-module-resolver": "^5.0.0",
     "babel-plugin-styled-components": "1.10.7",
     "eslint": "~8.15.0",
     "eslint-config-prettier": "8.1.0",
