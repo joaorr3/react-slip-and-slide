@@ -1,6 +1,6 @@
 {
   "name": "react-slip-and-slide",
-  "version": "1.5.5",
+  "version": "2.0.0",
   "license": "MIT",
   "scripts": {
     "build": "npx nx run-many --target=build --exclude root",
