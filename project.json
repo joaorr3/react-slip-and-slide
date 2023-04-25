@@ -6,7 +6,8 @@
     "version": {
       "executor": "@jscutlery/semver:version",
       "options": {
-        "preset": "conventional"
+        "preset": "conventional",
+        "commitMessageFormat": "chore(react-slip-and-slide): release version ${version}"
       }
     }
   },
