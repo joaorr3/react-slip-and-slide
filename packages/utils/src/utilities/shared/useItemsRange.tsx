@@ -1,11 +1,18 @@
-import { UseItemsRange } from "@react-slip-and-slide/models";
-import React from "react";
-import { getDynamicRangeSum } from "./helpers";
+import { type UseItemsRange } from '@react-slip-and-slide/models';
+import React from 'react';
+import { getDynamicRangeSum } from './helpers';
 
-export const useItemsRange = ({ mode, itemDimensionMap, offsetX: _offsetX }: UseItemsRange) => {
-  const ranges = React.useMemo(() => getDynamicRangeSum(itemDimensionMap), [itemDimensionMap]);
+export const useItemsRange = ({
+  mode,
+  itemDimensionMap,
+  offsetX: _offsetX,
+}: UseItemsRange) => {
+  const ranges = React.useMemo(
+    () => getDynamicRangeSum(itemDimensionMap),
+    [itemDimensionMap]
+  );
 
-  if (mode === "fixed") {
+  if (mode === 'fixed') {
     return { ranges: [], currentIndex: 0 };
   }
 

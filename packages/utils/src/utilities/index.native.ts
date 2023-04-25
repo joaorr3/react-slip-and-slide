@@ -1,7 +1,7 @@
-export { displacement } from "./native/displacement";
-export { styled } from "./native/styled";
-export { useDynamicDimension } from "./native/useDynamicDimension";
-export { useScreenDimensions } from "./native/useScreenDimensions";
+export { displacement } from './native/displacement';
+export { styled } from './native/styled';
+export { useDynamicDimension } from './native/useDynamicDimension';
+export { useScreenDimensions } from './native/useScreenDimensions';
 export {
   getCurrentDynamicIndex,
   getNextDynamicIndex,
@@ -10,6 +10,6 @@ export {
   typedMemo,
   usePreviousValue,
   useIsFirstRender,
-} from "./shared/helpers";
-export { rubberband } from "./shared/rubberband";
-export { useItemsRange } from "./shared/useItemsRange";
+} from './shared/helpers';
+export { rubberband } from './shared/rubberband';
+export { useItemsRange } from './shared/useItemsRange';

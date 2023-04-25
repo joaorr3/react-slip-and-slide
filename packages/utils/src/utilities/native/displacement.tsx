@@ -1,5 +1,5 @@
-import { DisplacementModel } from "@react-slip-and-slide/models";
-import { to, Interpolation } from "@react-spring/native";
+import { type DisplacementModel } from '@react-slip-and-slide/models';
+import { to, type Interpolation } from '@react-spring/native';
 
 export const displacement = ({
   offsetX,
@@ -13,7 +13,8 @@ export const displacement = ({
     const halfItem = itemWidth / 2;
     const wrapperWidth = dataLength * itemWidth;
 
-    const startPosition = index > halfData ? (index - dataLength) * itemWidth : index * itemWidth;
+    const startPosition =
+      index > halfData ? (index - dataLength) * itemWidth : index * itemWidth;
 
     const max = halfData * itemWidth;
     const min = -((dataLength - halfData - 1) * itemWidth);
@@ -38,7 +39,7 @@ export const displacement = ({
       startPosition,
     ];
 
-    return to(offsetX, input, output, "clamp");
+    return to(offsetX, input, output, 'clamp');
   }
 
   return to(offsetX, (x) => x + itemWidth * index);

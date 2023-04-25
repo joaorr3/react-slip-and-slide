@@ -1,4 +1,8 @@
-export const rubberband = (offset: number, multiplier = 2, [min, max]: [number, number]) => {
+export const rubberband = (
+  offset: number,
+  multiplier = 2,
+  [min, max]: [number, number]
+) => {
   let overflow = 0;
   let edgeOffset = 0;
 

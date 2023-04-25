@@ -1,12 +1,13 @@
-import { debounce } from "lodash";
-import React from "react";
-import { ScreenDimensions } from "@react-slip-and-slide/models";
+import { debounce } from 'lodash';
+import React from 'react';
+import { type ScreenDimensions } from '@react-slip-and-slide/models';
 
 export const useScreenDimensions = () => {
-  const [screenDimensions, setScreenDimensions] = React.useState<ScreenDimensions>({
-    width: 0,
-    height: 0,
-  });
+  const [screenDimensions, setScreenDimensions] =
+    React.useState<ScreenDimensions>({
+      width: 0,
+      height: 0,
+    });
 
   const set = debounce(() => {
     setScreenDimensions({
@@ -16,9 +17,9 @@ export const useScreenDimensions = () => {
   }, 200);
 
   React.useEffect(() => {
-    window.addEventListener("resize", set);
+    window.addEventListener('resize', set);
     set();
-    return () => window.removeEventListener("resize", set);
+    return () => window.removeEventListener('resize', set);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

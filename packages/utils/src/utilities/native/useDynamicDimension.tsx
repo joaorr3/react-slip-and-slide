@@ -1,10 +1,10 @@
 import {
-  ItemDimension,
-  UseDynamicDimension,
+  type ItemDimension,
+  type UseDynamicDimension,
 } from '@react-slip-and-slide/models';
 import { sumBy, times } from 'lodash';
 import React from 'react';
-import { View } from 'react-native';
+import { type View } from 'react-native';
 
 const viewMeasure = (ref: React.RefObject<View>) => {
   return new Promise<ItemDimension>((res) => {
