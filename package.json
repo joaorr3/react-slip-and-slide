@@ -4,6 +4,7 @@
   "license": "MIT",
   "scripts": {
     "build": "npx nx run-many --target=build",
+    "version": "npx nx run root:version --syncVersions",
     "web": "npx nx run web-app:serve",
     "clear": "watchman watch-del-all && rm -rf $TMPDIR/metro-cache",
     "native:start": "npx nx run native-app:start",
