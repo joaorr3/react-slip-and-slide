@@ -1,33 +1,33 @@
 import {
-  ContainerDimensions,
-  Direction,
-  Interpolators,
-  ItemProps,
-  Mode,
-  Navigate,
-  ReactSlipAndSlideProps,
-  ReactSlipAndSlideRef,
-  SpringIt,
-  ValidDirection,
+  type ContainerDimensions,
+  type Direction,
+  type Interpolators,
+  type ItemProps,
+  type Mode,
+  type Navigate,
+  type ReactSlipAndSlideProps,
+  type ReactSlipAndSlideRef,
+  type SpringIt,
+  type ValidDirection,
 } from '@react-slip-and-slide/models';
 import {
+  AnimatedBox,
   displacement,
   getCurrentDynamicIndex,
   getNextDynamicOffset,
+  isInRange,
+  LazyLoad,
+  rubberband,
+  Styled,
   typedMemo,
   useDynamicDimension,
   useItemsRange,
   useScreenDimensions,
-  Styled,
-  LazyLoad,
-  rubberband,
-  isInRange,
-  AnimatedBox,
 } from '@react-slip-and-slide/utils/src/index.native';
-import { Interpolation, SpringValue, to } from '@react-spring/native';
+import { SpringValue, to, type Interpolation } from '@react-spring/native';
 import { clamp } from 'lodash';
 import React from 'react';
-import { TouchableWithoutFeedback, View } from 'react-native';
+import { TouchableWithoutFeedback, type View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 //TODO: Reuse almost all code from web implementation
@@ -318,7 +318,7 @@ function ReactSlipAndSlideComponent<T>(
 
   const getCurrentIndexByOffset = React.useCallback(
     (offset: number) => {
-      let finalIndex: number = 0;
+      let finalIndex = 0;
       const neutralIndex = (offset / wrapperWidth) * dataLength;
 
       const left = Math.ceil(neutralIndex);
@@ -402,7 +402,7 @@ function ReactSlipAndSlideComponent<T>(
 
   const release = React.useCallback(
     ({ offset, v }: { offset: number; v: number }) => {
-      let offsetX: number = 0;
+      let offsetX = 0;
 
       if (snap) {
         if (isIntentionalDrag.current) {
@@ -428,7 +428,7 @@ function ReactSlipAndSlideComponent<T>(
 
   const navigate = React.useCallback(
     ({ index: _index, direction, immediate }: Navigate) => {
-      let targetOffset: number = 0;
+      let targetOffset = 0;
 
       if (_index) {
         targetOffset = getCurrentOffset({ index: _index });

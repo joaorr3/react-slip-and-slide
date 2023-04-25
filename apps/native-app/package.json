@@ -10,6 +10,12 @@
     "react-native-config": "*",
     "react-native-svg": "*",
     "metro-config": "*",
-    "@react-native-async-storage/async-storage": "*"
+    "@react-native-async-storage/async-storage": "*",
+    "@react-spring/shared": "*",
+    "react-spring": "*",
+    "@react-spring/native": "*",
+    "lodash": "*",
+    "styled-components": "*",
+    "react-native-gesture-handler": "*"
   }
 }

@@ -1,7 +1,6 @@
-import '@react-slip-and-slide/utils';
-
-import { StyledComponent } from 'styled-components';
-import { AnimatedComponent } from '@react-spring/native';
+import { type AnimatedComponent } from '@react-spring/native';
+import { type ViewProps } from 'react-native/types';
+import { type StyledComponent } from 'styled-components';
 
 type RNView = React.ComponentClass<
   ViewProps & {
@@ -13,7 +12,7 @@ type RNView = React.ComponentClass<
 type NativeComponent = StyledComponent<
   AnimatedComponent<RNView>,
   any,
-  {},
+  object,
   never
 >;
 
