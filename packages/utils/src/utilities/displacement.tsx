@@ -1,5 +1,5 @@
 import { type DisplacementModel } from '@react-slip-and-slide/models';
-import { type Interpolation, to } from 'react-spring';
+import { to, type Interpolation } from '../spring';
 
 export const displacement = ({
   offsetX,

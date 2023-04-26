@@ -32,9 +32,9 @@ export function App() {
           { width: 200 },
           //
         ]}
-        // snap
-        // centered
-        // infinite
+        snap
+        centered
+        infinite
         itemWidth={400}
         itemHeight={200}
         // fullWidthItem
@@ -42,10 +42,10 @@ export function App() {
         // overflowHidden={false}
         // visibleItems={10}
         // pressToSlide
-        // interpolators={{
-        //   opacity: 0.2,
-        //   scale: 0.9,
-        // }}
+        interpolators={{
+          opacity: 0.2,
+          scale: 0.9,
+        }}
         onChange={(index) => {
           console.log('onChange:index: ', index);
         }}

@@ -44,16 +44,18 @@
           }
         ]
       }
-    },
-    {
-      "files": ["*.ts", "*.tsx"],
-      "extends": ["plugin:@nrwl/nx/typescript"],
-      "rules": {}
-    },
-    {
-      "files": ["*.js", "*.jsx"],
-      "extends": ["plugin:@nrwl/nx/javascript"],
-      "rules": {}
     }
+    // {
+    //   "files": ["*.ts", "*.tsx"],
+    //   "extends": ["plugin:@nrwl/nx/typescript"],
+    //   "rules": {
+    //     // "@typescript-eslint/no-explicit-any": "off"
+    //   }
+    // },
+    // {
+    //   "files": ["*.js", "*.jsx"],
+    //   "extends": ["plugin:@nrwl/nx/javascript"],
+    //   "rules": {}
+    // }
   ]
 }

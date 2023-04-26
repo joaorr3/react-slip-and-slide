@@ -1,9 +1,10 @@
 import {
+  type BoxRef,
   type ContainerDimensions,
   type Direction,
   type Interpolators,
+  type ItemDimensionMode,
   type ItemProps,
-  type Mode,
   type Navigate,
   type ReactSlipAndSlideProps,
   type ReactSlipAndSlideRef,
@@ -23,16 +24,16 @@ import {
   useDynamicDimension,
   useItemsRange,
   useScreenDimensions,
-} from '@react-slip-and-slide/utils/src/index.native';
+} from '@react-slip-and-slide/utils';
 import { SpringValue, to, type Interpolation } from '@react-spring/native';
 import { clamp } from 'lodash';
 import React from 'react';
-import { TouchableWithoutFeedback, type View } from 'react-native';
+import { TouchableWithoutFeedback } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 //TODO: Reuse almost all code from web implementation
 
-function ReactSlipAndSlideComponent<T>(
+function ReactSlipAndSlideComponent<T extends object>(
   {
     data,
     snap,
@@ -54,7 +55,7 @@ function ReactSlipAndSlideComponent<T>(
   }: ReactSlipAndSlideProps<T>,
   ref: React.Ref<ReactSlipAndSlideRef>
 ) {
-  const mode: Mode = itemWidth && itemHeight ? 'fixed' : 'dynamic';
+  const mode: ItemDimensionMode = itemWidth && itemHeight ? 'fixed' : 'dynamic';
   const infinite = mode === 'fixed' && !!_infinite;
   // LazyLoad only if necessary
   const eagerLoading = mode === 'dynamic' || visibleItems === 0;
@@ -76,7 +77,7 @@ function ReactSlipAndSlideComponent<T>(
 
   const [_wrapperWidth, _setWrapperWidth] = React.useState<number>(0);
 
-  const containerRef = React.useRef<View>(null);
+  const containerRef = React.useRef<BoxRef>(null);
   const isIntentionalDrag = React.useRef<boolean>(false);
   const direction = React.useRef<Direction>('center');
   const lastValidDirection = React.useRef<ValidDirection | null>(null);
@@ -104,7 +105,7 @@ function ReactSlipAndSlideComponent<T>(
   }, [shouldAnimatedStartup]);
 
   const { itemRefs, itemDimensionMap } = useDynamicDimension({
-    mode,
+    itemDimensionMode: mode,
     dataLength: data.length,
     onMeasure: ({ itemWidthSum }) => {
       if (itemWidthSum) {
@@ -114,15 +115,14 @@ function ReactSlipAndSlideComponent<T>(
   });
 
   const { ranges } = useItemsRange({
-    mode,
+    itemDimensionMode: mode,
     itemDimensionMap,
-    offsetX: OffsetX.get(),
   });
 
   React.useEffect(() => {
     if (containerRef.current && (!containerWidth || !itemHeight)) {
       setTimeout(() => {
-        containerRef.current?.measure((_, __, width, height) => {
+        containerRef.current?.measure().then(({ width = 0, height = 0 }) => {
           setContainerDimensions({
             width,
             height,
@@ -640,10 +640,10 @@ function ReactSlipAndSlideComponent<T>(
       >
         {data.map((props, i) => (
           <LazyLoad key={i} render={shouldRender(i)}>
-            <Item
+            <Item<T>
               ref={itemRefs[i]}
               index={i}
-              mode={mode}
+              itemDimensionMode={mode}
               item={props}
               dataLength={dataLength}
               renderItem={renderItem}
@@ -667,7 +667,7 @@ function ReactSlipAndSlideComponent<T>(
   );
 }
 
-function ItemComponent<T>(
+function ItemComponent<T extends object>(
   {
     offsetX,
     dataLength,
@@ -678,12 +678,12 @@ function ItemComponent<T>(
     item,
     interpolators,
     dynamicOffset,
-    mode,
+    itemDimensionMode: mode,
     isLazy,
     renderItem,
     onPress,
   }: ItemProps<T>,
-  ref?: React.Ref<View>
+  ref?: React.Ref<BoxRef>
 ) {
   const Opacity = React.useMemo(() => {
     return new SpringValue<number>(isLazy ? 0 : 1, {
@@ -749,7 +749,9 @@ function ItemComponent<T>(
     <TouchableWithoutFeedback onPress={onPress}>
       <Styled.Item
         ref={ref}
+        willMeasure
         style={{
+          // @ts-ignore
           transform: [
             {
               translateX,
@@ -777,15 +779,15 @@ function ItemComponent<T>(
   );
 }
 
-export const Item = React.forwardRef(ItemComponent) as <T>(
+export const Item = React.forwardRef(ItemComponent) as <T extends object>(
   props: ItemProps<T> & {
-    ref?: React.Ref<View>;
+    ref?: React.Ref<BoxRef>;
   }
 ) => ReturnType<typeof ItemComponent>;
 
 export const ForwardReactSlipAndSlideRef = React.forwardRef(
   ReactSlipAndSlideComponent
-) as <T>(
+) as <T extends object>(
   props: ReactSlipAndSlideProps<T> & {
     ref?: React.Ref<ReactSlipAndSlideRef>;
   }

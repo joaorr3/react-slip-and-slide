@@ -1,11 +1,12 @@
 import {
+  type BoxMeasurements,
   type DynamicRangeSum,
-  type ItemDimension,
-  type NextDynamicOffset,
-  type ValidDirection,
-  type TypedMemo,
   type IsInRange,
+  type NextDynamicOffset,
+  type TypedMemo,
+  type ValidDirection,
 } from '@react-slip-and-slide/models';
+import { dequal } from 'dequal';
 import { clamp } from 'lodash';
 import React from 'react';
 
@@ -65,11 +66,10 @@ export const getNextDynamicOffset = ({
   return -off;
 };
 
-export const getDynamicRangeSum = (itemDimensionMap: ItemDimension[]) => {
+export const getDynamicRangeSum = (itemDimensionMap: BoxMeasurements[]) => {
   let previousSum = 0;
   const range: DynamicRangeSum[] = [];
-
-  itemDimensionMap.forEach(({ width }, index) => {
+  itemDimensionMap.forEach(({ width = 0 }, index) => {
     range.push({
       index,
       width,
@@ -144,3 +144,48 @@ export const useIsFirstRender = () => {
 
   return isFirst.current;
 };
+
+export const processClampOffsets = ({
+  wrapperWidth,
+  sideMargins,
+  centered,
+  containerWidth,
+}: {
+  wrapperWidth: number;
+  sideMargins: number;
+  centered: boolean;
+  containerWidth: number;
+}) => {
+  const MIN = 0;
+  let MAX = -wrapperWidth + containerWidth;
+
+  if (centered) {
+    const _MAX_CENTERED = MAX - sideMargins * 2;
+    MAX = _MAX_CENTERED;
+  } else {
+    // In this case i guess you don't need a slider.
+    if (wrapperWidth < containerWidth) {
+      MAX = MIN;
+    }
+  }
+
+  return {
+    MIN,
+    MAX,
+  };
+};
+
+export function useValueChangeReaction<T>(
+  prop: T,
+  cb?: (next: T) => void
+): void {
+  const prevProp = usePreviousValue(prop);
+  const deps: React.DependencyList = [cb, prevProp, prop];
+
+  React.useEffect(() => {
+    if (!dequal(prop, prevProp)) {
+      cb?.(prop);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+}
