@@ -8,10 +8,10 @@
  */
 
 import nrwlPkg from '@nrwl/devkit';
-const { readCachedProjectGraph } = nrwlPkg;
+import chalk from 'chalk';
 import { execSync } from 'child_process';
 import { readFileSync, writeFileSync } from 'fs';
-import chalk from 'chalk';
+const { readCachedProjectGraph } = nrwlPkg;
 
 function invariant(condition, message) {
   if (!condition) {
@@ -22,7 +22,7 @@ function invariant(condition, message) {
 
 // Executing publish script: node path/to/publish.mjs {name} --version {version} --tag {tag}
 // Default "tag" to "next" so we won't publish the "latest" tag by accident.
-const [, , name, version, tag = 'next'] = process.argv;
+const [, , name, version, tag = 'next', otp] = process.argv;
 
 // A simple SemVer validation to validate the version
 const validVersion = /^\d+\.\d+\.\d+(-\w+\.\d+)?/;
@@ -58,5 +58,7 @@ try {
   );
 }
 
-// Execute "npm publish" to publish
-execSync(`npm publish --access public --tag ${tag}`);
+if (otp) {
+  // Execute "npm publish" to publish
+  execSync(`npm publish --access public --tag ${tag} --otp ${otp}`);
+}
