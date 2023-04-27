@@ -11,7 +11,9 @@
         "outputPath": "dist/packages/native",
         "main": "packages/native/src/index.ts",
         "tsConfig": "packages/native/tsconfig.lib.json",
-        "assets": ["packages/native/*.md"]
+        "assets": ["packages/native/*.md"],
+        "buildableProjectDepsInPackageJsonType": "dependencies",
+        "excludeDeps": ["core-js", "@react-spring/web", "react-dom", "tslib"]
       }
     },
     "publish": {

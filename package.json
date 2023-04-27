@@ -10,7 +10,9 @@
     "clear": "watchman watch-del-all && rm -rf $TMPDIR/metro-cache",
     "native:start": "npx nx run native-app:start",
     "native:ios": "npx nx run native-app:run-ios",
-    "native:android": "npx nx run native-app:run-android"
+    "native:android": "npx nx run native-app:run-android",
+    "patch-package": "patch-package",
+    "postinstall": "npm run patch-package"
   },
   "private": true,
   "dependencies": {
@@ -19,6 +21,7 @@
     "dequal": "^2.0.3",
     "immer": "^10.0.1",
     "lodash": "^4.17.21",
+    "patch-package": "^7.0.0",
     "react": "^18.2.0",
     "react-dom": "18.2.0",
     "react-is": "18.2.0",

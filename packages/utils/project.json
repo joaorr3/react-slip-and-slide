@@ -11,7 +11,9 @@
         "outputPath": "dist/packages/utils",
         "main": "packages/utils/src/index.ts",
         "tsConfig": "packages/utils/tsconfig.lib.json",
-        "assets": ["packages/utils/*.md"]
+        "assets": ["packages/utils/*.md"],
+        "buildableProjectDepsInPackageJsonType": "dependencies",
+        "excludeDeps": ["react-dom", "tslib"]
       }
     },
     "publish": {
