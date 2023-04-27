@@ -1,10 +1,10 @@
 {
   "name": "react-slip-and-slide",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "license": "MIT",
   "scripts": {
     "build": "npx nx run-many --target=build --exclude root web-app native-app",
-    "version": "npx nx run root:version --syncVersions --exclude root web-app native-app",
+    "version": "npx nx run root:version --syncVersions --exclude=root,web-app,native-app",
     "publish": "npx nx run-many --target=publish --exclude root web-app native-app",
     "web": "npx nx run web-app:serve",
     "clear": "watchman watch-del-all && rm -rf $TMPDIR/metro-cache",
