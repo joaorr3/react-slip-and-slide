@@ -11,7 +11,9 @@
         "outputPath": "dist/packages/react-slip-and-slide",
         "main": "packages/react-slip-and-slide/src/index.ts",
         "tsConfig": "packages/react-slip-and-slide/tsconfig.lib.json",
-        "assets": ["packages/react-slip-and-slide/*.md"]
+        "assets": ["packages/react-slip-and-slide/*.md"],
+        "buildableProjectDepsInPackageJsonType": "dependencies",
+        "excludeDeps": ["tslib"]
       }
     },
     "publish": {
