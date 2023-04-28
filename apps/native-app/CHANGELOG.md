@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [2.0.4](https://github.com/joaorr3/react-slip-and-slide/compare/v2.0.3...v2.0.4) (2023-04-28)
+
+
+### Bug Fixes
+
+* **useScreenDimensions:** fix shared useScreenDimensions hook ([183ec8f](https://github.com/joaorr3/react-slip-and-slide/commit/183ec8f24019eb4d552c19d58c5b0ccf30777625))
+
 ### [2.0.3](https://github.com/joaorr3/react-slip-and-slide/compare/v2.0.2...v2.0.3) (2023-04-28)
 
 ### [2.0.2](https://github.com/joaorr3/react-slip-and-slide/compare/v2.0.1...v2.0.2) (2023-04-27)
