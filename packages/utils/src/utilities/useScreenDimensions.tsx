@@ -6,6 +6,7 @@ import {
   fromEvent,
   throttleTime,
 } from 'rxjs';
+import { Platform } from '../platform';
 import { ScreenDimensions } from '../ScreenDimensions';
 
 export const useScreenDimensions = () => {
@@ -18,19 +19,19 @@ export const useScreenDimensions = () => {
   };
 
   React.useEffect(() => {
-    const sub$ = fromEvent(window, 'resize')
-      .pipe(
-        throttleTime(throttle, asyncScheduler, {
-          leading: true,
-          trailing: true,
-        }),
-        distinctUntilChanged()
-      )
-      .subscribe(set);
+    if (Platform.is('web')) {
+      const sub$ = fromEvent(window, 'resize')
+        .pipe(
+          throttleTime(throttle, asyncScheduler, {
+            leading: true,
+            trailing: true,
+          }),
+          distinctUntilChanged()
+        )
+        .subscribe(set);
 
-    // set();
-
-    return () => sub$.unsubscribe();
+      return () => sub$.unsubscribe();
+    }
   }, []);
 
   return screenDimensions;

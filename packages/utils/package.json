@@ -2,6 +2,9 @@
   "name": "@react-slip-and-slide/utils",
   "version": "2.0.3",
   "type": "commonjs",
+  "react-native": {
+    "./src/index.js": "./src/index.native.js"
+  },
   "peerDependencies": {
     "react-native": ">=0.71",
     "@react-spring/native": ">=9.7",

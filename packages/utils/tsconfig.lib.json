@@ -3,7 +3,8 @@
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
     "declaration": true,
-    "types": ["node", "@types/styled-components-react-native"]
+    "types": ["node", "@types/styled-components-react-native"],
+    "noImplicitReturns": false
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
   "exclude": ["jest.config.ts", "src/**/*.spec.ts", "src/**/*.test.ts"]

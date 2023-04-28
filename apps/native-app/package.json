@@ -16,6 +16,12 @@
     "@react-spring/native": "*",
     "lodash": "*",
     "styled-components": "*",
-    "react-native-gesture-handler": "*"
+    "react-native-gesture-handler": "*",
+    "immer": "*",
+    "core-js": "*",
+    "@react-spring/web": "*",
+    "dequal": "*",
+    "rxjs": "*",
+    "typescript": "*"
   }
 }

@@ -1,4 +1,10 @@
-export * from './hooks';
+import * as utils from './utils';
+import * as hooks from './hooks';
+import * as provider from './provider';
 export * from './models';
-export * from './provider';
-export * from './utils';
+
+export const Context = {
+  ...utils,
+  ...hooks,
+  ...provider,
+};
