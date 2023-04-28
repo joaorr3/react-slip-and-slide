@@ -1,5 +1,21 @@
 {
   "name": "@react-slip-and-slide/utils",
   "version": "2.0.2",
-  "type": "commonjs"
+  "type": "commonjs",
+  "peerDependencies": {
+    "react-native": ">=0.71",
+    "@react-spring/native": ">=9.7",
+    "@react-spring/web": ">=9.7"
+  },
+  "peerDependenciesMeta": {
+    "react-native": {
+      "optional": true
+    },
+    "@react-spring/native": {
+      "optional": true
+    },
+    "@react-spring/web": {
+      "optional": true
+    }
+  }
 }
