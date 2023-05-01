@@ -22,6 +22,7 @@
     "@react-spring/web": "*",
     "dequal": "*",
     "rxjs": "*",
-    "typescript": "*"
+    "typescript": "*",
+    "@use-gesture/react": "*"
   }
 }

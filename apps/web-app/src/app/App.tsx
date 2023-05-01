@@ -34,7 +34,8 @@ export function App() {
         ]}
         snap
         centered
-        infinite
+        // infinite
+        pressToSlide
         itemWidth={400}
         itemHeight={200}
         // fullWidthItem

@@ -1,7 +1,7 @@
 import { type ReactSlipAndSlideRef } from '@react-slip-and-slide/models';
-import { ReactSlipAndSlide } from '@react-slip-and-slide/native';
 import React from 'react';
 import { Button, SafeAreaView, Text, View } from 'react-native';
+import { ReactSlipAndSlide } from 'react-slip-and-slide';
 
 const App = () => {
   const [edges, setEdges] = React.useState<{ start: boolean; end: boolean }>({
@@ -36,8 +36,8 @@ const App = () => {
         data={memoData}
         snap
         centered
-        pressToSlide
-        infinite
+        // infinite
+        // pressToSlide
         itemWidth={320}
         itemHeight={200}
         interpolators={{
@@ -46,8 +46,7 @@ const App = () => {
         }}
         onChange={setIndex}
         onEdges={setEdges}
-        renderItem={({ item, index: _index }) => {
-          console.log('render', item);
+        renderItem={({ index: _index }) => {
           return (
             <View
               style={{
