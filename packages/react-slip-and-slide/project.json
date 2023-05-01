@@ -13,7 +13,26 @@
         "tsConfig": "packages/react-slip-and-slide/tsconfig.lib.json",
         "assets": ["packages/react-slip-and-slide/*.md"],
         "buildableProjectDepsInPackageJsonType": "dependencies",
-        "excludeDeps": ["tslib"]
+        "excludeDeps": [
+          "react-dom",
+          "tslib",
+          "@react-spring/native",
+          "@react-spring/shared",
+          "@react-spring/web",
+          "@use-gesture/react",
+          "core-js",
+          "dequal",
+          "immer",
+          "lodash",
+          "react",
+          "react-dom",
+          "react-is",
+          "react-native",
+          "react-native-gesture-handler",
+          "react-spring",
+          "rxjs",
+          "styled-components"
+        ]
       }
     },
     "publish": {

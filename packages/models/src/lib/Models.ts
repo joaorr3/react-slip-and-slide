@@ -113,9 +113,11 @@ export type ReactSlipAndSlideProps<T extends object> = {
   visibleItems?: number;
   renderItem: RenderItem<T>;
   onChange?: (index: number) => void;
-  onEdges?: (props: { start: boolean; end: boolean }) => void;
+  onEdges?: (props: Edges) => void;
   onReady?: (ready: boolean) => void;
 };
+
+export type Edges = { start: boolean; end: boolean };
 
 export type ItemProps<T extends object> = {
   item: T;
