@@ -1,1 +1,1 @@
-export { AnimatedBox } from './AnimatedBox';
+export { AnimatedBox } from './native/AnimatedBox';

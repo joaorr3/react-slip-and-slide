@@ -1,5 +1,4 @@
 import {
-  type EngineMode,
   type ItemDimensionMode,
   type LoadingType,
   type ReactSlipAndSlideProps,
@@ -59,23 +58,37 @@ export function initializeContextData<T extends object>(
     itemWidth = 0,
     fullWidthItem,
     infinite: _infinite,
-    visibleItems,
+    visibleItems = 0,
     containerWidth,
     interpolators,
   } = props;
 
+  /**
+   * This flag indicates how we should deal with the item dimensions.
+   * "fixed" means that we the get the values from the props, so we don't need to measure them.
+   * "dynamic" means we need to perform a measurement on every item.
+   */
   const itemDimensionMode: ItemDimensionMode =
     (itemWidth && itemHeight) || fullWidthItem ? 'fixed' : 'dynamic';
+
   const infinite = itemDimensionMode === 'fixed' && !!_infinite;
   // LazyLoad only if necessary
   const loadingType: LoadingType = visibleItems === 0 ? 'eager' : 'lazy';
-  const engineMode: EngineMode = infinite ? 'multi' : 'single';
+
+  /**
+   * This flag indicates how we utilize the the gesture values.
+   * "multi" means that we're applying a translate transform on every item. This is required when "infinite" is true.
+   * "single" means we're using the translation value on the container instead of the items.
+   *
+   * The default will be "single" since it requires less computation.
+   */
+  // const engineMode: EngineMode = infinite ? 'multi' : 'single';
 
   const initialContextData: ContextModel<T> = {
     infinite,
     itemDimensionMode,
     loadingType,
-    engineMode,
+    engineMode: 'multi',
     data: props.data,
     itemDimensions: {
       width: props.itemWidth || 0,
