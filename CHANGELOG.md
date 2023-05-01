@@ -2,6 +2,23 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.0.0](https://github.com/joaorr3/react-slip-and-slide/compare/v2.0.4...v3.0.0) (2023-05-01)
+
+
+### ⚠ BREAKING CHANGES
+
+* **web/native:** web/native packages are deprecated
+
+### Features
+
+* **GestureContainer/AnimatedBox:** single code base improvements ([46e05cf](https://github.com/joaorr3/react-slip-and-slide/commit/46e05cfa29af4f8f4210aeadda2457f04c865164))
+* **react-slip-and-slide:** create shared code base on the entry point ([17c6c9f](https://github.com/joaorr3/react-slip-and-slide/commit/17c6c9fbedf4ee4660d30b9eecacbe50d55a02b9))
+
+
+### Code Refactoring
+
+* **web/native:** deprecate both web and native package ([10f42ab](https://github.com/joaorr3/react-slip-and-slide/commit/10f42ab54def15c3efe9c82f7ae07d8644d5ca8f))
+
 ### [2.0.4](https://github.com/joaorr3/react-slip-and-slide/compare/v2.0.3...v2.0.4) (2023-04-28)
 
 
