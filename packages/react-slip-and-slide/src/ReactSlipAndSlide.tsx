@@ -12,6 +12,7 @@ import {
 } from '@react-slip-and-slide/models';
 import {
   AnimatedBox,
+  clampIndex,
   Context,
   displacement,
   GestureContainer,
@@ -63,8 +64,9 @@ function ReactSlipAndSlideComponent<T extends object>(
       ranges,
       interpolators,
       visibleItems,
+      rangeOffsetPosition,
     },
-    actions: { setContainerDimensions, setWrapperWidth },
+    actions: { setContainerDimensions },
   } = Context.useDataContext();
 
   const shouldAnimatedStartup = animateStartup && loadingType === 'eager';
@@ -111,15 +113,7 @@ function ReactSlipAndSlideComponent<T extends object>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [container, screenWidth]);
 
-  const { itemRefs } = useDynamicDimension({
-    itemDimensionMode,
-    dataLength: data.length,
-    onMeasure: ({ itemWidthSum }) => {
-      if (itemWidthSum) {
-        setWrapperWidth(itemWidthSum);
-      }
-    },
-  });
+  const { itemRefs } = useDynamicDimension();
 
   const clampReleaseOffset = React.useCallback(
     (offset: number) => {
@@ -127,19 +121,10 @@ function ReactSlipAndSlideComponent<T extends object>(
         return offset;
       }
 
-      if (offset > clampOffset.MIN) {
-        return clampOffset.MIN;
-      } else if (offset < clampOffset.MAX) {
-        return clampOffset.MAX;
-      }
-      return offset;
+      // This is inverted because next slides === negative translation
+      return clamp(offset, clampOffset.MAX, clampOffset.MIN);
     },
     [clampOffset.MAX, clampOffset.MIN, infinite, itemDimensionMode]
-  );
-
-  const clampIndex = React.useCallback(
-    (index: number) => clamp(index, 0, dataLength - 1),
-    [dataLength]
   );
 
   const processIndex = React.useCallback(
@@ -245,11 +230,20 @@ function ReactSlipAndSlideComponent<T extends object>(
         lastOffset.current = clampedReleaseOffset;
         if (itemDimensionMode === 'fixed') {
           index.current = clampIndex(
-            getRelativeIndex({ offset: clampedReleaseOffset })
+            getRelativeIndex({ offset: clampedReleaseOffset }),
+            data
           );
         } else {
-          index.current = getCurrentDynamicIndex(offset, ranges);
+          index.current = getCurrentDynamicIndex(
+            offset,
+            ranges,
+            lastValidDirection.current,
+            direction.current,
+            clampOffset,
+            rangeOffsetPosition
+          );
         }
+
         if (loadingType === 'lazy') {
           reRender(index.current);
         }
@@ -264,14 +258,16 @@ function ReactSlipAndSlideComponent<T extends object>(
     [
       OffsetX,
       checkEdges,
-      clampIndex,
+      clampOffset,
       clampReleaseOffset,
+      data,
       getRelativeIndex,
       infinite,
       itemDimensionMode,
       loadingType,
       onChanged,
       onEdge,
+      rangeOffsetPosition,
       ranges,
     ]
   );
@@ -317,6 +313,7 @@ function ReactSlipAndSlideComponent<T extends object>(
             clampOffset.MIN,
             clampOffset.MAX,
           ]);
+
       springIt({
         offset,
         actionType: 'drag',
@@ -330,24 +327,27 @@ function ReactSlipAndSlideComponent<T extends object>(
       if (itemDimensionMode === 'fixed') {
         const page = getCurrentIndexByOffset(-offset);
         const finalOffset = -page * itemWidth;
+
         return finalOffset;
       } else {
-        const edges = checkEdges({ offset });
-        return getNextDynamicOffset({
-          offsetX: edges.start ? clampOffset.MIN : offset,
+        const nextDynamicOffset = getNextDynamicOffset({
+          offsetX: offset,
           ranges,
-          dir: lastValidDirection.current,
-          centered: !!centered,
+          lastValidDirection: lastValidDirection.current,
+          direction: direction.current,
+          clampOffset,
+          rangeOffsetPosition,
         });
+
+        return nextDynamicOffset;
       }
     },
     [
-      centered,
-      checkEdges,
-      clampOffset.MIN,
+      clampOffset,
       getCurrentIndexByOffset,
       itemDimensionMode,
       itemWidth,
+      rangeOffsetPosition,
       ranges,
     ]
   );
@@ -395,7 +395,7 @@ function ReactSlipAndSlideComponent<T extends object>(
   );
 
   const navigate = React.useCallback(
-    ({ index: _index, direction, immediate }: Navigate) => {
+    ({ index: _index, direction: dir, immediate }: Navigate) => {
       let targetOffset = 0;
 
       if (_index) {
@@ -403,24 +403,24 @@ function ReactSlipAndSlideComponent<T extends object>(
       } else {
         if (itemDimensionMode === 'fixed') {
           const page = getCurrentIndex({ offset: OffsetX.get() });
-          if (direction === 'next') {
+          if (dir === 'next') {
             const nextPage = page + 1;
             targetOffset = -nextPage * itemWidth;
-          } else if (direction === 'prev') {
+          } else if (dir === 'prev') {
             const prevPage = page - 1;
             targetOffset = -prevPage * itemWidth;
           }
         } else {
+          const nextDir =
+            dir === 'next' ? 'left' : dir === 'prev' ? 'right' : null;
+
           targetOffset = getNextDynamicOffset({
             offsetX: OffsetX.get(),
             ranges,
-            dir:
-              direction === 'next'
-                ? 'left'
-                : direction === 'prev'
-                ? 'right'
-                : null,
-            centered: !!centered,
+            lastValidDirection: nextDir,
+            direction: direction.current,
+            clampOffset,
+            rangeOffsetPosition,
           });
         }
       }
@@ -431,14 +431,15 @@ function ReactSlipAndSlideComponent<T extends object>(
       });
     },
     [
-      OffsetX,
-      centered,
-      getCurrentIndex,
-      getCurrentOffset,
-      itemWidth,
-      itemDimensionMode,
-      ranges,
       springIt,
+      getCurrentOffset,
+      itemDimensionMode,
+      getCurrentIndex,
+      OffsetX,
+      itemWidth,
+      ranges,
+      clampOffset,
+      rangeOffsetPosition,
     ]
   );
 
@@ -474,7 +475,15 @@ function ReactSlipAndSlideComponent<T extends object>(
           navigate({ direction: 'next' });
         }
       } else {
-        const currIndx = getCurrentDynamicIndex(OffsetX.get(), ranges);
+        const currIndx =
+          getCurrentDynamicIndex(
+            OffsetX.get(),
+            ranges,
+            lastValidDirection.current,
+            direction.current,
+            clampOffset,
+            rangeOffsetPosition
+          ) || 0;
         if (idx < currIndx) {
           navigate({ direction: 'prev' });
         } else if (idx > currIndx) {
@@ -484,11 +493,12 @@ function ReactSlipAndSlideComponent<T extends object>(
     },
     [
       OffsetX,
+      clampOffset,
       dataLength,
-      index,
       itemDimensionMode,
       navigate,
       pressToSlide,
+      rangeOffsetPosition,
       ranges,
     ]
   );
@@ -523,10 +533,10 @@ function ReactSlipAndSlideComponent<T extends object>(
   // Fixes initial offset when: mode === dynamic and centered is true
   React.useEffect(() => {
     if (itemDimensionMode === 'dynamic' && centered) {
-      const alignment = centered ? 'center' : 'start';
+      const firstDynamicOffset = -(ranges[0]?.range[rangeOffsetPosition] || 0);
 
       springIt({
-        offset: -(ranges[0]?.range[alignment] || 0),
+        offset: firstDynamicOffset,
         actionType: 'release',
         immediate: true,
       });
@@ -609,7 +619,7 @@ function ReactSlipAndSlideComponent<T extends object>(
       styles={{
         justifyContent: centered ? 'center' : 'flex-start',
         width: containerWidthProp || '100%',
-        height: itemHeight || container.height || '100%',
+        height: container.height || '100%',
         overflow: overflowHidden ? 'hidden' : undefined,
       }}
       onDrag={drag}
@@ -630,7 +640,7 @@ function ReactSlipAndSlideComponent<T extends object>(
               itemDimensionMode === 'fixed' ? itemWidth : ranges[i]?.width || 0
             }
             interpolators={interpolators || {}}
-            dynamicOffset={ranges[i]?.range[centered ? 'center' : 'start'] || 0}
+            dynamicOffset={ranges[i]?.range[rangeOffsetPosition] || 0}
             onPress={() => pressToSlide && handlePressToSlide(i)}
             offsetX={OffsetX.to((offsetX) =>
               infinite ? offsetX % wrapperWidth : offsetX
@@ -726,21 +736,27 @@ function ItemComponent<T extends object>(
             translateX,
           },
           {
-            scale: scale || 1,
+            scale: itemWidth ? scale : 1,
           },
         ],
-        opacity,
+        opacity: itemWidth ? opacity : 1,
+      }}
+      styles={{
         width: itemWidth === 0 ? undefined : itemWidth,
-        height: itemHeight,
+        height: itemHeight === 0 ? undefined : itemHeight,
       }}
       web={{
         onDragStart: (e: any) => e.preventDefault(),
       }}
     >
       <AnimatedBox
-        style={{
+        styles={{
           width: '100%',
           height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+        }}
+        style={{
           opacity: Opacity,
         }}
       >

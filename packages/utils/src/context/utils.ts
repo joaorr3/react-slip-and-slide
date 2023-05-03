@@ -1,34 +1,66 @@
 import {
+  type BaseDimensions,
   type ItemDimensionMode,
   type LoadingType,
   type ReactSlipAndSlideProps,
 } from '@react-slip-and-slide/models';
+import { sumBy } from 'lodash';
 import { processClampOffsets } from '../utilities/helpers';
 import { type ContextModel } from './models';
 
+const getLargestDynamicItem = (itemDimensionMap: BaseDimensions[]) => {
+  const widest = Math.max(...itemDimensionMap.map((d) => d.width || 0));
+  const highest = Math.max(...itemDimensionMap.map((d) => d.height || 0));
+
+  return {
+    width: widest,
+    height: highest,
+  };
+};
+
+const getDynamicWrapperWidth = (itemDimensionMap: BaseDimensions[]) => {
+  return sumBy(itemDimensionMap, ({ width }) => width);
+};
+
 export function processContextData(data: ContextModel): ContextModel {
   const {
-    engineMode,
     dataLength,
-    itemDimensions: { width: _itemWidth = 0 },
+    itemDimensions: { width: itemWidth = 0, height: _itemHeight = 0 },
     wrapperWidth: _wrapperWidth,
     container,
     centered,
     fullWidthItem,
+    itemDimensionMode,
+    itemDimensionMap,
   } = data;
 
-  const itemWidth = fullWidthItem ? container.width : _itemWidth;
+  const largestItem = getLargestDynamicItem(itemDimensionMap);
+  const dynamicWrapperWidth = getDynamicWrapperWidth(itemDimensionMap);
+
+  const itemDimensions: BaseDimensions = {
+    width: fullWidthItem ? container.width : itemWidth || largestItem.width,
+    height: itemDimensionMode === 'fixed' ? _itemHeight : largestItem.height,
+  };
+
+  const containerDimensions: BaseDimensions = {
+    width: container.width,
+    height: itemDimensions.height,
+  };
 
   const wrapperWidth =
-    engineMode === 'multi' ? dataLength * itemWidth : _wrapperWidth;
+    itemDimensionMode === 'fixed'
+      ? dataLength * itemDimensions.width
+      : dynamicWrapperWidth;
 
-  const sideMargins = (container.width - itemWidth) / 2;
+  const sideMargins = (containerDimensions.width - itemDimensions.width) / 2;
 
   const { MIN, MAX } = processClampOffsets({
     wrapperWidth,
     sideMargins,
-    containerWidth: container.width,
+    containerWidth: containerDimensions.width,
     centered,
+    itemDimensionMode,
+    ranges: data.ranges,
   });
 
   return {
@@ -38,10 +70,9 @@ export function processContextData(data: ContextModel): ContextModel {
       MIN,
       MAX,
     },
-    itemDimensions: {
-      ...data.itemDimensions,
-      width: itemWidth,
-    },
+    itemDimensionMode,
+    itemDimensions,
+    container: containerDimensions,
   };
 }
 
@@ -53,14 +84,16 @@ export function initializeContextData<T extends object>(
   props: ReactSlipAndSlideProps<T>
 ) {
   const {
+    _testId = '',
     data,
-    itemHeight,
+    itemHeight = 0,
     itemWidth = 0,
     fullWidthItem,
     infinite: _infinite,
     visibleItems = 0,
     containerWidth,
     interpolators,
+    centered,
   } = props;
 
   /**
@@ -85,6 +118,7 @@ export function initializeContextData<T extends object>(
   // const engineMode: EngineMode = infinite ? 'multi' : 'single';
 
   const initialContextData: ContextModel<T> = {
+    _testId,
     infinite,
     itemDimensionMode,
     loadingType,
@@ -98,7 +132,7 @@ export function initializeContextData<T extends object>(
       width: containerWidth || 0,
       height: itemHeight || 0,
     },
-    centered: !!props.centered,
+    centered: !!centered,
     visibleItems: props.visibleItems || 0,
     dataLength: data.length,
     wrapperWidth: 0,
@@ -110,6 +144,7 @@ export function initializeContextData<T extends object>(
     itemDimensionMap: [],
     ranges: [],
     interpolators,
+    rangeOffsetPosition: centered ? 'center' : 'start',
   };
 
   return initialContextData;

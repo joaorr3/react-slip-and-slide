@@ -8,7 +8,7 @@ import {
 } from './models';
 import { processContextData } from './utils';
 
-const LateralMenuProducer = produce<Reducer<ContextModel, Actions>>(
+const DataProducer = produce<Reducer<ContextModel, Actions>>(
   (draft, action) => {
     switch (action.type) {
       case ActionTypes.INIT: {
@@ -27,14 +27,16 @@ const LateralMenuProducer = produce<Reducer<ContextModel, Actions>>(
       }
       case ActionTypes.SET_WRAPPER_WIDTH: {
         const {
-          engineMode,
           dataLength,
           itemDimensions: { width: itemWidth = 0 },
+          itemDimensionMode,
         } = draft;
 
         const payloadWrapperWidth = action.payload;
         const nextWrapperWidth =
-          engineMode === 'multi' ? dataLength * itemWidth : payloadWrapperWidth;
+          itemDimensionMode === 'fixed'
+            ? dataLength * itemWidth
+            : payloadWrapperWidth;
 
         draft.wrapperWidth = nextWrapperWidth;
         break;
@@ -63,9 +65,7 @@ export function DataProvider({
   initialData: _initialData,
   children,
 }: DataProviderProps) {
-  const [state, dispatch] = React.useReducer(LateralMenuProducer, _initialData);
-
-  // console.log('CONTEXT_STATE: ', processContextData(state));
+  const [state, dispatch] = React.useReducer(DataProducer, _initialData);
 
   const actions = React.useMemo(
     (): ContextHandlers['actions'] => ({

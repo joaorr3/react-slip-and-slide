@@ -44,6 +44,7 @@ export type Interpolators<T> = {
 };
 
 export type ReactSlipAndSlideProps<T extends object> = {
+  _testId?: string;
   /**
    * By default there's no pre optimization being done, so if you're experiencing unwanted re-renders make sure you preserve reference integrity by memoizing data.
    * This could be a static structure declare outside of the parent or a React.useMemo call.
@@ -161,14 +162,15 @@ export type ItemDimension = BaseDimensions;
 export type OnMeasureCallback = (args: {
   itemDimensionMap?: BoxMeasurements[];
   itemWidthSum?: number;
+  ranges: DynamicRangeSum[];
 }) => void;
 
-export type DynamicRangeSum =
-  | (Pick<ItemDimension, 'width'> & {
-      index: number;
-      range: { start: number; center: number; end: number };
-    })
-  | undefined;
+export type DynamicRangeSum = Pick<ItemDimension, 'width'> & {
+  index: number;
+  range: Record<RangeOffsetPosition, number>;
+};
+
+export type RangeOffsetPosition = 'start' | 'center' | 'end';
 
 export type UseDynamicDimension = {
   itemDimensionMode: ItemDimensionMode;
@@ -184,8 +186,10 @@ export type UseItemsRange = {
 export type NextDynamicOffset = {
   offsetX: number;
   ranges: DynamicRangeSum[];
-  dir: ValidDirection | null;
-  centered: boolean;
+  lastValidDirection: ValidDirection | null;
+  direction: Direction;
+  rangeOffsetPosition: RangeOffsetPosition;
+  clampOffset: ClampOffset;
 };
 
 export type IsInRange = {
@@ -198,9 +202,14 @@ export type IsInRange = {
 export type EngineMode = 'multi' | 'single';
 export type LoadingType = 'lazy' | 'eager';
 
+export type ClampOffset = {
+  MIN: number;
+  MAX: number;
+};
+
 // -- Utils.Components
 
-export type BoxMeasurements = Partial<ItemDimension>;
+export type BoxMeasurements = ItemDimension;
 
 export type BoxRef = {
   measure: () => Promise<BoxMeasurements>;

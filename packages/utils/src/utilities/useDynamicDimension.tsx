@@ -1,25 +1,22 @@
-import {
-  type BaseDimensions,
-  type BoxRef,
-  type UseDynamicDimension,
-} from '@react-slip-and-slide/models';
-import { sumBy, times } from 'lodash';
+import { type BaseDimensions, type BoxRef } from '@react-slip-and-slide/models';
+import { times } from 'lodash';
 import React from 'react';
+import { Context } from '../context';
+import { getDynamicRangeSum } from './helpers';
 
-export const useDynamicDimension = ({
-  itemDimensionMode: mode,
-  dataLength,
-  onMeasure,
-}: UseDynamicDimension) => {
+export const useDynamicDimension = () => {
+  const {
+    state: { dataLength, itemDimensionMode },
+    actions: { setItemDimensionMap, setRanges },
+  } = Context.useDataContext();
+
   const itemRefs = React.useMemo<Array<React.RefObject<BoxRef>>>(() => {
-    return times(dataLength, () => React.createRef());
+    if (itemDimensionMode === 'dynamic') {
+      return times(dataLength, () => React.createRef());
+    }
+    return [];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataLength]);
-
-  const [itemDimensionMap, setItemDimensionMap] = React.useState<
-    BaseDimensions[]
-  >([]);
-
-  const [itemWidthSum, setItemWidthSum] = React.useState<number>(0);
 
   const measure = React.useCallback(() => {
     return new Promise<BaseDimensions[]>((res) => {
@@ -38,23 +35,15 @@ export const useDynamicDimension = ({
   }, [itemRefs]);
 
   React.useEffect(() => {
-    if (mode === 'dynamic') {
-      measure().then((_itemDimensionMap) => {
-        setItemDimensionMap(_itemDimensionMap);
-        onMeasure?.({ itemDimensionMap: _itemDimensionMap });
+    if (itemDimensionMode === 'dynamic') {
+      measure().then((itemDimensionMap) => {
+        setItemDimensionMap(itemDimensionMap);
+        setRanges(getDynamicRangeSum(itemDimensionMap));
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dataLength]);
+  }, [dataLength, itemDimensionMode, measure, setItemDimensionMap, setRanges]);
 
-  React.useEffect(() => {
-    if (mode === 'dynamic') {
-      const sum = sumBy(itemDimensionMap, ({ width }) => width);
-      setItemWidthSum(sum);
-      onMeasure?.({ itemWidthSum: sum });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [itemDimensionMap]);
-
-  return { itemRefs, itemDimensionMap, itemWidthSum };
+  return {
+    itemRefs,
+  };
 };

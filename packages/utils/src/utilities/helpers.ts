@@ -1,8 +1,12 @@
 import {
   type BoxMeasurements,
+  type ClampOffset,
+  type Direction,
   type DynamicRangeSum,
   type IsInRange,
+  type ItemDimensionMode,
   type NextDynamicOffset,
+  type RangeOffsetPosition,
   type TypedMemo,
   type ValidDirection,
 } from '@react-slip-and-slide/models';
@@ -12,59 +16,69 @@ import React from 'react';
 
 export const typedMemo: TypedMemo = React.memo;
 
-export const getCurrentDynamicIndex = (
-  _offsetX: number,
-  ranges: DynamicRangeSum[]
-) => {
-  const offsetX = Math.round(Math.abs(_offsetX));
-
-  const index = ranges.findIndex((rangeSum) => {
-    if (!rangeSum?.range) return false;
-    const { start, end } = rangeSum.range;
-    return offsetX >= start && offsetX < end;
-  });
-
-  return ranges.length ? index : 0;
-};
-
-export const getNextDynamicIndex = (
-  _offsetX: number,
+export function getCurrentDynamicIndex(
+  _input: number,
   ranges: DynamicRangeSum[],
-  dir: ValidDirection | null
-) => {
+  validDirection: ValidDirection | null,
+  direction: Direction,
+  clampOffset: ClampOffset,
+  rangeOffsetPosition: RangeOffsetPosition
+) {
   let finalIndex = 0;
 
-  const index = getCurrentDynamicIndex(_offsetX, ranges);
+  const input = Math.abs(clamp(_input, clampOffset.MAX, clampOffset.MIN));
 
-  if (index >= 0) {
-    if (dir === 'left') {
-      finalIndex = index + 1;
-    } else if (dir === 'right') {
-      finalIndex = index - 1;
-    }
-  } else {
-    finalIndex = ranges.length - 1;
+  const index = ranges.findIndex((item) => {
+    return item.range.start <= input && input <= item.range.end;
+  });
+
+  if (index === -1) {
+    return finalIndex;
   }
 
-  return clamp(finalIndex, 0, ranges.length - 1);
-};
+  const item = ranges[index];
+  const itemOffset = item.range[rangeOffsetPosition];
+  const offset = input;
+
+  if (offset > itemOffset && validDirection === 'left') {
+    finalIndex = item.index + 1;
+  } else if (offset < itemOffset && validDirection === 'right') {
+    finalIndex = item.index - 1;
+  } else {
+    finalIndex = item.index;
+  }
+
+  if (direction === 'center') {
+    finalIndex = item.index;
+  }
+
+  return clampIndex(finalIndex, ranges);
+}
 
 export const getNextDynamicOffset = ({
   offsetX,
   ranges,
-  dir,
-  centered,
+  lastValidDirection,
+  direction,
+  clampOffset,
+  rangeOffsetPosition,
 }: NextDynamicOffset) => {
-  const currIndex = getNextDynamicIndex(offsetX, ranges, dir);
-  const alignment = centered ? 'center' : 'start';
-  const MIN = ranges[0]?.range[alignment] || 0;
-  const MAX = ranges[ranges.length - 1]?.range[alignment] || 0;
-  const offset = ranges[currIndex]?.range[alignment] || 0;
+  const currIndex = getCurrentDynamicIndex(
+    offsetX,
+    ranges,
+    lastValidDirection,
+    direction,
+    clampOffset,
+    rangeOffsetPosition
+  );
 
-  const off = clamp(offset, MIN, MAX);
+  const offset = ranges[currIndex]?.range[rangeOffsetPosition] || 0;
 
-  return -off;
+  return -offset;
 };
+
+export const clampIndex = <T>(index: number, data: T[]) =>
+  clamp(index, 0, data.length - 1);
 
 export const getDynamicRangeSum = (itemDimensionMap: BoxMeasurements[]) => {
   let previousSum = 0;
@@ -150,23 +164,40 @@ export const processClampOffsets = ({
   sideMargins,
   centered,
   containerWidth,
+  itemDimensionMode,
+  ranges,
 }: {
   wrapperWidth: number;
   sideMargins: number;
   centered: boolean;
   containerWidth: number;
+  itemDimensionMode: ItemDimensionMode;
+  ranges: DynamicRangeSum[];
 }) => {
-  const MIN = 0;
-  let MAX = -wrapperWidth + containerWidth;
+  let MIN = 0;
+  let MAX = 0;
 
-  if (centered) {
-    const _MAX_CENTERED = MAX - sideMargins * 2;
-    MAX = _MAX_CENTERED;
-  } else {
-    // In this case i guess you don't need a slider.
-    if (wrapperWidth < containerWidth) {
-      MAX = MIN;
+  if (itemDimensionMode === 'fixed') {
+    MAX = -wrapperWidth + containerWidth;
+
+    if (centered) {
+      const _MAX_CENTERED = MAX - sideMargins * 2;
+      MAX = _MAX_CENTERED;
+    } else {
+      // In this case i guess you don't need a slider.
+      if (wrapperWidth < containerWidth) {
+        MAX = MIN;
+      }
     }
+  } else {
+    const position = centered ? 'center' : 'start';
+    const firstDynamicOffset = -(ranges[0]?.range[position] || 0);
+
+    const initialCorrection =
+      itemDimensionMode === 'dynamic' && centered ? firstDynamicOffset : 0;
+
+    MIN = initialCorrection;
+    MAX = -ranges[ranges.length - 1]?.range[position] || 0;
   }
 
   return {

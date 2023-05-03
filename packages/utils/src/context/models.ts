@@ -7,12 +7,19 @@ import {
   type ItemDimensionMode,
   type EngineMode,
   type LoadingType,
+  type ClampOffset,
+  type RangeOffsetPosition,
 } from '@react-slip-and-slide/models';
 
 export type ContextModel<T extends object = object> = Required<
   Pick<
     ReactSlipAndSlideProps<T>,
-    'data' | 'centered' | 'visibleItems' | 'infinite' | 'fullWidthItem'
+    | '_testId'
+    | 'data'
+    | 'centered'
+    | 'visibleItems'
+    | 'infinite'
+    | 'fullWidthItem'
   >
 > & {
   itemDimensionMode: ItemDimensionMode;
@@ -22,13 +29,11 @@ export type ContextModel<T extends object = object> = Required<
   container: ContainerDimensions;
   dataLength: number;
   wrapperWidth: number;
-  clampOffset: {
-    MIN: number;
-    MAX: number;
-  };
+  clampOffset: ClampOffset;
   itemDimensionMap: BoxMeasurements[];
   ranges: DynamicRangeSum[];
   interpolators?: Interpolators<number>;
+  rangeOffsetPosition: RangeOffsetPosition;
 };
 
 export enum ActionTypes {
