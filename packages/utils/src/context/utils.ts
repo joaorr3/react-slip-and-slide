@@ -1,5 +1,6 @@
 import {
   type BaseDimensions,
+  type EngineMode,
   type ItemDimensionMode,
   type LoadingType,
   type ReactSlipAndSlideProps,
@@ -115,14 +116,15 @@ export function initializeContextData<T extends object>(
    *
    * The default will be "single" since it requires less computation.
    */
-  // const engineMode: EngineMode = infinite ? 'multi' : 'single';
+  const engineMode: EngineMode = infinite ? 'multi' : 'single';
 
   const initialContextData: ContextModel<T> = {
     _testId,
     infinite,
     itemDimensionMode,
     loadingType,
-    engineMode: 'multi',
+    // engineMode: 'multi',
+    engineMode,
     data: props.data,
     itemDimensions: {
       width: props.itemWidth || 0,

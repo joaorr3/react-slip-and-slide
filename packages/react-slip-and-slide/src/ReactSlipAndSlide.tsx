@@ -33,10 +33,11 @@ import {
 } from '@react-slip-and-slide/utils';
 import { clamp, debounce } from 'lodash';
 import React from 'react';
+import { Engine } from './Engine';
 
 function ReactSlipAndSlideComponent<T extends object>(
   {
-    data,
+    // data,
     snap,
     containerWidth: containerWidthProp,
     overflowHidden = true,
@@ -52,6 +53,7 @@ function ReactSlipAndSlideComponent<T extends object>(
 ) {
   const {
     state: {
+      data,
       dataLength,
       itemDimensions: { width: itemWidth, height: itemHeight },
       loadingType,
@@ -65,9 +67,10 @@ function ReactSlipAndSlideComponent<T extends object>(
       interpolators,
       visibleItems,
       rangeOffsetPosition,
+      engineMode,
     },
     actions: { setContainerDimensions },
-  } = Context.useDataContext();
+  } = Context.useDataContext<T>();
 
   const shouldAnimatedStartup = animateStartup && loadingType === 'eager';
 
@@ -620,35 +623,78 @@ function ReactSlipAndSlideComponent<T extends object>(
         justifyContent: centered ? 'center' : 'flex-start',
         width: containerWidthProp || '100%',
         height: container.height || '100%',
+        minHeight: container.height,
         overflow: overflowHidden ? 'hidden' : undefined,
       }}
       onDrag={drag}
       onRelease={release}
     >
-      {data.map((props, i) => (
-        <LazyLoad key={i} render={shouldRender(i)}>
-          <Item<T>
-            ref={itemRefs[i]}
-            index={i}
-            itemDimensionMode={itemDimensionMode}
-            item={props}
-            dataLength={dataLength}
-            renderItem={renderItem}
-            infinite={infinite}
-            itemHeight={itemHeight}
-            itemWidth={
-              itemDimensionMode === 'fixed' ? itemWidth : ranges[i]?.width || 0
-            }
-            interpolators={interpolators || {}}
-            dynamicOffset={ranges[i]?.range[rangeOffsetPosition] || 0}
-            onPress={() => pressToSlide && handlePressToSlide(i)}
-            offsetX={OffsetX.to((offsetX) =>
-              infinite ? offsetX % wrapperWidth : offsetX
-            )}
-            isLazy={loadingType === 'lazy'}
-          />
-        </LazyLoad>
-      ))}
+      <Engine
+        OffsetX={OffsetX}
+        onSlidePress={handlePressToSlide}
+        renderItem={renderItem}
+      />
+      {/* {engineMode === 'single' ? (
+        <AnimatedBox
+          style={{
+            transform: [
+              {
+                translateX: OffsetX,
+              },
+            ],
+          }}
+          styles={{
+            display: 'flex',
+            flexDirection: 'row',
+            width: itemWidth === 0 ? undefined : itemWidth,
+            height: itemHeight === 0 ? undefined : itemHeight,
+          }}
+        >
+          {data.map((props, i) => (
+            <AnimatedBox
+              ref={itemRefs[i]}
+              styles={{
+                width: itemWidth === 0 ? undefined : itemWidth,
+                height: itemHeight === 0 ? undefined : itemHeight,
+              }}
+              web={{
+                onDragStart: (e: any) => e.preventDefault(),
+              }}
+            >
+              {renderItem({ item: props, index: i })}
+            </AnimatedBox>
+          ))}
+        </AnimatedBox>
+      ) : (
+        <React.Fragment>
+          {data.map((props, i) => (
+            <LazyLoad key={i} render={shouldRender(i)}>
+              <Item<T>
+                ref={itemRefs[i]}
+                index={i}
+                itemDimensionMode={itemDimensionMode}
+                item={props}
+                dataLength={dataLength}
+                renderItem={renderItem}
+                infinite={infinite}
+                itemHeight={itemHeight}
+                itemWidth={
+                  itemDimensionMode === 'fixed'
+                    ? itemWidth
+                    : ranges[i]?.width || 0
+                }
+                interpolators={interpolators || {}}
+                dynamicOffset={ranges[i]?.range[rangeOffsetPosition] || 0}
+                onPress={() => pressToSlide && handlePressToSlide(i)}
+                offsetX={OffsetX.to((offsetX) =>
+                  infinite ? offsetX % wrapperWidth : offsetX
+                )}
+                isLazy={loadingType === 'lazy'}
+              />
+            </LazyLoad>
+          ))}
+        </React.Fragment>
+      )} */}
     </GestureContainer>
   );
 }

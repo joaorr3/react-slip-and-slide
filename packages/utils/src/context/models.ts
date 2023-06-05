@@ -76,14 +76,14 @@ export type Actions =
   | SetItemDimensionMapActionType
   | SetRangesActionType;
 
-export interface ContextHandlers {
-  state: ContextModel;
+export type ContextHandlers<T extends object> = {
+  state: ContextModel<T>;
   dispatch: React.Dispatch<Actions>;
   actions: {
-    init: (payload: Partial<ContextModel>) => void;
+    init: (payload: Partial<ContextModel<T>>) => void;
     setContainerDimensions: (payload: Partial<ContainerDimensions>) => void;
     setWrapperWidth: (payload: number) => void;
     setItemDimensionMap: (payload: BoxMeasurements[]) => void;
     setRanges: (payload: DynamicRangeSum[]) => void;
   };
-}
+};
