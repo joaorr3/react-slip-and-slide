@@ -1,8 +1,17 @@
 import { type BoxRef } from '@react-slip-and-slide/models';
-import { useDrag } from '@use-gesture/react';
+import { useGesture } from '@use-gesture/react';
+import { mergeRefs } from '../../../utilities';
+
 import React from 'react';
 import { Wrapper } from '../../Styled';
 import { type GestureContainerProps } from '../models';
+
+type HandleGesture = {
+  active: boolean;
+  mx: number;
+  dirX: number;
+  vx: number;
+};
 
 export const GestureContainerComponent = (
   {
@@ -13,14 +22,18 @@ export const GestureContainerComponent = (
     lastOffset,
     isIntentionalDrag,
     isDragging,
+    useWheel,
     onDrag,
     onRelease,
     children,
   }: GestureContainerProps,
   ref: React.Ref<BoxRef>
 ): JSX.Element => {
-  const containerBind = useDrag(
-    ({ active, movement: [mx], direction: [dirX], velocity: [vx] }) => {
+  const internalRef = React.useRef<BoxRef>(null);
+  const refs = mergeRefs<BoxRef>([ref, internalRef]);
+
+  const handleGesture = React.useCallback(
+    ({ active, mx, dirX, vx }: HandleGesture) => {
       const dir = dirX < 0 ? 'left' : dirX > 0 ? 'right' : 'center';
       direction.current = dir;
 
@@ -38,17 +51,49 @@ export const GestureContainerComponent = (
         onRelease({ offset, velocity: vx * 100 });
       }
     },
+    [
+      direction,
+      isDragging,
+      isIntentionalDrag,
+      lastOffset,
+      lastValidDirection,
+      onDrag,
+      onRelease,
+    ]
+  );
+
+  useGesture(
     {
-      filterTaps: true,
-      axis: 'x',
+      onDrag: ({
+        active,
+        movement: [mx],
+        direction: [dirX],
+        velocity: [vx],
+      }) => {
+        handleGesture({ active, mx, dirX, vx });
+      },
+      onWheel: ({ active, movement: [mx, my] }) => {
+        const move = -mx || -my;
+        // const dirX = move < 0 ? -1 : move > 0 ? 1 : 0;
+
+        handleGesture({ active, mx: move, dirX: 0, vx: 0 });
+      },
+    },
+    {
+      target: internalRef,
+      wheel: {
+        enabled: !!useWheel,
+        preventDefault: true,
+        eventOptions: { passive: false },
+      },
+      drag: { filterTaps: true, axis: 'x' },
     }
   );
 
   return (
     <Wrapper
-      ref={ref}
+      ref={refs}
       willMeasure
-      {...containerBind()}
       style={style}
       styles={{
         ...styles,

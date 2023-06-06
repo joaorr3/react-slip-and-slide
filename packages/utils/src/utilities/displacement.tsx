@@ -2,7 +2,7 @@ import { type DisplacementModel } from '@react-slip-and-slide/models';
 import { to, type Interpolation } from '../spring';
 
 export const displacement = ({
-  offsetX,
+  OffsetX,
   index = 0,
   itemWidth = 200,
   infinite,
@@ -39,8 +39,8 @@ export const displacement = ({
       startPosition,
     ];
 
-    return to(offsetX, input, output, 'clamp');
+    return to(OffsetX, input, output, 'clamp');
   }
 
-  return to(offsetX, (x) => x + itemWidth * index);
+  return to(OffsetX, (x) => x + itemWidth * index);
 };

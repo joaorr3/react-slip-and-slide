@@ -14,8 +14,8 @@ const getLargestDynamicItem = (itemDimensionMap: BaseDimensions[]) => {
   const highest = Math.max(...itemDimensionMap.map((d) => d.height || 0));
 
   return {
-    width: widest,
-    height: highest,
+    width: isFinite(widest) ? widest : 0,
+    height: isFinite(highest) ? highest : 0,
   };
 };
 
@@ -123,7 +123,6 @@ export function initializeContextData<T extends object>(
     infinite,
     itemDimensionMode,
     loadingType,
-    // engineMode: 'multi',
     engineMode,
     data: props.data,
     itemDimensions: {

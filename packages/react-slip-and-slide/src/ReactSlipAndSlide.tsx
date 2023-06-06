@@ -2,8 +2,6 @@ import {
   type BoxRef,
   type Direction,
   type Edges,
-  type Interpolators,
-  type ItemProps,
   type Navigate,
   type ReactSlipAndSlideProps,
   type ReactSlipAndSlideRef,
@@ -11,39 +9,31 @@ import {
   type ValidDirection,
 } from '@react-slip-and-slide/models';
 import {
-  AnimatedBox,
   clampIndex,
   Context,
-  displacement,
   GestureContainer,
   getCurrentDynamicIndex,
   getNextDynamicOffset,
-  isInRange,
-  LazyLoad,
   rubberband,
-  Styled,
-  to,
   typedMemo,
-  useDynamicDimension,
   useIsFirstRender,
   useScreenDimensions,
   useSpringValue,
   useValueChangeReaction,
-  type Interpolation,
 } from '@react-slip-and-slide/utils';
-import { clamp, debounce } from 'lodash';
+import { clamp, debounce, defer } from 'lodash';
 import React from 'react';
 import { Engine } from './Engine';
 
 function ReactSlipAndSlideComponent<T extends object>(
   {
-    // data,
     snap,
     containerWidth: containerWidthProp,
     overflowHidden = true,
     pressToSlide,
     animateStartup = true,
     rubberbandElasticity = 4,
+    useWheel,
     renderItem,
     onChange,
     onEdges,
@@ -55,7 +45,7 @@ function ReactSlipAndSlideComponent<T extends object>(
     state: {
       data,
       dataLength,
-      itemDimensions: { width: itemWidth, height: itemHeight },
+      itemDimensions: { width: itemWidth },
       loadingType,
       centered,
       infinite,
@@ -64,10 +54,7 @@ function ReactSlipAndSlideComponent<T extends object>(
       wrapperWidth,
       clampOffset,
       ranges,
-      interpolators,
-      visibleItems,
       rangeOffsetPosition,
-      engineMode,
     },
     actions: { setContainerDimensions },
   } = Context.useDataContext<T>();
@@ -107,16 +94,16 @@ function ReactSlipAndSlideComponent<T extends object>(
 
   React.useLayoutEffect(() => {
     if (!containerWidthProp) {
-      containerRef.current?.measure().then((m) => {
-        setContainerDimensions({
-          width: m.width,
+      defer(() => {
+        containerRef.current?.measure().then((m) => {
+          setContainerDimensions({
+            width: m.width,
+          });
         });
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [container, screenWidth]);
-
-  const { itemRefs } = useDynamicDimension();
 
   const clampReleaseOffset = React.useCallback(
     (offset: number) => {
@@ -189,7 +176,6 @@ function ReactSlipAndSlideComponent<T extends object>(
         end = false;
       }
 
-      // Refer to line 148
       if (clampOffset.MIN === clampOffset.MAX) {
         start = true;
         end = true;
@@ -357,13 +343,15 @@ function ReactSlipAndSlideComponent<T extends object>(
 
   const withMomentum = React.useCallback(
     ({ offset, v }: { offset: number; v: number }) => {
-      // make this a prop
-      const multiplier = 1.6;
+      //TODO: make this a prop
+      const multiplier = -1.6;
+      const baseVelocity = -Math.abs(v);
+
       const velocity =
         direction.current === 'left'
-          ? -(v * multiplier)
+          ? -(baseVelocity * multiplier)
           : direction.current === 'right'
-          ? v * multiplier
+          ? baseVelocity * multiplier
           : 0;
       const momentumOffset = offset + velocity;
       return momentumOffset;
@@ -593,21 +581,6 @@ function ReactSlipAndSlideComponent<T extends object>(
     [move, navigate]
   );
 
-  const shouldRender = React.useCallback(
-    (i: number) => {
-      if (loadingType === 'eager') {
-        return true;
-      }
-      return isInRange(i, {
-        dataLength,
-        viewSize: itemWidth,
-        visibleItems: visibleItems || Math.round(dataLength / 2),
-        offsetX: OffsetX.get(),
-      });
-    },
-    [OffsetX, dataLength, itemWidth, loadingType, visibleItems]
-  );
-
   return (
     <GestureContainer
       ref={containerRef}
@@ -616,14 +589,15 @@ function ReactSlipAndSlideComponent<T extends object>(
       isIntentionalDrag={isIntentionalDrag}
       lastOffset={lastOffset}
       lastValidDirection={lastValidDirection}
+      useWheel={useWheel}
       style={{
         opacity: Opacity,
       }}
       styles={{
         justifyContent: centered ? 'center' : 'flex-start',
         width: containerWidthProp || '100%',
-        height: container.height || '100%',
-        minHeight: container.height,
+        height: container.height === 0 ? undefined : container.height,
+        minHeight: container.height === 0 ? undefined : container.height,
         overflow: overflowHidden ? 'hidden' : undefined,
       }}
       onDrag={drag}
@@ -634,189 +608,9 @@ function ReactSlipAndSlideComponent<T extends object>(
         onSlidePress={handlePressToSlide}
         renderItem={renderItem}
       />
-      {/* {engineMode === 'single' ? (
-        <AnimatedBox
-          style={{
-            transform: [
-              {
-                translateX: OffsetX,
-              },
-            ],
-          }}
-          styles={{
-            display: 'flex',
-            flexDirection: 'row',
-            width: itemWidth === 0 ? undefined : itemWidth,
-            height: itemHeight === 0 ? undefined : itemHeight,
-          }}
-        >
-          {data.map((props, i) => (
-            <AnimatedBox
-              ref={itemRefs[i]}
-              styles={{
-                width: itemWidth === 0 ? undefined : itemWidth,
-                height: itemHeight === 0 ? undefined : itemHeight,
-              }}
-              web={{
-                onDragStart: (e: any) => e.preventDefault(),
-              }}
-            >
-              {renderItem({ item: props, index: i })}
-            </AnimatedBox>
-          ))}
-        </AnimatedBox>
-      ) : (
-        <React.Fragment>
-          {data.map((props, i) => (
-            <LazyLoad key={i} render={shouldRender(i)}>
-              <Item<T>
-                ref={itemRefs[i]}
-                index={i}
-                itemDimensionMode={itemDimensionMode}
-                item={props}
-                dataLength={dataLength}
-                renderItem={renderItem}
-                infinite={infinite}
-                itemHeight={itemHeight}
-                itemWidth={
-                  itemDimensionMode === 'fixed'
-                    ? itemWidth
-                    : ranges[i]?.width || 0
-                }
-                interpolators={interpolators || {}}
-                dynamicOffset={ranges[i]?.range[rangeOffsetPosition] || 0}
-                onPress={() => pressToSlide && handlePressToSlide(i)}
-                offsetX={OffsetX.to((offsetX) =>
-                  infinite ? offsetX % wrapperWidth : offsetX
-                )}
-                isLazy={loadingType === 'lazy'}
-              />
-            </LazyLoad>
-          ))}
-        </React.Fragment>
-      )} */}
     </GestureContainer>
   );
 }
-
-function ItemComponent<T extends object>(
-  {
-    offsetX,
-    dataLength,
-    index,
-    infinite,
-    itemWidth,
-    itemHeight,
-    item,
-    interpolators,
-    dynamicOffset,
-    itemDimensionMode: mode,
-    isLazy,
-    renderItem,
-    onPress,
-  }: React.PropsWithChildren<ItemProps<T>>,
-  ref?: React.Ref<BoxRef>
-) {
-  const Opacity = useSpringValue(isLazy ? 0 : 1, {
-    config: {
-      tension: 220,
-      friction: 32,
-      mass: 1,
-    },
-  });
-
-  const x = displacement({
-    offsetX,
-    dataLength,
-    index,
-    itemWidth,
-    infinite,
-  });
-
-  const keys = Object.entries(interpolators) as [
-    keyof typeof interpolators,
-    number
-  ][];
-
-  const translateX: Interpolation<number, number> = React.useMemo(() => {
-    if (mode === 'fixed') {
-      return x
-        .to((val) => val / itemWidth)
-        .to([-1, 0, 1], [-itemWidth, 0, itemWidth]);
-    }
-    return to(offsetX, (x) => x + dynamicOffset);
-  }, [dynamicOffset, itemWidth, mode, offsetX, x]);
-
-  const { scale, opacity } = React.useMemo(
-    () =>
-      keys.reduce((acc, [key, val]) => {
-        acc[key] = translateX
-          .to((val) => val / itemWidth)
-          .to([-1, 0, 1], [val, 1, val], 'clamp');
-        return acc;
-      }, {} as Interpolators<Interpolation<number, any>>),
-    [itemWidth, keys, translateX]
-  );
-
-  React.useEffect(() => {
-    if (isLazy) {
-      Opacity.start({
-        to: 1,
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLazy]);
-
-  const memoRenderItem = React.useMemo(() => {
-    return renderItem({ item, index });
-  }, [index, item, renderItem]);
-
-  return (
-    <Styled.Item
-      ref={ref}
-      willMeasure
-      onPress={onPress}
-      style={{
-        transform: [
-          {
-            translateX,
-          },
-          {
-            scale: itemWidth ? scale : 1,
-          },
-        ],
-        opacity: itemWidth ? opacity : 1,
-      }}
-      styles={{
-        width: itemWidth === 0 ? undefined : itemWidth,
-        height: itemHeight === 0 ? undefined : itemHeight,
-      }}
-      web={{
-        onDragStart: (e: any) => e.preventDefault(),
-      }}
-    >
-      <AnimatedBox
-        styles={{
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          alignItems: 'center',
-        }}
-        style={{
-          opacity: Opacity,
-        }}
-      >
-        {memoRenderItem}
-      </AnimatedBox>
-    </Styled.Item>
-  );
-}
-
-export const Item = React.forwardRef(ItemComponent) as <T extends object>(
-  props: React.PropsWithChildren<ItemProps<T>> & {
-    ref?: React.Ref<BoxRef>;
-  }
-) => ReturnType<typeof ItemComponent>;
 
 export const ForwardReactSlipAndSlideRef = React.forwardRef(
   ReactSlipAndSlideComponent

@@ -43,7 +43,7 @@ export const GestureContainerComponent = (
 
   return (
     <GestureDetector gesture={panGesture}>
-      <Wrapper ref={ref} style={style} styles={styles}>
+      <Wrapper ref={ref} willMeasure style={style} styles={styles}>
         {children}
       </Wrapper>
     </GestureDetector>

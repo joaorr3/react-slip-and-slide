@@ -193,11 +193,15 @@ export const processClampOffsets = ({
     const position = centered ? 'center' : 'start';
     const firstDynamicOffset = -(ranges[0]?.range[position] || 0);
 
+    const sideMargins = !centered
+      ? (containerWidth - (ranges[ranges.length - 1]?.width || 0)) / 2
+      : 0;
+
     const initialCorrection =
       itemDimensionMode === 'dynamic' && centered ? firstDynamicOffset : 0;
 
     MIN = initialCorrection;
-    MAX = -ranges[ranges.length - 1]?.range[position] || 0;
+    MAX = -ranges[ranges.length - 1]?.range[position] + sideMargins * 2 || 0;
   }
 
   return {
@@ -220,3 +224,5 @@ export function useValueChangeReaction<T>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 }
+
+export const derive = <T>(fn: () => T): T => fn();

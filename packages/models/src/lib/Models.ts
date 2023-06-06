@@ -112,6 +112,7 @@ export type ReactSlipAndSlideProps<T extends object> = {
    * @default 0
    */
   visibleItems?: number;
+  useWheel?: boolean;
   renderItem: RenderItem<T>;
   onChange?: (index: number) => void;
   onEdges?: (props: Edges) => void;
@@ -122,16 +123,12 @@ export type Edges = { start: boolean; end: boolean };
 
 export type ItemProps<T extends object> = {
   item: T;
-  dataLength: number;
   index: number;
-  offsetX: FluidValue<number>;
-  infinite: boolean;
+  OffsetX: FluidValue<number>;
   itemWidth: number;
   itemHeight?: number;
-  interpolators: Interpolators<number>;
-  dynamicOffset: number;
-  itemDimensionMode: ItemDimensionMode;
   isLazy?: boolean;
+  engineMode: EngineMode;
   renderItem: RenderItem<T>;
   onPress?: () => void;
 };
@@ -148,7 +145,7 @@ export type ItemDimensionMode = 'dynamic' | 'fixed';
 // -- Utils
 
 export interface DisplacementModel {
-  offsetX: FluidValue<number>;
+  OffsetX: FluidValue<number>;
   index: number;
   itemWidth: number;
   dataLength: number;
@@ -211,8 +208,17 @@ export type ClampOffset = {
 
 export type BoxMeasurements = ItemDimension;
 
+type Listener = (
+  type: string,
+  listener: (e: any) => void,
+  options?: boolean | AddEventListenerOptions
+) => void;
+
 export type BoxRef = {
   measure: () => Promise<BoxMeasurements>;
+  addEventListener: Listener;
+  removeEventListener: Listener;
+  dispatchEvent: (event: Event) => boolean;
 };
 
 // -- Helper

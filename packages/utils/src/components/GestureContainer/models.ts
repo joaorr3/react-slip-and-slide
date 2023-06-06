@@ -14,6 +14,7 @@ export type GestureContainerProps = React.PropsWithChildren<{
   lastOffset: React.MutableRefObject<number>;
   isIntentionalDrag: React.MutableRefObject<boolean>;
   isDragging: React.MutableRefObject<boolean>;
+  useWheel?: boolean;
   onDrag: (offset: number) => void;
   onRelease: (props: { offset: number; velocity: number }) => void;
 }>;

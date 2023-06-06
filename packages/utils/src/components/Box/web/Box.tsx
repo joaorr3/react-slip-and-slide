@@ -27,10 +27,18 @@ export const BoxBase = (
             width: divRef.current.offsetWidth || width,
             height: divRef.current.offsetHeight || height,
           });
+        } else {
+          res({ width: 0, height: 0 });
         }
-        res({ width: 0, height: 0 });
       });
     },
+    addEventListener: (...props) => {
+      divRef.current?.addEventListener(...props);
+    },
+    removeEventListener: (...props) => {
+      divRef.current?.removeEventListener(...props);
+    },
+    dispatchEvent: (e) => !!divRef.current?.dispatchEvent(e),
   }));
 
   return (

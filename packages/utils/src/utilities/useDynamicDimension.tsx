@@ -1,5 +1,5 @@
 import { type BaseDimensions, type BoxRef } from '@react-slip-and-slide/models';
-import { times } from 'lodash';
+import { defer, times } from 'lodash';
 import React from 'react';
 import { Context } from '../context';
 import { getDynamicRangeSum } from './helpers';
@@ -20,7 +20,7 @@ export const useDynamicDimension = () => {
 
   const measure = React.useCallback(() => {
     return new Promise<BaseDimensions[]>((res) => {
-      setImmediate(() => {
+      defer(() => {
         const promises = itemRefs.map((ref) => ref.current?.measure());
         Promise.all(promises).then((measurements) => {
           res(
