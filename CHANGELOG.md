@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [3.3.1](https://github.com/joaorr3/react-slip-and-slide/compare/v3.3.0...v3.3.1) (2023-06-07)
+
+
+### Bug Fixes
+
+* **ElementDimensionStyles:** include minWidth ([ab3c07d](https://github.com/joaorr3/react-slip-and-slide/commit/ab3c07db41de8a715df489c5e1699cad442430f7))
+
 ## [3.3.0](https://github.com/joaorr3/react-slip-and-slide/compare/v3.2.0...v3.3.0) (2023-06-07)
 
 
