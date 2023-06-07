@@ -343,9 +343,7 @@ export const useEngine = <T extends object>({
 
   const withMomentum = React.useCallback(
     ({ offset, v }: { offset: number; v: number }) => {
-      //TODO: make this a prop
       const multiplier = -(1 + momentumMultiplier);
-      console.log('multiplier: ', multiplier);
       const baseVelocity = -Math.abs(v);
 
       const velocity =
