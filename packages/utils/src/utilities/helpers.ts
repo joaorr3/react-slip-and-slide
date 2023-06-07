@@ -234,10 +234,11 @@ export const elementDimensionStyles = ({
   height,
 }: Required<BaseDimensions>): Pick<
   CSSProperties,
-  'width' | 'height' | 'minHeight'
+  'width' | 'height' | 'minWidth' | 'minHeight'
 > => {
   return {
     width: width === 0 ? undefined : width,
+    minWidth: width === 0 ? undefined : width,
     height: height === 0 ? undefined : height,
     minHeight: height === 0 ? undefined : height,
   };
