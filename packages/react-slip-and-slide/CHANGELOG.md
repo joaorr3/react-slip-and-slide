@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.3.0](https://github.com/joaorr3/react-slip-and-slide/compare/v3.2.0...v3.3.0) (2023-06-07)
+
+
+### Features
+
+* **LazyLayout:** remove unnecessary layer if loadingType is not lazy ([be5e30b](https://github.com/joaorr3/react-slip-and-slide/commit/be5e30b36253e726c0c4dedad46537bd15bcc180))
+
 ## [3.2.0](https://github.com/joaorr3/react-slip-and-slide/compare/v3.1.0...v3.2.0) (2023-06-07)
 
 
