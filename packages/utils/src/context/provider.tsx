@@ -53,8 +53,8 @@ const DataProducer = produce<Reducer<ContextModel, Actions>>(
   }
 );
 
-export const dataContext = React.createContext<ContextHandlers>(
-  {} as ContextHandlers
+export const dataContext = React.createContext<ContextHandlers<object>>(
+  {} as ContextHandlers<object>
 );
 
 export type DataProviderProps = React.PropsWithChildren<{
@@ -68,7 +68,7 @@ export function DataProvider({
   const [state, dispatch] = React.useReducer(DataProducer, _initialData);
 
   const actions = React.useMemo(
-    (): ContextHandlers['actions'] => ({
+    (): ContextHandlers<object>['actions'] => ({
       init: (payload) => dispatch({ type: ActionTypes.INIT, payload }),
       setContainerDimensions: (payload) =>
         dispatch({ type: ActionTypes.SET_CONTAINER_DIMENSIONS, payload }),
@@ -82,7 +82,7 @@ export function DataProvider({
     []
   );
 
-  const contextHandlers: ContextHandlers = React.useMemo(
+  const contextHandlers: ContextHandlers<object> = React.useMemo(
     () => ({ state: processContextData(state), actions, dispatch }),
     [actions, state]
   );

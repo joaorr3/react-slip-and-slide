@@ -1,10 +1,12 @@
 import {
   type BaseDimensions,
+  type EngineMode,
   type ItemDimensionMode,
   type LoadingType,
   type ReactSlipAndSlideProps,
 } from '@react-slip-and-slide/models';
-import { sumBy } from 'lodash';
+import { clamp, sumBy } from 'lodash';
+import { SpringValue } from '../spring';
 import { processClampOffsets } from '../utilities/helpers';
 import { type ContextModel } from './models';
 
@@ -13,8 +15,8 @@ const getLargestDynamicItem = (itemDimensionMap: BaseDimensions[]) => {
   const highest = Math.max(...itemDimensionMap.map((d) => d.height || 0));
 
   return {
-    width: widest,
-    height: highest,
+    width: isFinite(widest) ? widest : 0,
+    height: isFinite(highest) ? highest : 0,
   };
 };
 
@@ -94,6 +96,7 @@ export function initializeContextData<T extends object>(
     containerWidth,
     interpolators,
     centered,
+    momentumMultiplier = 0,
   } = props;
 
   /**
@@ -115,14 +118,15 @@ export function initializeContextData<T extends object>(
    *
    * The default will be "single" since it requires less computation.
    */
-  // const engineMode: EngineMode = infinite ? 'multi' : 'single';
+  const engineMode: EngineMode =
+    infinite || loadingType === 'lazy' ? 'multi' : 'single';
 
   const initialContextData: ContextModel<T> = {
     _testId,
     infinite,
     itemDimensionMode,
     loadingType,
-    engineMode: 'multi',
+    engineMode,
     data: props.data,
     itemDimensions: {
       width: props.itemWidth || 0,
@@ -145,6 +149,14 @@ export function initializeContextData<T extends object>(
     ranges: [],
     interpolators,
     rangeOffsetPosition: centered ? 'center' : 'start',
+    momentumMultiplier: clamp(momentumMultiplier, 0, 1),
+    OffsetX: new SpringValue(0, {
+      config: {
+        tension: 220,
+        friction: 32,
+        mass: 1,
+      },
+    }),
   };
 
   return initialContextData;

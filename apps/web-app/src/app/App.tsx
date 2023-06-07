@@ -21,25 +21,39 @@ const props0: ReactSlipAndSlideProps<{ width: number }> = {
     { width: 400 },
     { width: 400 },
     { width: 400 },
+    { width: 400 },
+    { width: 400 },
+    { width: 400 },
+    { width: 400 },
+    { width: 400 },
+    { width: 400 },
+    { width: 400 },
+    { width: 400 },
+    { width: 400 },
+    { width: 400 },
+    { width: 400 },
+    { width: 400 },
+    { width: 400 },
+    { width: 400 },
   ],
-  snap: true,
+  snap: false,
   centered: true,
   infinite: true,
   pressToSlide: true,
   itemWidth: 400,
   itemHeight: 100,
-  interpolators: {
-    opacity: 0.6,
-    scale: 0.9,
-  },
+  // interpolators: {
+  //   opacity: 0.6,
+  //   scale: 0.9,
+  // },
   renderItem: ({ index, item: { width } }) => {
     return (
       <div
         style={{
           width,
           height: 100,
-          backgroundColor: '#858585',
-          color: '#d6d6d6',
+          backgroundColor: '#85858573',
+          color: '#000000',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
@@ -65,10 +79,11 @@ const props2: ReactSlipAndSlideProps<{ width: number; height: number }> = {
     { width: 400, height: 100 },
     { width: 400, height: 200 },
     { width: 400, height: 100 },
-    { width: 600, height: 300 },
+    { width: 400, height: 300 },
     { width: 400, height: 100 },
     { width: 400, height: 200 },
   ],
+  useWheel: true,
   centered: true,
   itemWidth: undefined,
   itemHeight: undefined,
@@ -78,8 +93,8 @@ const props2: ReactSlipAndSlideProps<{ width: number; height: number }> = {
         style={{
           width,
           height,
-          backgroundColor: '#858585',
-          color: '#d6d6d6',
+          backgroundColor: '#85858575',
+          color: '#000000',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
@@ -123,7 +138,7 @@ export function App() {
       <ReactSlipAndSlide {...props0} />
 
       <p>fixed</p>
-      <ReactSlipAndSlide {...props1} />
+      <ReactSlipAndSlide {...props1} visibleItems={10} />
 
       <p>dynamic (same width)</p>
       <ReactSlipAndSlide {...props2} />

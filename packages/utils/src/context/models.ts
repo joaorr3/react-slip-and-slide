@@ -1,15 +1,16 @@
 import {
   type BoxMeasurements,
+  type ClampOffset,
   type ContainerDimensions,
   type DynamicRangeSum,
-  type Interpolators,
-  type ReactSlipAndSlideProps,
-  type ItemDimensionMode,
   type EngineMode,
+  type Interpolators,
+  type ItemDimensionMode,
   type LoadingType,
-  type ClampOffset,
   type RangeOffsetPosition,
+  type ReactSlipAndSlideProps,
 } from '@react-slip-and-slide/models';
+import { type SpringValue } from '../spring';
 
 export type ContextModel<T extends object = object> = Required<
   Pick<
@@ -20,6 +21,7 @@ export type ContextModel<T extends object = object> = Required<
     | 'visibleItems'
     | 'infinite'
     | 'fullWidthItem'
+    | 'momentumMultiplier'
   >
 > & {
   itemDimensionMode: ItemDimensionMode;
@@ -34,6 +36,7 @@ export type ContextModel<T extends object = object> = Required<
   ranges: DynamicRangeSum[];
   interpolators?: Interpolators<number>;
   rangeOffsetPosition: RangeOffsetPosition;
+  OffsetX: SpringValue<number>;
 };
 
 export enum ActionTypes {
@@ -76,14 +79,14 @@ export type Actions =
   | SetItemDimensionMapActionType
   | SetRangesActionType;
 
-export interface ContextHandlers {
-  state: ContextModel;
+export type ContextHandlers<T extends object> = {
+  state: ContextModel<T>;
   dispatch: React.Dispatch<Actions>;
   actions: {
-    init: (payload: Partial<ContextModel>) => void;
+    init: (payload: Partial<ContextModel<T>>) => void;
     setContainerDimensions: (payload: Partial<ContainerDimensions>) => void;
     setWrapperWidth: (payload: number) => void;
     setItemDimensionMap: (payload: BoxMeasurements[]) => void;
     setRanges: (payload: DynamicRangeSum[]) => void;
   };
-}
+};

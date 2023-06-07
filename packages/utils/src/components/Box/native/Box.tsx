@@ -39,10 +39,14 @@ export const BoxBase = (
               height: measurements?.height || height,
             });
           });
+        } else {
+          res({ width: 0, height: 0 });
         }
-        res({ width: 0, height: 0 });
       });
     },
+    addEventListener: () => void 0,
+    removeEventListener: () => void 0,
+    dispatchEvent: () => false,
   }));
 
   const handleOnLayout = React.useCallback(

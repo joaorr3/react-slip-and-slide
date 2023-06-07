@@ -109,9 +109,20 @@ export type ReactSlipAndSlideProps<T extends object> = {
    * Default is zero, which means LazyLoading is disabled by default.
    *
    * Be aware that lower values can produce weird behaviors. Play safe with this prop.
-   * @default 0
+   * @default 1
    */
   visibleItems?: number;
+  /**
+   * Allows you to control the slide gesture with the trackpad or mouse wheel
+   */
+  useWheel?: boolean;
+  /**
+   * Controls how much momentum the release will have when snap if false.
+   * To prevent bad UX the expected range is between 0 and 1.
+   * @example 0.6
+   * @default 0
+   */
+  momentumMultiplier?: number;
   renderItem: RenderItem<T>;
   onChange?: (index: number) => void;
   onEdges?: (props: Edges) => void;
@@ -122,16 +133,7 @@ export type Edges = { start: boolean; end: boolean };
 
 export type ItemProps<T extends object> = {
   item: T;
-  dataLength: number;
   index: number;
-  offsetX: FluidValue<number>;
-  infinite: boolean;
-  itemWidth: number;
-  itemHeight?: number;
-  interpolators: Interpolators<number>;
-  dynamicOffset: number;
-  itemDimensionMode: ItemDimensionMode;
-  isLazy?: boolean;
   renderItem: RenderItem<T>;
   onPress?: () => void;
 };
@@ -148,7 +150,7 @@ export type ItemDimensionMode = 'dynamic' | 'fixed';
 // -- Utils
 
 export interface DisplacementModel {
-  offsetX: FluidValue<number>;
+  OffsetX: FluidValue<number>;
   index: number;
   itemWidth: number;
   dataLength: number;
@@ -211,8 +213,17 @@ export type ClampOffset = {
 
 export type BoxMeasurements = ItemDimension;
 
+type Listener = (
+  type: string,
+  listener: (e: any) => void,
+  options?: boolean | AddEventListenerOptions
+) => void;
+
 export type BoxRef = {
   measure: () => Promise<BoxMeasurements>;
+  addEventListener: Listener;
+  removeEventListener: Listener;
+  dispatchEvent: (event: Event) => boolean;
 };
 
 // -- Helper

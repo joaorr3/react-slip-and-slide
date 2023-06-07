@@ -16,9 +16,9 @@ const App = () => {
       { width: 200 },
       { width: 100 },
       { width: 200 },
-      { width: 390 },
+      { width: 320 },
       { width: 100 },
-      { width: 390 },
+      { width: 320 },
       { width: 200 },
       { width: 200 },
       { width: 280 },
@@ -31,38 +31,39 @@ const App = () => {
     <SafeAreaView>
       <Text style={{ fontSize: 32 }}>{index}</Text>
       <Text style={{ fontSize: 22 }}>{JSON.stringify(edges)}</Text>
-      <ReactSlipAndSlide
-        ref={ref}
-        data={memoData}
-        snap
-        centered
-        // infinite
-        // pressToSlide
-        itemWidth={320}
-        itemHeight={200}
-        interpolators={{
-          opacity: 0.6,
-          scale: 0.9,
-        }}
-        onChange={setIndex}
-        onEdges={setEdges}
-        renderItem={({ index: _index }) => {
-          return (
-            <View
-              style={{
-                width: 320,
-                height: 200,
-                backgroundColor: '#58a8d9',
-                borderRadius: 20,
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            >
-              <Text style={{ fontSize: 20 }}>{_index}</Text>
-            </View>
-          );
-        }}
-      />
+      <View style={{ display: 'flex', flexDirection: 'row' }}>
+        <ReactSlipAndSlide
+          ref={ref}
+          data={memoData}
+          // snap
+          // centered
+          // infinite
+          // itemWidth={320}
+          // itemHeight={200}
+          // interpolators={{
+          //   opacity: 0.6,
+          //   scale: 0.9,
+          // }}
+          onChange={setIndex}
+          onEdges={setEdges}
+          renderItem={({ index: _index, item: { width } }) => {
+            return (
+              <View
+                style={{
+                  width,
+                  height: 200,
+                  backgroundColor: '#58a8d9',
+                  borderRadius: 20,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <Text style={{ fontSize: 20 }}>{_index}</Text>
+              </View>
+            );
+          }}
+        />
+      </View>
       <Button title="Next" onPress={() => ref.current?.next()} />
       <Button title="Prev" onPress={() => ref.current?.previous()} />
       <Button title="Move:Next" onPress={() => ref.current?.move(-200)} />
