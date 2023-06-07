@@ -1,17 +1,15 @@
 import { type Interpolators } from '@react-slip-and-slide/models';
 import React from 'react';
 import { Context } from '../context';
-import { to, type FluidValue, type Interpolation } from '../spring';
+import { to, type Interpolation } from '../spring';
 import { displacement } from './displacement';
 
 type UseInterpolation = {
-  OffsetX: FluidValue<number>;
   index: number;
 };
 
 export const useInterpolation = <T extends object>({
   index,
-  OffsetX,
 }: UseInterpolation) => {
   const {
     state: {
@@ -23,6 +21,8 @@ export const useInterpolation = <T extends object>({
       interpolators,
       rangeOffsetPosition,
       engineMode,
+      wrapperWidth,
+      OffsetX: OffsetXContext,
     },
   } = Context.useDataContext<T>();
 
@@ -34,6 +34,11 @@ export const useInterpolation = <T extends object>({
   ][];
 
   const getTranslateX = React.useCallback((): Interpolation<number, number> => {
+    const OffsetX =
+      engineMode === 'single'
+        ? OffsetXContext
+        : OffsetXContext.to((offsetX) => offsetX % wrapperWidth);
+
     const x = displacement({
       OffsetX,
       dataLength,
@@ -50,13 +55,15 @@ export const useInterpolation = <T extends object>({
 
     return to(OffsetX, (x) => x + dynamicOffset);
   }, [
-    OffsetX,
+    OffsetXContext,
     dataLength,
     dynamicOffset,
+    engineMode,
     index,
     infinite,
     itemDimensionMode,
     itemWidth,
+    wrapperWidth,
   ]);
 
   const { scale, opacity, translateX } = React.useMemo(() => {

@@ -1,4 +1,5 @@
 import {
+  type BaseDimensions,
   type BoxMeasurements,
   type ClampOffset,
   type Direction,
@@ -13,6 +14,7 @@ import {
 import { dequal } from 'dequal';
 import { clamp } from 'lodash';
 import React from 'react';
+import { type CSSProperties } from '../styled-components';
 
 export const typedMemo: TypedMemo = React.memo;
 
@@ -226,3 +228,17 @@ export function useValueChangeReaction<T>(
 }
 
 export const derive = <T>(fn: () => T): T => fn();
+
+export const elementDimensionStyles = ({
+  width,
+  height,
+}: Required<BaseDimensions>): Pick<
+  CSSProperties,
+  'width' | 'height' | 'minHeight'
+> => {
+  return {
+    width: width === 0 ? undefined : width,
+    height: height === 0 ? undefined : height,
+    minHeight: height === 0 ? undefined : height,
+  };
+};

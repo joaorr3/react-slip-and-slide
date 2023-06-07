@@ -109,10 +109,20 @@ export type ReactSlipAndSlideProps<T extends object> = {
    * Default is zero, which means LazyLoading is disabled by default.
    *
    * Be aware that lower values can produce weird behaviors. Play safe with this prop.
-   * @default 0
+   * @default 1
    */
   visibleItems?: number;
+  /**
+   * Allows you to control the slide gesture with the trackpad or mouse wheel
+   */
   useWheel?: boolean;
+  /**
+   * Controls how much momentum the release will have when snap if false.
+   * To prevent bad UX the expected range is between 0 and 1.
+   * @example 0.6
+   * @default 0
+   */
+  momentumMultiplier?: number;
   renderItem: RenderItem<T>;
   onChange?: (index: number) => void;
   onEdges?: (props: Edges) => void;
@@ -124,11 +134,6 @@ export type Edges = { start: boolean; end: boolean };
 export type ItemProps<T extends object> = {
   item: T;
   index: number;
-  OffsetX: FluidValue<number>;
-  itemWidth: number;
-  itemHeight?: number;
-  isLazy?: boolean;
-  engineMode: EngineMode;
   renderItem: RenderItem<T>;
   onPress?: () => void;
 };

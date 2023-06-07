@@ -21,8 +21,22 @@ const props0: ReactSlipAndSlideProps<{ width: number }> = {
     { width: 400 },
     { width: 400 },
     { width: 400 },
+    { width: 400 },
+    { width: 400 },
+    { width: 400 },
+    { width: 400 },
+    { width: 400 },
+    { width: 400 },
+    { width: 400 },
+    { width: 400 },
+    { width: 400 },
+    { width: 400 },
+    { width: 400 },
+    { width: 400 },
+    { width: 400 },
+    { width: 400 },
   ],
-  snap: true,
+  snap: false,
   centered: true,
   infinite: true,
   pressToSlide: true,
@@ -124,7 +138,7 @@ export function App() {
       <ReactSlipAndSlide {...props0} />
 
       <p>fixed</p>
-      <ReactSlipAndSlide {...props1} />
+      <ReactSlipAndSlide {...props1} visibleItems={10} />
 
       <p>dynamic (same width)</p>
       <ReactSlipAndSlide {...props2} />

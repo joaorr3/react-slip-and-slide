@@ -5,7 +5,8 @@ import {
   type LoadingType,
   type ReactSlipAndSlideProps,
 } from '@react-slip-and-slide/models';
-import { sumBy } from 'lodash';
+import { clamp, sumBy } from 'lodash';
+import { SpringValue } from '../spring';
 import { processClampOffsets } from '../utilities/helpers';
 import { type ContextModel } from './models';
 
@@ -95,6 +96,7 @@ export function initializeContextData<T extends object>(
     containerWidth,
     interpolators,
     centered,
+    momentumMultiplier = 0,
   } = props;
 
   /**
@@ -116,7 +118,8 @@ export function initializeContextData<T extends object>(
    *
    * The default will be "single" since it requires less computation.
    */
-  const engineMode: EngineMode = infinite ? 'multi' : 'single';
+  const engineMode: EngineMode =
+    infinite || loadingType === 'lazy' ? 'multi' : 'single';
 
   const initialContextData: ContextModel<T> = {
     _testId,
@@ -146,6 +149,14 @@ export function initializeContextData<T extends object>(
     ranges: [],
     interpolators,
     rangeOffsetPosition: centered ? 'center' : 'start',
+    momentumMultiplier: clamp(momentumMultiplier, 0, 1),
+    OffsetX: new SpringValue(0, {
+      config: {
+        tension: 220,
+        friction: 32,
+        mass: 1,
+      },
+    }),
   };
 
   return initialContextData;
