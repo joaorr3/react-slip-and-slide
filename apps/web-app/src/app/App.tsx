@@ -1,8 +1,10 @@
 import styled from 'styled-components';
 import {
   ReactSlipAndSlide,
+  type ReactSlipAndSlideRef,
   type ReactSlipAndSlideProps,
 } from 'react-slip-and-slide';
+import React from 'react';
 
 const StyledApp = styled.div`
   display: flex;
@@ -11,31 +13,33 @@ const StyledApp = styled.div`
   height: 200vh;
 `;
 
+const data = [
+  { width: 400 },
+  { width: 400 },
+  { width: 400 },
+  { width: 400 },
+  { width: 400 },
+  // { width: 400 },
+  // { width: 400 },
+  // { width: 400 },
+  // { width: 400 },
+  // { width: 400 },
+  // { width: 400 },
+  // { width: 400 },
+  // { width: 400 },
+  // { width: 400 },
+  // { width: 400 },
+  // { width: 400 },
+  // { width: 400 },
+  // { width: 400 },
+  // { width: 400 },
+  // { width: 400 },
+  // { width: 400 },
+];
+
 const props0: ReactSlipAndSlideProps<{ width: number }> = {
   _testId: 'fixed',
-  data: [
-    { width: 400 },
-    { width: 400 },
-    { width: 400 },
-    { width: 400 },
-    { width: 400 },
-    { width: 400 },
-    { width: 400 },
-    { width: 400 },
-    { width: 400 },
-    { width: 400 },
-    { width: 400 },
-    { width: 400 },
-    { width: 400 },
-    { width: 400 },
-    { width: 400 },
-    { width: 400 },
-    { width: 400 },
-    { width: 400 },
-    { width: 400 },
-    { width: 400 },
-    { width: 400 },
-  ],
+  data,
   snap: false,
   centered: true,
   infinite: true,
@@ -132,6 +136,48 @@ const props4: ReactSlipAndSlideProps<{ width: number }> = {
 };
 
 export function App() {
+  const ref = React.useRef<ReactSlipAndSlideRef>(null);
+
+  return (
+    <React.Fragment>
+      <ReactSlipAndSlide
+        ref={ref}
+        data={data}
+        snap
+        centered
+        // itemWidth={200}
+        // itemHeight={200}
+        useWheel
+        // pressToSlide
+        renderItem={({ index, item: { width } }) => {
+          return (
+            <div
+              onClick={() => ref.current?.goTo({ index, animated: true })}
+              style={{
+                width: 200,
+                height: 200,
+                backgroundColor: '#85858573',
+                color: '#000000',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                borderRadius: '32px',
+                userSelect: 'none',
+              }}
+            >
+              <p className="item-text">{index}</p>
+            </div>
+          );
+        }}
+      />
+      <button onClick={() => ref.current?.previous()}>Prev</button>
+      <button onClick={() => ref.current?.next()}>Next</button>
+      <button onClick={() => ref.current?.goTo({ index: 3, animated: true })}>
+        Go To 3
+      </button>
+    </React.Fragment>
+  );
+
   return (
     <StyledApp>
       <p>infinite</p>

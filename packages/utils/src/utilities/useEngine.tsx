@@ -355,7 +355,7 @@ export const useEngine = <T extends object>({
       const momentumOffset = offset + velocity;
       return momentumOffset;
     },
-    []
+    [momentumMultiplier]
   );
 
   const release = React.useCallback(
@@ -384,53 +384,72 @@ export const useEngine = <T extends object>({
     [snap, springIt, withMomentum, withSnap]
   );
 
-  const navigate = React.useCallback(
-    ({ index: _index, direction: dir, immediate }: Navigate) => {
-      let targetOffset = 0;
+  const nextIndexByDirection = (
+    index: number,
+    direction: Navigate['direction']
+  ) => {
+    if (direction === 'next') {
+      return index + 1;
+    } else if (direction === 'prev') {
+      return index - 1;
+    }
+    return index;
+  };
 
-      if (_index) {
-        targetOffset = getCurrentOffset({ index: _index });
+  const navigateByIndex = React.useCallback(
+    (index: number, immediate?: boolean) => {
+      let targetOffset = lastOffset.current;
+      if (itemDimensionMode === 'fixed') {
+        targetOffset = getCurrentOffset({ index });
       } else {
-        if (itemDimensionMode === 'fixed') {
-          const page = getCurrentIndex({ offset: OffsetX.get() });
-          if (dir === 'next') {
-            const nextPage = page + 1;
-            targetOffset = -nextPage * itemWidth;
-          } else if (dir === 'prev') {
-            const prevPage = page - 1;
-            targetOffset = -prevPage * itemWidth;
-          }
-        } else {
-          const nextDir =
-            dir === 'next' ? 'left' : dir === 'prev' ? 'right' : null;
-
-          targetOffset = getNextDynamicOffset({
-            offsetX: OffsetX.get(),
-            ranges,
-            lastValidDirection: nextDir,
-            direction: direction.current,
-            clampOffset,
-            rangeOffsetPosition,
-          });
-        }
+        targetOffset = -ranges[index].range[rangeOffsetPosition];
       }
       springIt({
         offset: targetOffset,
-        immediate,
         actionType: 'release',
+        immediate,
+      });
+    },
+    [getCurrentOffset, itemDimensionMode, rangeOffsetPosition, ranges, springIt]
+  );
+
+  const navigateByDirection = React.useCallback(
+    (direction: Navigate['direction'], immediate?: boolean) => {
+      let targetOffset = lastOffset.current;
+      if (itemDimensionMode === 'fixed') {
+        const currentIndex = getCurrentIndex({ offset: OffsetX.get() });
+        const nextIndex = nextIndexByDirection(currentIndex, direction);
+        targetOffset = -nextIndex * itemWidth;
+      } else {
+        const nextIndex = nextIndexByDirection(index.current, direction);
+        targetOffset = -ranges[nextIndex].range[rangeOffsetPosition];
+      }
+      springIt({
+        offset: targetOffset,
+        actionType: 'release',
+        immediate,
       });
     },
     [
-      springIt,
-      getCurrentOffset,
-      itemDimensionMode,
-      getCurrentIndex,
       OffsetX,
+      getCurrentIndex,
+      itemDimensionMode,
       itemWidth,
-      ranges,
-      clampOffset,
       rangeOffsetPosition,
+      ranges,
+      springIt,
     ]
+  );
+
+  const navigate = React.useCallback(
+    ({ index, direction, immediate }: Navigate) => {
+      if (index !== undefined) {
+        navigateByIndex(index, immediate);
+      } else if (direction) {
+        navigateByDirection(direction, immediate);
+      }
+    },
+    [navigateByIndex, navigateByDirection]
   );
 
   const move = React.useCallback(
@@ -444,53 +463,13 @@ export const useEngine = <T extends object>({
   );
 
   const handlePressToSlide = React.useCallback(
-    (idx: number) => {
+    (index: number) => {
       if (!pressToSlide || isDragging.current || isIntentionalDrag.current) {
         return;
       }
-
-      if (itemDimensionMode === 'fixed') {
-        const prev = index.current === 0 && idx === dataLength - 1;
-        const next = index.current === dataLength - 1 && idx === 0;
-        const smaller = idx < index.current;
-        const bigger = idx > index.current;
-
-        if (prev) {
-          navigate({ direction: 'prev' });
-        } else if (next) {
-          navigate({ direction: 'next' });
-        } else if (smaller) {
-          navigate({ direction: 'prev' });
-        } else if (bigger) {
-          navigate({ direction: 'next' });
-        }
-      } else {
-        const currIndx =
-          getCurrentDynamicIndex(
-            OffsetX.get(),
-            ranges,
-            lastValidDirection.current,
-            direction.current,
-            clampOffset,
-            rangeOffsetPosition
-          ) || 0;
-        if (idx < currIndx) {
-          navigate({ direction: 'prev' });
-        } else if (idx > currIndx) {
-          navigate({ direction: 'next' });
-        }
-      }
+      navigate({ index });
     },
-    [
-      OffsetX,
-      clampOffset,
-      dataLength,
-      itemDimensionMode,
-      navigate,
-      pressToSlide,
-      rangeOffsetPosition,
-      ranges,
-    ]
+    [navigate, pressToSlide]
   );
 
   //region FX
