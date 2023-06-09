@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [3.3.2](https://github.com/joaorr3/react-slip-and-slide/compare/v3.3.1...v3.3.2) (2023-06-09)
+
+
+### Bug Fixes
+
+* **Navigate:** improve how navigation is handled ([3b9a17e](https://github.com/joaorr3/react-slip-and-slide/commit/3b9a17e1aefe915515a15aa265be4845d5c53057))
+
 ### [3.3.1](https://github.com/joaorr3/react-slip-and-slide/compare/v3.3.0...v3.3.1) (2023-06-07)
 
 
