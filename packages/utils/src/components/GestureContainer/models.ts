@@ -1,4 +1,5 @@
 import {
+  type ActionType,
   type Direction,
   type ValidDirection,
 } from '@react-slip-and-slide/models';
@@ -15,6 +16,6 @@ export type GestureContainerProps = React.PropsWithChildren<{
   isIntentionalDrag: React.MutableRefObject<boolean>;
   isDragging: React.MutableRefObject<boolean>;
   useWheel?: boolean;
-  onDrag: (offset: number) => void;
+  onDrag: (offset: number, actionType: ActionType) => void;
   onRelease: (props: { offset: number; velocity: number }) => void;
 }>;

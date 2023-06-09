@@ -25,6 +25,7 @@ function ReactSlipAndSlideComponent<T extends object>(
     onChange,
     onEdges,
     onReady,
+    onItemPress,
     renderItem,
   }: ReactSlipAndSlideProps<T>,
   ref: React.Ref<ReactSlipAndSlideRef>
@@ -39,12 +40,14 @@ function ReactSlipAndSlideComponent<T extends object>(
     onChange,
     onEdges,
     onReady,
+    onItemPress,
   });
 
   const gestureContainerStyles: CSSProperties = {
     justifyContent: state.centered ? 'center' : 'flex-start',
     ...elementDimensionStyles(state.container),
     width: containerWidth || '100%',
+    minWidth: containerWidth || '100%',
     overflow: overflowHidden ? 'hidden' : undefined,
   };
 
@@ -62,10 +65,7 @@ function ReactSlipAndSlideComponent<T extends object>(
       onDrag={handlers.onDrag}
       onRelease={handlers.onRelease}
     >
-      <Engine
-        onSlidePress={handlers.handlePressToSlide}
-        renderItem={renderItem}
-      />
+      <Engine onItemPress={handlers.onItemPress} renderItem={renderItem} />
     </GestureContainer>
   );
 }

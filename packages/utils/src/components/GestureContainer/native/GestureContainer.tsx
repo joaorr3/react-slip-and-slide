@@ -33,7 +33,7 @@ export const GestureContainerComponent = (
 
       const offset = lastOffset.current + translationX;
 
-      onDrag(offset);
+      onDrag(offset, 'drag');
     })
     .onEnd(({ velocityX, translationX, state }) => {
       isDragging.current = state === 4;

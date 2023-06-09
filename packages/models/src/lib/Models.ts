@@ -13,13 +13,12 @@ export type ReactSlipAndSlideRef = {
 
 export type ValidDirection = 'left' | 'right';
 export type Direction = ValidDirection | 'center';
-export type ActionType = 'drag' | 'release' | 'correction';
+export type ActionType = 'drag' | 'wheel' | 'release' | 'correction';
 
 export type SpringIt = {
   offset: number;
   immediate?: boolean;
   onRest?: (x: AnimationResult<SpringValue<number>>) => void;
-  actionType: ActionType;
 };
 
 export type Navigate = {
@@ -127,6 +126,10 @@ export type ReactSlipAndSlideProps<T extends object> = {
   onChange?: (index: number) => void;
   onEdges?: (props: Edges) => void;
   onReady?: (ready: boolean) => void;
+  onItemPress?: (item: {
+    currentIndex: number;
+    pressedItemIndex: number;
+  }) => void;
 };
 
 export type Edges = { start: boolean; end: boolean };

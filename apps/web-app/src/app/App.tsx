@@ -5,12 +5,15 @@ import {
   type ReactSlipAndSlideProps,
 } from 'react-slip-and-slide';
 import React from 'react';
+import { Example } from './Example';
 
 const StyledApp = styled.div`
   display: flex;
   flex-direction: column;
   gap: 24px;
   height: 200vh;
+  background-color: #0f0f0f;
+  align-items: center;
 `;
 
 const data = [
@@ -138,25 +141,44 @@ const props4: ReactSlipAndSlideProps<{ width: number }> = {
 export function App() {
   const ref = React.useRef<ReactSlipAndSlideRef>(null);
 
+  const [currIndex, setCurrIndex] = React.useState<number>(0);
+
+  return (
+    <StyledApp>
+      <div style={{ height: 0 }} />
+      <Example />
+    </StyledApp>
+  );
+
   return (
     <React.Fragment>
       <ReactSlipAndSlide
         ref={ref}
         data={data}
-        snap
-        centered
+        // snap
+        // centered
         // itemWidth={200}
         // itemHeight={200}
         useWheel
         // pressToSlide
+        onItemPress={({ currentIndex, pressedItemIndex }) => {
+          if (pressedItemIndex > currentIndex) {
+            ref.current?.next();
+          } else if (pressedItemIndex < currentIndex) {
+            ref.current?.previous();
+          }
+        }}
+        onChange={(i) => {
+          setCurrIndex(i);
+        }}
         renderItem={({ index, item: { width } }) => {
           return (
             <div
-              onClick={() => ref.current?.goTo({ index, animated: true })}
+              // onClick={() => ref.current?.goTo({ index, animated: true })}
               style={{
                 width: 200,
                 height: 200,
-                backgroundColor: '#85858573',
+                backgroundColor: index === 3 ? '#00000077' : '#85858573',
                 color: '#000000',
                 display: 'flex',
                 justifyContent: 'center',
@@ -175,6 +197,7 @@ export function App() {
       <button onClick={() => ref.current?.goTo({ index: 3, animated: true })}>
         Go To 3
       </button>
+      <p>{currIndex}</p>
     </React.Fragment>
   );
 

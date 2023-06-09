@@ -1,4 +1,5 @@
 import {
+  type ActionType,
   type BoxRef,
   type Direction,
   type Edges,
@@ -32,6 +33,7 @@ type UseEngineIn<T extends object> = Pick<
   | 'onChange'
   | 'onEdges'
   | 'onReady'
+  | 'onItemPress'
 > & {
   instanceRef: React.Ref<ReactSlipAndSlideRef>;
 };
@@ -46,6 +48,7 @@ export const useEngine = <T extends object>({
   onChange,
   onEdges,
   onReady,
+  onItemPress,
 }: UseEngineIn<T>) => {
   const {
     state: {
@@ -81,6 +84,7 @@ export const useEngine = <T extends object>({
   const direction = React.useRef<Direction>('center');
   const lastValidDirection = React.useRef<ValidDirection | null>(null);
   const isIntentionalDrag = React.useRef<boolean>(false);
+  const actionType = React.useRef<ActionType | undefined>();
 
   const Opacity = useSpringValue(shouldAnimatedStartup ? 0 : 1, {
     config: {
@@ -95,9 +99,10 @@ export const useEngine = <T extends object>({
   React.useLayoutEffect(() => {
     if (!containerWidthProp) {
       defer(() => {
-        containerRef.current?.measure().then((m) => {
+        containerRef.current?.measure().then(({ width }) => {
           setContainerDimensions({
-            width: m.width,
+            ...container,
+            width,
           });
         });
       });
@@ -198,24 +203,27 @@ export const useEngine = <T extends object>({
     () =>
       debounce((edges: Edges) => {
         onEdges?.(edges);
-      }, 800),
+      }, 50),
     [onEdges]
   );
 
-  const springIt = React.useCallback(
-    ({ offset, immediate, actionType, onRest }: SpringIt) => {
+  const spring = React.useCallback(
+    ({ offset, immediate, onRest }: SpringIt) => {
       const clampedReleaseOffset = clampReleaseOffset(offset);
       OffsetX.start({
         to:
-          actionType === 'drag' || actionType === 'correction'
+          actionType.current === 'drag' || actionType.current === 'correction'
             ? offset
             : clampedReleaseOffset,
-        immediate: immediate || actionType === 'drag',
+        immediate:
+          immediate ||
+          actionType.current === 'drag' ||
+          actionType.current === 'wheel',
         onRest: (x) => {
           onRest?.(x);
         },
       });
-      if (actionType === 'release') {
+      if (actionType.current === 'release') {
         lastOffset.current = clampedReleaseOffset;
         if (itemDimensionMode === 'fixed') {
           index.current = clampIndex(
@@ -239,7 +247,7 @@ export const useEngine = <T extends object>({
 
         onChanged(index.current);
 
-        if (!infinite) {
+        if (!infinite && !isFirstRender) {
           onEdge?.(checkEdges({ offset }));
         }
       }
@@ -252,6 +260,7 @@ export const useEngine = <T extends object>({
       data,
       getRelativeIndex,
       infinite,
+      isFirstRender,
       itemDimensionMode,
       loadingType,
       onChanged,
@@ -259,6 +268,19 @@ export const useEngine = <T extends object>({
       rangeOffsetPosition,
       ranges,
     ]
+  );
+
+  const springIt = React.useCallback(
+    ({
+      offset,
+      immediate,
+      actionType: _actionType,
+      onRest,
+    }: SpringIt & { actionType: ActionType }) => {
+      actionType.current = _actionType;
+      spring({ offset, immediate, onRest });
+    },
+    [spring]
   );
 
   const getCurrentIndexByOffset = React.useCallback(
@@ -295,17 +317,18 @@ export const useEngine = <T extends object>({
   );
 
   const drag = React.useCallback(
-    (x: number) => {
-      const offset = infinite
-        ? x
-        : rubberband(x, rubberbandElasticity, [
-            clampOffset.MIN,
-            clampOffset.MAX,
-          ]);
+    (x: number, actionType: ActionType) => {
+      const offset =
+        infinite || actionType === 'wheel'
+          ? x
+          : rubberband(x, rubberbandElasticity, [
+              clampOffset.MIN,
+              clampOffset.MAX,
+            ]);
 
       springIt({
         offset,
-        actionType: 'drag',
+        actionType,
       });
     },
     [clampOffset, infinite, rubberbandElasticity, springIt]
@@ -467,9 +490,19 @@ export const useEngine = <T extends object>({
       if (!pressToSlide || isDragging.current || isIntentionalDrag.current) {
         return;
       }
+
       navigate({ index });
     },
     [navigate, pressToSlide]
+  );
+
+  const handleOnItemPress = React.useCallback(
+    (idx: number) => {
+      handlePressToSlide(idx);
+
+      onItemPress?.({ currentIndex: index.current, pressedItemIndex: idx });
+    },
+    [handlePressToSlide, onItemPress]
   );
 
   //region FX
@@ -533,6 +566,11 @@ export const useEngine = <T extends object>({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screenWidth, clampOffset.MAX]);
 
+  React.useEffect(() => {
+    onEdges?.(checkEdges({ offset: OffsetX.get() }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useValueChangeReaction(containerWidthProp, (width) => {
     setContainerDimensions({
       width,
@@ -556,7 +594,7 @@ export const useEngine = <T extends object>({
     handlers: {
       onDrag: drag,
       onRelease: release,
-      handlePressToSlide,
+      onItemPress: handleOnItemPress,
     },
     state: {
       container,
@@ -568,6 +606,7 @@ export const useEngine = <T extends object>({
       isIntentionalDrag,
       lastOffset,
       lastValidDirection,
+      actionType,
     },
     containerRef,
     Opacity,

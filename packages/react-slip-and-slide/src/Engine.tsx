@@ -10,11 +10,11 @@ import { ItemBase } from './Item';
 import { LayoutManager } from './LayoutManager';
 
 export type EngineProps<T extends object> = {
-  onSlidePress: (index: number) => void;
+  onItemPress: (index: number) => void;
 } & Pick<ReactSlipAndSlideProps<T>, 'renderItem'>;
 
 export const Engine = <T extends object>({
-  onSlidePress,
+  onItemPress,
   renderItem,
 }: EngineProps<T>): JSX.Element => {
   const {
@@ -54,7 +54,7 @@ export const Engine = <T extends object>({
             index={index}
             item={item}
             renderItem={renderItem}
-            onPress={() => onSlidePress(index)}
+            onPress={() => onItemPress(index)}
           />
         </LazyLoad>
       ))}

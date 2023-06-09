@@ -1,4 +1,4 @@
-import { type BoxRef } from '@react-slip-and-slide/models';
+import { type ActionType, type BoxRef } from '@react-slip-and-slide/models';
 import { useGesture } from '@use-gesture/react';
 import { mergeRefs } from '../../../utilities';
 
@@ -11,6 +11,7 @@ type HandleGesture = {
   mx: number;
   dirX: number;
   vx: number;
+  actionType: ActionType;
 };
 
 export const GestureContainerComponent = (
@@ -33,7 +34,7 @@ export const GestureContainerComponent = (
   const refs = mergeRefs<BoxRef>([ref, internalRef]);
 
   const handleGesture = React.useCallback(
-    ({ active, mx, dirX, vx }: HandleGesture) => {
+    ({ active, mx, dirX, vx, actionType }: HandleGesture) => {
       const dir = dirX < 0 ? 'left' : dirX > 0 ? 'right' : 'center';
       direction.current = dir;
 
@@ -46,7 +47,7 @@ export const GestureContainerComponent = (
       isDragging.current = Math.abs(mx) !== 0;
 
       if (active) {
-        onDrag(offset);
+        onDrag(offset, actionType);
       } else {
         onRelease({ offset, velocity: vx * 100 });
       }
@@ -70,13 +71,23 @@ export const GestureContainerComponent = (
         direction: [dirX],
         velocity: [vx],
       }) => {
-        handleGesture({ active, mx, dirX, vx });
+        handleGesture({
+          active,
+          mx,
+          dirX,
+          vx,
+          actionType: 'drag',
+        });
       },
       onWheel: ({ active, movement: [mx, my] }) => {
         const move = -mx || -my;
-        // const dirX = move < 0 ? -1 : move > 0 ? 1 : 0;
-
-        handleGesture({ active, mx: move, dirX: 0, vx: 0 });
+        handleGesture({
+          active,
+          mx: move,
+          dirX: 0,
+          vx: 0,
+          actionType: 'wheel',
+        });
       },
     },
     {
