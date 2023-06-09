@@ -12,16 +12,16 @@ const StyledApp = styled.div`
   flex-direction: column;
   gap: 24px;
   height: 200vh;
-  background-color: #0f0f0f;
+  /* background-color: #0f0f0f; */
   align-items: center;
 `;
 
 const data = [
   { width: 400 },
   { width: 400 },
-  { width: 400 },
-  { width: 400 },
-  { width: 400 },
+  // { width: 400 },
+  // { width: 400 },
+  // { width: 400 },
   // { width: 400 },
   // { width: 400 },
   // { width: 400 },
@@ -44,7 +44,7 @@ const props0: ReactSlipAndSlideProps<{ width: number }> = {
   _testId: 'fixed',
   data,
   snap: false,
-  centered: true,
+  // centered: true,
   infinite: true,
   pressToSlide: true,
   itemWidth: 400,
@@ -91,7 +91,7 @@ const props2: ReactSlipAndSlideProps<{ width: number; height: number }> = {
     { width: 400, height: 200 },
   ],
   useWheel: true,
-  centered: true,
+  // centered: true,
   itemWidth: undefined,
   itemHeight: undefined,
   renderItem: ({ index, item: { width, height } }) => {
@@ -126,7 +126,7 @@ const props3: ReactSlipAndSlideProps<{ width: number }> = {
     { width: 500 },
     { width: 800 },
   ],
-  centered: true,
+  // centered: true,
   // centered: false,
   itemWidth: undefined,
   itemHeight: undefined,
@@ -144,7 +144,7 @@ export function App() {
   const [currIndex, setCurrIndex] = React.useState<number>(0);
 
   return (
-    <StyledApp>
+    <StyledApp style={{ backgroundColor: '#0f0f0f' }}>
       <div style={{ height: 0 }} />
       <Example />
     </StyledApp>
@@ -157,8 +157,8 @@ export function App() {
         data={data}
         // snap
         // centered
-        // itemWidth={200}
-        // itemHeight={200}
+        itemWidth={200}
+        itemHeight={200}
         useWheel
         // pressToSlide
         onItemPress={({ currentIndex, pressedItemIndex }) => {

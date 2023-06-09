@@ -185,11 +185,6 @@ export const processClampOffsets = ({
     if (centered) {
       const _MAX_CENTERED = MAX - sideMargins * 2;
       MAX = _MAX_CENTERED;
-    } else {
-      // In this case i guess you don't need a slider.
-      if (wrapperWidth < containerWidth) {
-        MAX = MIN;
-      }
     }
   } else {
     const position = centered ? 'center' : 'start';
@@ -204,6 +199,11 @@ export const processClampOffsets = ({
 
     MIN = initialCorrection;
     MAX = -ranges[ranges.length - 1]?.range[position] + sideMargins * 2 || 0;
+  }
+
+  // In this case i guess you don't need a slider.
+  if (wrapperWidth < containerWidth) {
+    MAX = MIN;
   }
 
   return {
