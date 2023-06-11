@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.4.0](https://github.com/joaorr3/react-slip-and-slide/compare/v3.3.3...v3.4.0) (2023-06-11)
+
+
+### Features
+
+* **goTo/springConfigByActionType:** improve UX by creating a distinction between different spring action types + add option to center the item in the goTo method ([eed15a7](https://github.com/joaorr3/react-slip-and-slide/commit/eed15a754ee2cef1e564237e121a0b5ff87c38c4))
+
 ### [3.3.3](https://github.com/joaorr3/react-slip-and-slide/compare/v3.3.2...v3.3.3) (2023-06-11)
 
 ### [3.3.2](https://github.com/joaorr3/react-slip-and-slide/compare/v3.3.1...v3.3.2) (2023-06-09)
