@@ -9,7 +9,7 @@ import {
   type SpringIt,
   type ValidDirection,
 } from '@react-slip-and-slide/models';
-import { clamp, debounce, defer } from 'lodash';
+import { clamp, debounce, defer, throttle } from 'lodash';
 import React from 'react';
 import { Context } from '../context';
 import { useSpringValue } from '../spring';
@@ -201,9 +201,9 @@ export const useEngine = <T extends object>({
 
   const onEdge = React.useMemo(
     () =>
-      debounce((edges: Edges) => {
+      throttle((edges: Edges) => {
         onEdges?.(edges);
-      }, 50),
+      }, 120),
     [onEdges]
   );
 
@@ -326,12 +326,22 @@ export const useEngine = <T extends object>({
               clampOffset.MAX,
             ]);
 
+      onEdge?.(checkEdges({ offset }));
+
       springIt({
         offset,
         actionType,
       });
     },
-    [clampOffset, infinite, rubberbandElasticity, springIt]
+    [
+      checkEdges,
+      clampOffset.MAX,
+      clampOffset.MIN,
+      infinite,
+      onEdge,
+      rubberbandElasticity,
+      springIt,
+    ]
   );
 
   const withSnap = React.useCallback(

@@ -1,10 +1,9 @@
-import styled, { type CSSProperties } from 'styled-components';
+import React from 'react';
 import {
   ReactSlipAndSlide,
   type ReactSlipAndSlideRef,
-  type ReactSlipAndSlideProps,
 } from 'react-slip-and-slide';
-import React from 'react';
+import { type CSSProperties } from 'styled-components';
 
 const loremIpsumText =
   'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eu purus lacinia, pretium ipsum in, vestibulum dolor. Fusce lobortis eu erat id aliquet. Donec sit amet ex dolor. Ut et tempus velit. Vestibulum lobortis enim mi. Donec vel velit condimentum, rhoncus mauris ut, faucibus nisi. Aenean vestibulum leo et lacus efficitur vehicula. Cras sagittis enim lectus, eget laoreet mauris faucibus eget. Nullam sit amet feugiat mi. Nunc vel rutrum erat. In et ullamcorper nibh. Mauris quam erat, congue ac risus et, vehicula fermentum magna. Maecenas pellentesque orci vitae neque tincidunt aliquet. Vestibulum justo nibh, condimentum non mollis eu, maximus quis lacus. Proin urna ipsum, luctus sit amet tincidunt nec, tincidunt nec orci.';
@@ -125,6 +124,10 @@ export function Example() {
   const [hideStartNav, setHideStartNav] = React.useState<boolean>(true);
   const [hideEndNav, setHideEndNav] = React.useState<boolean>(true);
 
+  React.useEffect(() => {
+    console.log('render');
+  });
+
   return (
     <div
       style={{
@@ -139,6 +142,8 @@ export function Example() {
         data={data}
         useWheel
         onEdges={({ start, end }) => {
+          console.log('{ start, end }: ', { start, end });
+
           setHideStartNav(start);
           setHideEndNav(end);
         }}
