@@ -124,50 +124,58 @@ export function Example() {
   const [hideStartNav, setHideStartNav] = React.useState<boolean>(true);
   const [hideEndNav, setHideEndNav] = React.useState<boolean>(true);
 
-  React.useEffect(() => {
-    console.log('render');
-  });
+  // const [index, setIndex] = React.useState<number>(0);
+
+  // React.useEffect(() => {
+  //   console.log('render');
+  // });
 
   return (
-    <div
-      style={{
-        position: 'relative',
-        display: 'flex',
-        alignItems: 'center',
-        width: 800,
-      }}
-    >
-      <ReactSlipAndSlide
-        ref={ref}
-        data={data}
-        useWheel
-        onEdges={({ start, end }) => {
-          console.log('{ start, end }: ', { start, end });
-
-          setHideStartNav(start);
-          setHideEndNav(end);
+    <React.Fragment>
+      <div
+        style={{
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          width: 800,
         }}
-        onItemPress={({ pressedItemIndex }) => {
-          setActiveItem(pressedItemIndex);
-        }}
-        renderItem={(props) => {
-          return <Item active={props.index === activeItem} {...props} />;
-        }}
-      />
+      >
+        <ReactSlipAndSlide
+          ref={ref}
+          data={data}
+          useWheel
+          // centered
+          onEdges={({ start, end }) => {
+            setHideStartNav(start);
+            setHideEndNav(end);
+          }}
+          onItemPress={({ pressedItemIndex }) => {
+            setActiveItem(pressedItemIndex);
+            ref.current?.goTo({ index: pressedItemIndex, centered: true });
+          }}
+          // onChange={(index) => {
+          //   setIndex(index);
+          // }}
+          renderItem={(props) => {
+            return <Item active={props.index === activeItem} {...props} />;
+          }}
+        />
 
-      <NavButton
-        hide={hideStartNav}
-        direction="prev"
-        styles={{ left: 0 }}
-        onPress={() => ref.current?.move(180)}
-      />
+        <NavButton
+          hide={hideStartNav}
+          direction="prev"
+          styles={{ left: 0 }}
+          onPress={() => ref.current?.move(180)}
+        />
 
-      <NavButton
-        hide={hideEndNav}
-        direction="next"
-        styles={{ right: 0 }}
-        onPress={() => ref.current?.move(-180)}
-      />
-    </div>
+        <NavButton
+          hide={hideEndNav}
+          direction="next"
+          styles={{ right: 0 }}
+          onPress={() => ref.current?.move(-180)}
+        />
+      </div>
+      {/* <h1 style={{ color: '#fff' }}>{index}</h1> */}
+    </React.Fragment>
   );
 }

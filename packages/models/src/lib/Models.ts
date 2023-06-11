@@ -4,7 +4,11 @@ import { type AnimationResult, type SpringValue } from 'react-spring';
 export type ReactSlipAndSlideRef = {
   next: () => void;
   previous: () => void;
-  goTo: (params: { index: number; animated?: boolean }) => void;
+  goTo: (params: {
+    index: number;
+    animated?: boolean;
+    centered?: boolean;
+  }) => void;
   /**
    * Offset in pixels to translate.
    */
@@ -13,7 +17,12 @@ export type ReactSlipAndSlideRef = {
 
 export type ValidDirection = 'left' | 'right';
 export type Direction = ValidDirection | 'center';
-export type ActionType = 'drag' | 'wheel' | 'release' | 'correction';
+export type ActionType =
+  | 'drag'
+  | 'wheel'
+  | 'navigate'
+  | 'release'
+  | 'correction';
 
 export type SpringIt = {
   offset: number;

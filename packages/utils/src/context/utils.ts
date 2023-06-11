@@ -7,6 +7,7 @@ import {
 } from '@react-slip-and-slide/models';
 import { clamp, sumBy } from 'lodash';
 import { SpringValue } from '../spring';
+import { baseSpringConfig } from '../utilities';
 import { processClampOffsets } from '../utilities/helpers';
 import { type ContextModel } from './models';
 
@@ -151,11 +152,7 @@ export function initializeContextData<T extends object>(
     rangeOffsetPosition: centered ? 'center' : 'start',
     momentumMultiplier: clamp(momentumMultiplier, 0, 1),
     OffsetX: new SpringValue(0, {
-      config: {
-        tension: 220,
-        friction: 32,
-        mass: 1,
-      },
+      config: baseSpringConfig,
     }),
   };
 

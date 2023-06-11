@@ -13,6 +13,7 @@ import { clamp, debounce, defer, throttle } from 'lodash';
 import React from 'react';
 import { Context } from '../context';
 import { useSpringValue } from '../spring';
+import { springConfigByActionType } from './config';
 import {
   clampIndex,
   getCurrentDynamicIndex,
@@ -84,7 +85,7 @@ export const useEngine = <T extends object>({
   const direction = React.useRef<Direction>('center');
   const lastValidDirection = React.useRef<ValidDirection | null>(null);
   const isIntentionalDrag = React.useRef<boolean>(false);
-  const actionType = React.useRef<ActionType | undefined>();
+  const actionType = React.useRef<ActionType>('release');
 
   const Opacity = useSpringValue(shouldAnimatedStartup ? 0 : 1, {
     config: {
@@ -222,8 +223,12 @@ export const useEngine = <T extends object>({
         onRest: (x) => {
           onRest?.(x);
         },
+        config: springConfigByActionType[actionType.current],
       });
-      if (actionType.current === 'release') {
+      if (
+        actionType.current === 'release' ||
+        actionType.current === 'navigate'
+      ) {
         lastOffset.current = clampedReleaseOffset;
         if (itemDimensionMode === 'fixed') {
           index.current = clampIndex(
@@ -439,7 +444,7 @@ export const useEngine = <T extends object>({
       }
       springIt({
         offset: targetOffset,
-        actionType: 'release',
+        actionType: 'navigate',
         immediate,
       });
     },
@@ -459,7 +464,7 @@ export const useEngine = <T extends object>({
       }
       springIt({
         offset: targetOffset,
-        actionType: 'release',
+        actionType: 'navigate',
         immediate,
       });
     },
@@ -489,10 +494,50 @@ export const useEngine = <T extends object>({
     (offset: number) => {
       springIt({
         offset: OffsetX.get() + offset,
-        actionType: 'release',
+        actionType: 'navigate',
       });
     },
     [OffsetX, springIt]
+  );
+
+  const goTo = React.useCallback(
+    ({
+      index,
+      centered: alignCentered,
+      animated = true,
+    }: Parameters<ReactSlipAndSlideRef['goTo']>[0]) => {
+      let targetOffset = lastOffset.current;
+      let currentItemWidth = itemWidth;
+
+      if (itemDimensionMode === 'fixed') {
+        targetOffset = getCurrentOffset({ index });
+      } else {
+        currentItemWidth = ranges[index].width;
+        targetOffset = -ranges[index].range[rangeOffsetPosition];
+      }
+
+      // if the wrapper is already centered this is a no-op
+      if (alignCentered && !centered) {
+        targetOffset =
+          targetOffset + container.width / 2 - currentItemWidth / 2;
+      }
+
+      springIt({
+        offset: targetOffset,
+        actionType: 'navigate',
+        immediate: !animated,
+      });
+    },
+    [
+      centered,
+      container.width,
+      getCurrentOffset,
+      itemDimensionMode,
+      itemWidth,
+      rangeOffsetPosition,
+      ranges,
+      springIt,
+    ]
   );
 
   const handlePressToSlide = React.useCallback(
@@ -509,7 +554,6 @@ export const useEngine = <T extends object>({
   const handleOnItemPress = React.useCallback(
     (idx: number) => {
       handlePressToSlide(idx);
-
       onItemPress?.({ currentIndex: index.current, pressedItemIndex: idx });
     },
     [handlePressToSlide, onItemPress]
@@ -594,10 +638,10 @@ export const useEngine = <T extends object>({
     () => ({
       next: () => navigate({ direction: 'next' }),
       previous: () => navigate({ direction: 'prev' }),
-      goTo: ({ index, animated }) => navigate({ index, immediate: !animated }),
+      goTo,
       move,
     }),
-    [move, navigate]
+    [goTo, move, navigate]
   );
 
   return {

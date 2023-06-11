@@ -7,3 +7,4 @@ export * from './useInterpolation';
 export * from './useItemsRange';
 export * from './useScreenDimensions';
 export * from './useEngine';
+export * from './config';
