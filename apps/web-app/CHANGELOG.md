@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [3.4.1](https://github.com/joaorr3/react-slip-and-slide/compare/v3.4.0...v3.4.1) (2023-06-12)
+
+
+### Bug Fixes
+
+* **useEngine:** make sure all indexes are clamped + improve docs ([20953d9](https://github.com/joaorr3/react-slip-and-slide/commit/20953d95116408fbfb82ae1e75e037110ebfd648))
+
 ## [3.4.0](https://github.com/joaorr3/react-slip-and-slide/compare/v3.3.3...v3.4.0) (2023-06-11)
 
 
