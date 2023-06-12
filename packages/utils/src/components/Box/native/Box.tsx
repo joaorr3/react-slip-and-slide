@@ -9,7 +9,7 @@ import {
   View,
   type LayoutChangeEvent,
 } from 'react-native';
-import { styled } from '../../../styled-components';
+import { styled } from '../../../styled-components/index.native';
 import { type BoxProps, type StyledBoxProps } from '../models';
 
 const StyledBox = styled(View)<StyledBoxProps>`

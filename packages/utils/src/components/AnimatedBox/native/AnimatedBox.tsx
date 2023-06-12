@@ -1,5 +1,5 @@
 import React from 'react';
-import { animated } from '../../../spring';
+import { animated } from '../../../spring/index.native';
 import { BoxBase } from '../../Box';
 import { type AnimatedBoxComponentType } from '../models';
 
