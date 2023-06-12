@@ -2,6 +2,8 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [3.4.2](https://github.com/joaorr3/react-slip-and-slide/compare/v3.4.1...v3.4.2) (2023-06-12)
+
 ### [3.4.1](https://github.com/joaorr3/react-slip-and-slide/compare/v3.4.0...v3.4.1) (2023-06-12)
 
 

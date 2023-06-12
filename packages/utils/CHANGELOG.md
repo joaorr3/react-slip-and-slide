@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [3.4.2](https://github.com/joaorr3/react-slip-and-slide/compare/v3.4.1...v3.4.2) (2023-06-12)
+
+
+### Bug Fixes
+
+* **utils:** import directly from index.native as an attempt to fix snapshots ([df9c489](https://github.com/joaorr3/react-slip-and-slide/commit/df9c48902b6543da89f6f16340427c87b1553934))
+
 ### [3.4.1](https://github.com/joaorr3/react-slip-and-slide/compare/v3.4.0...v3.4.1) (2023-06-12)
 
 
