@@ -146,6 +146,11 @@ export function App() {
     <StyledApp style={{ backgroundColor: '#0f0f0f' }}>
       <div style={{ height: 0 }} />
       <Example />
+      <Example />
+      <Example />
+      <Example />
+      <Example />
+      <Example />
     </StyledApp>
   );
 
