@@ -1,8 +1,6 @@
 # react-slip-and-slide
 
-```bash
-npm i react-slip-and-slide
-```
+##### A react and react-native carousel
 
 <img src="https://media.giphy.com/media/xX1jzTGlknCM5xSsI2/giphy.gif" alt="example" style="width: 800px"/>
 
@@ -89,6 +87,20 @@ function App() {
   );
 }
 ```
+
+> Important! In order to get Android to work properly, you need to wrap your app with [GestureHandlerRootView](https://docs.swmansion.com/react-native-gesture-handler/docs/installation#js).
+
+```jsx
+function App() {
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ReactSlipAndSlide />
+    </GestureHandlerRootView>
+  );
+}
+```
+
+[Check out some examples](https://react-slip-and-slide.netlify.app/)
 
 ## License
 
