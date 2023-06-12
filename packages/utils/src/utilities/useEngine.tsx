@@ -208,6 +208,13 @@ export const useEngine = <T extends object>({
     [onEdges]
   );
 
+  const clampIdx = React.useCallback(
+    (idx: number) => {
+      return clampIndex(idx, data);
+    },
+    [data]
+  );
+
   const spring = React.useCallback(
     ({ offset, immediate, onRest }: SpringIt) => {
       const clampedReleaseOffset = clampReleaseOffset(offset);
@@ -231,9 +238,8 @@ export const useEngine = <T extends object>({
       ) {
         lastOffset.current = clampedReleaseOffset;
         if (itemDimensionMode === 'fixed') {
-          index.current = clampIndex(
-            getRelativeIndex({ offset: clampedReleaseOffset }),
-            data
+          index.current = clampIdx(
+            getRelativeIndex({ offset: clampedReleaseOffset })
           );
         } else {
           index.current = getCurrentDynamicIndex(
@@ -260,9 +266,9 @@ export const useEngine = <T extends object>({
     [
       OffsetX,
       checkEdges,
+      clampIdx,
       clampOffset,
       clampReleaseOffset,
-      data,
       getRelativeIndex,
       infinite,
       isFirstRender,
@@ -435,7 +441,8 @@ export const useEngine = <T extends object>({
   };
 
   const navigateByIndex = React.useCallback(
-    (index: number, immediate?: boolean) => {
+    (idx: number, immediate?: boolean) => {
+      const index = clampIdx(idx);
       let targetOffset = lastOffset.current;
       if (itemDimensionMode === 'fixed') {
         targetOffset = getCurrentOffset({ index });
@@ -448,20 +455,33 @@ export const useEngine = <T extends object>({
         immediate,
       });
     },
-    [getCurrentOffset, itemDimensionMode, rangeOffsetPosition, ranges, springIt]
+    [
+      clampIdx,
+      getCurrentOffset,
+      itemDimensionMode,
+      rangeOffsetPosition,
+      ranges,
+      springIt,
+    ]
   );
 
   const navigateByDirection = React.useCallback(
     (direction: Navigate['direction'], immediate?: boolean) => {
       let targetOffset = lastOffset.current;
       if (itemDimensionMode === 'fixed') {
-        const currentIndex = getCurrentIndex({ offset: OffsetX.get() });
+        const currentIndex = clampIdx(
+          getCurrentIndex({ offset: OffsetX.get() })
+        );
         const nextIndex = nextIndexByDirection(currentIndex, direction);
         targetOffset = -nextIndex * itemWidth;
       } else {
-        const nextIndex = nextIndexByDirection(index.current, direction);
+        const nextIndex = clampIdx(
+          nextIndexByDirection(index.current, direction)
+        );
+
         targetOffset = -ranges[nextIndex].range[rangeOffsetPosition];
       }
+
       springIt({
         offset: targetOffset,
         actionType: 'navigate',
@@ -470,6 +490,7 @@ export const useEngine = <T extends object>({
     },
     [
       OffsetX,
+      clampIdx,
       getCurrentIndex,
       itemDimensionMode,
       itemWidth,
@@ -502,10 +523,11 @@ export const useEngine = <T extends object>({
 
   const goTo = React.useCallback(
     ({
-      index,
+      index: idx,
       centered: alignCentered,
       animated = true,
     }: Parameters<ReactSlipAndSlideRef['goTo']>[0]) => {
+      const index = clampIdx(idx);
       let targetOffset = lastOffset.current;
       let currentItemWidth = itemWidth;
 
@@ -530,6 +552,7 @@ export const useEngine = <T extends object>({
     },
     [
       centered,
+      clampIdx,
       container.width,
       getCurrentOffset,
       itemDimensionMode,
