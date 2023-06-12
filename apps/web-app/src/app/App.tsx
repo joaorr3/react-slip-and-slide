@@ -43,23 +43,23 @@ const data = [
 const props0: ReactSlipAndSlideProps<{ width: number }> = {
   _testId: 'fixed',
   data,
-  snap: false,
+  snap: true,
   centered: true,
   infinite: true,
   pressToSlide: true,
   itemWidth: 400,
   itemHeight: 100,
-  // interpolators: {
-  //   opacity: 0.6,
-  //   scale: 0.9,
-  // },
+  interpolators: {
+    opacity: 0.4,
+    scale: 0.82,
+  },
   renderItem: ({ index, item: { width } }) => {
     return (
       <div
         style={{
           width,
           height: 100,
-          backgroundColor: '#85858573',
+          backgroundColor: '#767676',
           color: '#000000',
           display: 'flex',
           justifyContent: 'center',
@@ -100,7 +100,7 @@ const props2: ReactSlipAndSlideProps<{ width: number; height: number }> = {
         style={{
           width,
           height,
-          backgroundColor: '#85858575',
+          backgroundColor: '#858585',
           color: '#000000',
           display: 'flex',
           justifyContent: 'center',

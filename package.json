@@ -7,6 +7,7 @@
     "version": "npx nx run root:version --syncVersions --exclude=root,web-app,native-app",
     "publish": "npx nx run-many --target=publish --exclude root web-app native-app",
     "web": "npx nx run web-app:serve",
+    "web:build": "npx nx run web-app:build-app",
     "clear": "watchman watch-del-all && rm -rf $TMPDIR/metro-cache",
     "native:start": "npx nx run native-app:start",
     "native:ios": "npx nx run native-app:run-ios",
