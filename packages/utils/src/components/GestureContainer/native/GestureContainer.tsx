@@ -38,7 +38,12 @@ export const GestureContainerComponent = (
     .onEnd(({ velocityX, translationX, state }) => {
       isDragging.current = state === 4;
       const offset = lastOffset.current + translationX;
-      onRelease({ offset, velocity: velocityX / 12 });
+
+      const unsignedVelocity = Math.abs(velocityX);
+      const normalizedVelocity = velocityX / 12;
+      const velocity = unsignedVelocity > 320 ? normalizedVelocity : 0;
+
+      onRelease({ offset, velocity });
     });
 
   return (

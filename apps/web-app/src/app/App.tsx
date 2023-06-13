@@ -149,56 +149,55 @@ export function App() {
     </StyledApp>
   );
 
-  // return (
-  //   <React.Fragment>
-  //     <ReactSlipAndSlide
-  //       ref={ref}
-  //       data={data}
-  //       // snap
-  //       // centered
-  //       itemWidth={200}
-  //       itemHeight={200}
-  //       useWheel
-  //       // pressToSlide
-  //       onItemPress={({ currentIndex, pressedItemIndex }) => {
-  //         if (pressedItemIndex > currentIndex) {
-  //           ref.current?.next();
-  //         } else if (pressedItemIndex < currentIndex) {
-  //           ref.current?.previous();
-  //         }
-  //       }}
-  //       onChange={(i) => {
-  //         setCurrIndex(i);
-  //       }}
-  //       renderItem={({ index, item: { width } }) => {
-  //         return (
-  //           <div
-  //             // onClick={() => ref.current?.goTo({ index, animated: true })}
-  //             style={{
-  //               width: 200,
-  //               height: 200,
-  //               backgroundColor: index === 3 ? '#00000077' : '#85858573',
-  //               color: '#000000',
-  //               display: 'flex',
-  //               justifyContent: 'center',
-  //               alignItems: 'center',
-  //               borderRadius: '32px',
-  //               userSelect: 'none',
-  //             }}
-  //           >
-  //             <p className="item-text">{index}</p>
-  //           </div>
-  //         );
-  //       }}
-  //     />
-  //     <button onClick={() => ref.current?.previous()}>Prev</button>
-  //     <button onClick={() => ref.current?.next()}>Next</button>
-  //     <button onClick={() => ref.current?.goTo({ index: 3, animated: true })}>
-  //       Go To 3
-  //     </button>
-  //     <p>{currIndex}</p>
-  //   </React.Fragment>
-  // );
+  return (
+    <React.Fragment>
+      <ReactSlipAndSlide
+        ref={ref}
+        data={data}
+        snap
+        centered
+        itemWidth={400}
+        itemHeight={200}
+        useWheel
+        // pressToSlide
+        onItemPress={({ currentIndex, pressedItemIndex }) => {
+          if (pressedItemIndex > currentIndex) {
+            ref.current?.next();
+          } else if (pressedItemIndex < currentIndex) {
+            ref.current?.previous();
+          }
+        }}
+        onChange={(i) => {
+          setCurrIndex(i);
+        }}
+        renderItem={({ index, item: { width } }) => {
+          return (
+            <div
+              style={{
+                width: 400,
+                height: 200,
+                backgroundColor: '#85858573',
+                color: '#000000',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                borderRadius: '32px',
+                userSelect: 'none',
+              }}
+            >
+              <p className="item-text">{index}</p>
+            </div>
+          );
+        }}
+      />
+      <button onClick={() => ref.current?.previous()}>Prev</button>
+      <button onClick={() => ref.current?.next()}>Next</button>
+      <button onClick={() => ref.current?.goTo({ index: 3, animated: true })}>
+        Go To 3
+      </button>
+      <h1>{currIndex}</h1>
+    </React.Fragment>
+  );
 
   return (
     <StyledApp>

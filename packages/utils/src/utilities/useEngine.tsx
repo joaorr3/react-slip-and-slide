@@ -9,9 +9,10 @@ import {
   type SpringIt,
   type ValidDirection,
 } from '@react-slip-and-slide/models';
-import { clamp, debounce, defer, throttle } from 'lodash';
+import { clamp, defer, throttle } from 'lodash';
 import React from 'react';
 import { Context } from '../context';
+import { Platform } from '../platform';
 import { useSpringValue } from '../spring';
 import { springConfigByActionType } from './config';
 import {
@@ -111,6 +112,10 @@ export const useEngine = <T extends object>({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [container, screenWidth]);
 
+  const checkActionType = React.useCallback((actionTypes: ActionType[]) => {
+    return actionTypes.includes(actionType.current);
+  }, []);
+
   const clampReleaseOffset = React.useCallback(
     (offset: number) => {
       if (infinite && itemDimensionMode === 'fixed') {
@@ -149,12 +154,6 @@ export const useEngine = <T extends object>({
 
   const getRelativeIndex = React.useCallback(
     ({ offset }: { offset: number }) => {
-      // get the index relative to its original position in data[]
-      // ensure the first item on the left is equal to dataLength and not 1.
-      // [1,2,3,4][1,2,3,4][1,2,3,4] - origin
-      // [4,3,2,1][-0,-1,-2,-3][-0,-1,-2,-3] - wrong
-      // [0,1,2,3][0,1,2,3][0,1,2,3] - corrected
-      // floor the index to ensure it's correct when in free scroll mode (!snap)
       return Math.floor(processIndex({ offset }));
     },
     [processIndex]
@@ -192,13 +191,12 @@ export const useEngine = <T extends object>({
     [clampOffset]
   );
 
-  const onChanged = React.useMemo(
-    () =>
-      debounce((index: number) => {
-        onChange?.(index);
-      }, 800),
-    [onChange]
-  );
+  const onCallbacks = React.useCallback(() => {
+    onChange?.(index.current);
+    if (!infinite && !isFirstRender) {
+      onEdges?.(checkEdges({ offset: lastOffset.current }));
+    }
+  }, [checkEdges, infinite, isFirstRender, onChange, onEdges]);
 
   const onEdge = React.useMemo(
     () =>
@@ -215,35 +213,29 @@ export const useEngine = <T extends object>({
     [data]
   );
 
-  const spring = React.useCallback(
-    ({ offset, immediate, onRest }: SpringIt) => {
-      const clampedReleaseOffset = clampReleaseOffset(offset);
-      OffsetX.start({
-        to:
-          actionType.current === 'drag' || actionType.current === 'correction'
-            ? offset
-            : clampedReleaseOffset,
-        immediate:
-          immediate ||
-          actionType.current === 'drag' ||
-          actionType.current === 'wheel',
-        onRest: (x) => {
-          onRest?.(x);
-        },
-        config: springConfigByActionType[actionType.current],
-      });
-      if (
-        actionType.current === 'release' ||
-        actionType.current === 'navigate'
-      ) {
+  const handleOnSpringStart = React.useCallback(() => {
+    if (checkActionType(['navigate'])) {
+      onEdge?.(checkEdges({ offset: lastOffset.current }));
+    }
+  }, [checkActionType, checkEdges, onEdge]);
+
+  const handleOnSpringRest = React.useCallback(() => {
+    if (checkActionType(['release', 'navigate', 'correction'])) {
+      onCallbacks();
+    }
+  }, [checkActionType, onCallbacks]);
+
+  const handleOnSpringRelease = React.useCallback(
+    (clampedReleaseOffset: number) => {
+      if (checkActionType(['release', 'navigate'])) {
         lastOffset.current = clampedReleaseOffset;
         if (itemDimensionMode === 'fixed') {
           index.current = clampIdx(
-            getRelativeIndex({ offset: clampedReleaseOffset })
+            getRelativeIndex({ offset: lastOffset.current })
           );
         } else {
           index.current = getCurrentDynamicIndex(
-            offset,
+            lastOffset.current,
             ranges,
             lastValidDirection.current,
             direction.current,
@@ -255,29 +247,47 @@ export const useEngine = <T extends object>({
         if (loadingType === 'lazy') {
           reRender(index.current);
         }
-
-        onChanged(index.current);
-
-        if (!infinite && !isFirstRender) {
-          onEdge?.(checkEdges({ offset }));
-        }
       }
     },
     [
-      OffsetX,
-      checkEdges,
+      checkActionType,
       clampIdx,
       clampOffset,
-      clampReleaseOffset,
       getRelativeIndex,
-      infinite,
-      isFirstRender,
       itemDimensionMode,
       loadingType,
-      onChanged,
-      onEdge,
       rangeOffsetPosition,
       ranges,
+    ]
+  );
+
+  const spring = React.useCallback(
+    ({ offset, immediate, onRest }: SpringIt) => {
+      const clampedReleaseOffset = clampReleaseOffset(offset);
+      OffsetX.start({
+        to: checkActionType(['drag', 'correction'])
+          ? offset
+          : clampedReleaseOffset,
+        immediate: immediate || checkActionType(['drag', 'wheel']),
+        onStart: () => {
+          handleOnSpringStart();
+        },
+        onRest: (x) => {
+          handleOnSpringRest();
+          onRest?.(x);
+        },
+        config: springConfigByActionType[actionType.current],
+      });
+
+      handleOnSpringRelease(clampedReleaseOffset);
+    },
+    [
+      clampReleaseOffset,
+      OffsetX,
+      checkActionType,
+      handleOnSpringRelease,
+      handleOnSpringStart,
+      handleOnSpringRest,
     ]
   );
 
@@ -337,7 +347,9 @@ export const useEngine = <T extends object>({
               clampOffset.MAX,
             ]);
 
-      onEdge?.(checkEdges({ offset }));
+      if (Platform.is('web')) {
+        onEdge?.(checkEdges({ offset }));
+      }
 
       springIt({
         offset,
@@ -527,21 +539,27 @@ export const useEngine = <T extends object>({
       centered: alignCentered,
       animated = true,
     }: Parameters<ReactSlipAndSlideRef['goTo']>[0]) => {
-      const index = clampIdx(idx);
+      const nextIndex = clampIdx(idx);
+
       let targetOffset = lastOffset.current;
       let currentItemWidth = itemWidth;
 
       if (itemDimensionMode === 'fixed') {
-        targetOffset = getCurrentOffset({ index });
+        targetOffset = getCurrentOffset({ index: nextIndex });
       } else {
-        currentItemWidth = ranges[index].width;
-        targetOffset = -ranges[index].range[rangeOffsetPosition];
+        currentItemWidth = ranges[nextIndex].width;
+        targetOffset = -ranges[nextIndex].range[rangeOffsetPosition];
       }
 
       // if the wrapper is already centered this is a no-op
       if (alignCentered && !centered) {
         targetOffset =
           targetOffset + container.width / 2 - currentItemWidth / 2;
+      }
+
+      if (!animated) {
+        index.current = nextIndex;
+        onCallbacks();
       }
 
       springIt({
@@ -557,6 +575,7 @@ export const useEngine = <T extends object>({
       getCurrentOffset,
       itemDimensionMode,
       itemWidth,
+      onCallbacks,
       rangeOffsetPosition,
       ranges,
       springIt,
