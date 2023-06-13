@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [3.4.5](https://github.com/joaorr3/react-slip-and-slide/compare/v3.4.4...v3.4.5) (2023-06-13)
+
+
+### Bug Fixes
+
+* **UseEngine/GestureContainer:** improve how event callbacks are called + add threshold on the native GestureContainer to prevent micro translations ([3d418d4](https://github.com/joaorr3/react-slip-and-slide/commit/3d418d4a418ec7c3cee718ac6b996cba27ced10b))
+
 ### [3.4.4](https://github.com/joaorr3/react-slip-and-slide/compare/v3.4.3...v3.4.4) (2023-06-12)
 
 ### [3.4.3](https://github.com/joaorr3/react-slip-and-slide/compare/v3.4.2...v3.4.3) (2023-06-12)
