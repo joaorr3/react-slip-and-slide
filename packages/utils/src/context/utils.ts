@@ -145,7 +145,7 @@ export function initializeContextData<T extends object>(
       MIN: 0,
       MAX: 0,
     },
-    fullWidthItem: false,
+    fullWidthItem: !!fullWidthItem,
     itemDimensionMap: [],
     ranges: [],
     interpolators,

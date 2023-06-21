@@ -13,7 +13,8 @@
     "@use-gesture/react": ">=10",
     "immer": ">=9",
     "rxjs": ">=7",
-    "react-native-gesture-handler": ">=2"
+    "react-native-gesture-handler": ">=2",
+    "core-js": ">=3"
   },
   "peerDependenciesMeta": {
     "react-native": {
