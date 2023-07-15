@@ -45,7 +45,7 @@ export const useEngine = <T extends object>({
   containerWidth: containerWidthProp,
   pressToSlide,
   animateStartup = true,
-  rubberbandElasticity = 4,
+  rubberbandElasticity,
   instanceRef,
   onChange,
   onEdges,
@@ -343,8 +343,8 @@ export const useEngine = <T extends object>({
         infinite || actionType === 'wheel'
           ? x
           : rubberband(x, rubberbandElasticity, [
-              clampOffset.MIN,
               clampOffset.MAX,
+              clampOffset.MIN,
             ]);
 
       if (Platform.is('web')) {

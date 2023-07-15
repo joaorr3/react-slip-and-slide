@@ -107,7 +107,7 @@ export type ReactSlipAndSlideProps<T extends object> = {
   /**
    * The amount of elasticity when dragging beyond the container edges.
    * 0: zero elasticity / disabled
-   * @default 4
+   * @default 1.4
    */
   rubberbandElasticity?: number;
   /**

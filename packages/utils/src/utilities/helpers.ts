@@ -202,7 +202,7 @@ export const processClampOffsets = ({
   }
 
   // In this case i guess you don't need a slider.
-  if (wrapperWidth < containerWidth) {
+  if (wrapperWidth < containerWidth && !centered) {
     MAX = MIN;
   }
 

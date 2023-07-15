@@ -1,25 +1,18 @@
+import { bound } from './utils';
+
 export const rubberband = (
   offset: number,
   multiplier = 2,
   [min, max]: [number, number]
 ) => {
-  let overflow = 0;
-  let edgeOffset = 0;
-
-  if (offset < max) {
-    // above
-    overflow = offset - max;
-    edgeOffset = max;
-  } else if (offset > min) {
-    // below
-    overflow = offset - min;
-    edgeOffset = min;
-  } else {
-    // in range
+  if (offset <= max && offset >= min) {
     return offset;
   }
 
-  const elasticity = Math.pow(Math.abs(overflow), 0.5);
-  const signedElasticity = overflow > 0 ? elasticity : -elasticity;
-  return edgeOffset + signedElasticity * multiplier;
+  const isBelow = offset < min;
+  const isAbove = offset > max;
+  const overflow = isAbove ? offset - max : isBelow ? offset - min : 0;
+  const safeMultiplier = bound({ value: multiplier, lower: 1, upper: 10 });
+  const res = offset - overflow / safeMultiplier;
+  return res;
 };

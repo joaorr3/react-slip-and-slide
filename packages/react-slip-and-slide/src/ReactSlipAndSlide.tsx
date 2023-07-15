@@ -19,7 +19,7 @@ function ReactSlipAndSlideComponent<T extends object>(
     containerWidth,
     pressToSlide,
     animateStartup = true,
-    rubberbandElasticity = 4,
+    rubberbandElasticity = 1.4,
     overflowHidden = true,
     useWheel,
     onChange,
