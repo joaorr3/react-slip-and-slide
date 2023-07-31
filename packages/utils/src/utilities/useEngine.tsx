@@ -481,9 +481,7 @@ export const useEngine = <T extends object>({
     (direction: Navigate['direction'], immediate?: boolean) => {
       let targetOffset = lastOffset.current;
       if (itemDimensionMode === 'fixed') {
-        const currentIndex = clampIdx(
-          getCurrentIndex({ offset: OffsetX.get() })
-        );
+        const currentIndex = getCurrentIndex({ offset: OffsetX.get() });
         const nextIndex = nextIndexByDirection(currentIndex, direction);
         targetOffset = -nextIndex * itemWidth;
       } else {
