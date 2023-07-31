@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [3.4.8](https://github.com/joaorr3/react-slip-and-slide/compare/v3.4.7...v3.4.8) (2023-07-31)
+
+
+### Bug Fixes
+
+* **useEngine:** fix navigation in infinite mode ([77c8f83](https://github.com/joaorr3/react-slip-and-slide/commit/77c8f838423ff41fbc0fa70611fc362f4867d59f))
+
 ### [3.4.7](https://github.com/joaorr3/react-slip-and-slide/compare/v3.4.6...v3.4.7) (2023-06-21)
 
 
