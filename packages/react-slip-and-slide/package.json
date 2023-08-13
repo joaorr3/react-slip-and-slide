@@ -1,6 +1,12 @@
 {
   "name": "react-slip-and-slide",
   "version": "3.4.8",
+  "main": "./src/index.js",
+  "jsnext:main": "./react-slip-and-slide.browser.esm.js",
+  "module": "./react-slip-and-slide.browser.esm.js",
+  "browser": {
+    "./src/index.js": "./react-slip-and-slide.browser.esm.js"
+  },
   "keywords": [
     "react-slip-and-slide",
     "react",

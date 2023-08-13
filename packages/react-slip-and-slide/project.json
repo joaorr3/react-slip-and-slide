@@ -48,6 +48,39 @@
       "options": {
         "lintFilePatterns": ["packages/react-slip-and-slide/**/*.ts"]
       }
+    },
+    "esbuild": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "development",
+      "options": {
+        "main": "packages/react-slip-and-slide/src/index.ts",
+        "tsConfig": "packages/react-slip-and-slide/tsconfig.lib.json",
+        "outputPath": "dist/packages/react-slip-and-slide",
+        "outputFileName": "react-slip-and-slide.browser.esm.js",
+        "format": ["esm"],
+        "skipTypeCheck": true,
+        "platform": "browser",
+        "external": ["react", "react-dom"],
+        "generatePackageJson": false,
+        "deleteOutputPath": false,
+        "esbuildOptions": {
+          "conditions": ["module", "import"],
+          "mainFields": ["module", "main"],
+          "jsx": "automatic",
+          "define": {
+            "process.env.NODE_ENV": "'production'"
+          }
+        }
+      },
+      "configurations": {
+        "development": {
+          "minify": false
+        },
+        "production": {
+          "minify": true
+        }
+      }
     }
   },
   "tags": []
