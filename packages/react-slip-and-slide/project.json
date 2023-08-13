@@ -40,7 +40,7 @@
       "options": {
         "command": "node tools/scripts/publish.mjs react-slip-and-slide {args.ver} {args.tag} {args.otp}"
       },
-      "dependsOn": ["build"]
+      "dependsOn": ["build", "esbuild"]
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
