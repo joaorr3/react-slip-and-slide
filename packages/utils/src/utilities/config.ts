@@ -1,5 +1,5 @@
 import { type ActionType } from '@react-slip-and-slide/models';
-import { type AnimationConfig } from 'react-spring';
+import { type SpringConfig } from 'react-spring';
 
 export const baseSpringConfig = {
   tension: 220,
@@ -9,7 +9,7 @@ export const baseSpringConfig = {
 
 export const springConfigByActionType: Record<
   ActionType,
-  Pick<AnimationConfig, 'tension' | 'friction' | 'mass'>
+  Pick<SpringConfig, 'tension' | 'friction' | 'mass'>
 > = {
   drag: baseSpringConfig,
   wheel: baseSpringConfig,
