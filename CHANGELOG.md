@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [3.4.13](https://github.com/joaorr3/react-slip-and-slide/compare/v3.4.12...v3.4.13) (2023-09-06)
+
+
+### Bug Fixes
+
+* **Wrapper:** remove `touch-action` property  from `Wrapper` which was preventing scroll on the web mobile ([3af722c](https://github.com/joaorr3/react-slip-and-slide/commit/3af722ca7257a6ff7dc56e5d645f21b7a7673e22))
+
 ### [3.4.12](https://github.com/joaorr3/react-slip-and-slide/compare/v3.4.11...v3.4.12) (2023-09-05)
 
 ### [3.4.11](https://github.com/joaorr3/react-slip-and-slide/compare/v3.4.10...v3.4.11) (2023-08-13)
