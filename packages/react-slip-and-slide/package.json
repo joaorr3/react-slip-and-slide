@@ -7,6 +7,9 @@
   "browser": {
     "./src/index.js": "./react-slip-and-slide.browser.esm.js"
   },
+  "react-native": {
+    "./src/index.js": "./src/index.js"
+  },
   "keywords": [
     "react-slip-and-slide",
     "react",
