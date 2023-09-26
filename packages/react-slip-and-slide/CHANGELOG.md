@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [3.4.14](https://github.com/joaorr3/react-slip-and-slide/compare/v3.4.13...v3.4.14) (2023-09-26)
+
+
+### Bug Fixes
+
+* **package:** fix react-native entry point ([cc522bc](https://github.com/joaorr3/react-slip-and-slide/commit/cc522bce3f5ab6727dea510283d525c415cc409a))
+
 ### [3.4.13](https://github.com/joaorr3/react-slip-and-slide/compare/v3.4.12...v3.4.13) (2023-09-06)
 
 ### [3.4.12](https://github.com/joaorr3/react-slip-and-slide/compare/v3.4.11...v3.4.12) (2023-09-05)
