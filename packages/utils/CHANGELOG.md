@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.5.0](https://github.com/joaorr3/react-slip-and-slide/compare/v3.4.13...v3.5.0) (2023-11-10)
+
+
+### Features
+
+* **ReactSlipAndSlide:** add `initialIndex` prop ([64b9861](https://github.com/joaorr3/react-slip-and-slide/commit/64b98617c02a9f5da58e9521e82d23c38a7d0399))
+
 ### [3.4.14](https://github.com/joaorr3/react-slip-and-slide/compare/v3.4.13...v3.4.14) (2023-09-26)
 
 ### [3.4.13](https://github.com/joaorr3/react-slip-and-slide/compare/v3.4.12...v3.4.13) (2023-09-06)
