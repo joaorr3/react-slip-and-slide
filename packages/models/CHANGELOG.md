@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.6.0](https://github.com/joaorr3/react-slip-and-slide/compare/v3.5.0...v3.6.0) (2023-11-10)
+
+
+### Features
+
+* **ReactSlipAndSlide / utils / models:** allow children to consume internal context + improve initialization logic + general improvements ([1d730ca](https://github.com/joaorr3/react-slip-and-slide/commit/1d730ca4514cbd73ec991af6256287ca67e4640c))
+
 ## [3.5.0](https://github.com/joaorr3/react-slip-and-slide/compare/v3.4.13...v3.5.0) (2023-11-10)
 
 
