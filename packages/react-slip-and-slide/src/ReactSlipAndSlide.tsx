@@ -22,6 +22,7 @@ function ReactSlipAndSlideComponent<T extends object>(
     rubberbandElasticity = 1.4,
     overflowHidden = true,
     useWheel,
+    initialIndex,
     onChange,
     onEdges,
     onReady,
@@ -37,6 +38,7 @@ function ReactSlipAndSlideComponent<T extends object>(
     animateStartup,
     rubberbandElasticity,
     instanceRef: ref,
+    initialIndex,
     onChange,
     onEdges,
     onReady,
@@ -83,7 +85,9 @@ function ReactSlipAndSlideWithContext<T extends object>(
   ref: React.Ref<ReactSlipAndSlideRef>
 ) {
   return (
-    <Context.DataProvider initialData={Context.initializeContextData<T>(props)}>
+    <Context.DataProvider
+      props={props as unknown as ReactSlipAndSlideProps<object>}
+    >
       <ForwardReactSlipAndSlideRef ref={ref} {...props} />
     </Context.DataProvider>
   );

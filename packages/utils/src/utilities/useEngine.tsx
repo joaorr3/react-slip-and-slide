@@ -36,6 +36,7 @@ type UseEngineIn<T extends object> = Pick<
   | 'onEdges'
   | 'onReady'
   | 'onItemPress'
+  | 'initialIndex'
 > & {
   instanceRef: React.Ref<ReactSlipAndSlideRef>;
 };
@@ -47,6 +48,7 @@ export const useEngine = <T extends object>({
   animateStartup = true,
   rubberbandElasticity,
   instanceRef,
+  initialIndex,
   onChange,
   onEdges,
   onReady,
@@ -67,7 +69,7 @@ export const useEngine = <T extends object>({
       ranges,
       rangeOffsetPosition,
       momentumMultiplier,
-      OffsetX,
+      // OffsetX,
     },
     actions: { setContainerDimensions },
   } = Context.useDataContext<T>();
@@ -264,7 +266,7 @@ export const useEngine = <T extends object>({
   const spring = React.useCallback(
     ({ offset, immediate, onRest }: SpringIt) => {
       const clampedReleaseOffset = clampReleaseOffset(offset);
-      OffsetX.start({
+      Context.OffsetX.start({
         to: checkActionType(['drag', 'correction'])
           ? offset
           : clampedReleaseOffset,
@@ -283,7 +285,6 @@ export const useEngine = <T extends object>({
     },
     [
       clampReleaseOffset,
-      OffsetX,
       checkActionType,
       handleOnSpringRelease,
       handleOnSpringStart,
@@ -481,7 +482,7 @@ export const useEngine = <T extends object>({
     (direction: Navigate['direction'], immediate?: boolean) => {
       let targetOffset = lastOffset.current;
       if (itemDimensionMode === 'fixed') {
-        const currentIndex = getCurrentIndex({ offset: OffsetX.get() });
+        const currentIndex = getCurrentIndex({ offset: Context.OffsetX.get() });
         const nextIndex = nextIndexByDirection(currentIndex, direction);
         targetOffset = -nextIndex * itemWidth;
       } else {
@@ -499,7 +500,6 @@ export const useEngine = <T extends object>({
       });
     },
     [
-      OffsetX,
       clampIdx,
       getCurrentIndex,
       itemDimensionMode,
@@ -521,14 +521,20 @@ export const useEngine = <T extends object>({
     [navigateByIndex, navigateByDirection]
   );
 
+  const initialNavigation = React.useCallback(() => {
+    if (initialIndex !== undefined) {
+      navigate({ index: initialIndex, immediate: true });
+    }
+  }, [initialIndex, navigate]);
+
   const move = React.useCallback(
     (offset: number) => {
       springIt({
-        offset: OffsetX.get() + offset,
+        offset: Context.OffsetX.get() + offset,
         actionType: 'navigate',
       });
     },
-    [OffsetX, springIt]
+    [springIt]
   );
 
   const goTo = React.useCallback(
@@ -601,12 +607,14 @@ export const useEngine = <T extends object>({
 
   //region FX
   React.useEffect(() => {
+    initialNavigation();
     if (shouldAnimatedStartup) {
       if (itemDimensionMode === 'dynamic') {
         if (ranges.length && container.height) {
           Opacity.start({
             to: 1,
             onRest: () => {
+              initialNavigation();
               onReady?.(true);
             },
           });
@@ -616,6 +624,7 @@ export const useEngine = <T extends object>({
           to: 1,
           delay: 100,
           onRest: () => {
+            initialNavigation();
             onReady?.(true);
           },
         });
@@ -623,6 +632,7 @@ export const useEngine = <T extends object>({
     } else {
       onReady?.(true);
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [Opacity, container.height, ranges.length, shouldAnimatedStartup]);
 
@@ -642,7 +652,7 @@ export const useEngine = <T extends object>({
 
   // Reset to new clampOffset.MAX if is at the end edge and page is resized
   React.useEffect(() => {
-    const { end } = checkEdges({ offset: OffsetX.get() });
+    const { end } = checkEdges({ offset: Context.OffsetX.get() });
     if (end) {
       springIt({
         offset: clampOffset.MAX,
@@ -655,15 +665,20 @@ export const useEngine = <T extends object>({
   // Check edges if the window is resized
   React.useEffect(() => {
     if (!isFirstRender) {
-      onEdges?.(checkEdges({ offset: OffsetX.get() }));
+      onEdges?.(checkEdges({ offset: Context.OffsetX.get() }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screenWidth, clampOffset.MAX]);
 
   React.useEffect(() => {
-    onEdges?.(checkEdges({ offset: OffsetX.get() }));
+    onEdges?.(checkEdges({ offset: Context.OffsetX.get() }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  React.useEffect(() => {
+    navigate({ index: index.current, immediate: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itemWidth]);
 
   useValueChangeReaction(containerWidthProp, (width) => {
     setContainerDimensions({

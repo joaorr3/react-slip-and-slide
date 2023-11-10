@@ -11,7 +11,7 @@ export const LayoutManager = <T extends object>({
   children,
 }: React.PropsWithChildren): JSX.Element => {
   const {
-    state: { itemDimensions, itemDimensionMode, engineMode, centered, OffsetX },
+    state: { itemDimensions, itemDimensionMode, engineMode, centered },
   } = Context.useDataContext<T>();
 
   /**
@@ -31,7 +31,7 @@ export const LayoutManager = <T extends object>({
       <Box styles={dynamicCenteredCorrectionStyles}>
         <AnimatedBox
           style={{
-            transform: [{ translateX: OffsetX }],
+            transform: [{ translateX: Context.OffsetX }],
           }}
           styles={{
             display: 'flex',

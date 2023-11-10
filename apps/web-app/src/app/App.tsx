@@ -5,7 +5,8 @@ import {
   type ReactSlipAndSlideProps,
 } from 'react-slip-and-slide';
 import React from 'react';
-import { Example } from './Example';
+// import { Example } from './Example';
+import { random, range } from 'lodash';
 
 const StyledApp = styled.div`
   display: flex;
@@ -139,24 +140,27 @@ const props4: ReactSlipAndSlideProps<{ width: number }> = {
 
 export function App() {
   const ref = React.useRef<ReactSlipAndSlideRef>(null);
-
+  const [width, setWidth] = React.useState<number>(400);
   const [currIndex, setCurrIndex] = React.useState<number>(0);
 
-  return (
-    <StyledApp style={{ backgroundColor: '#0f0f0f' }}>
-      <div style={{ height: 0 }} />
-      <Example />
-    </StyledApp>
-  );
+  const [data1, setData1] = React.useState<typeof data>(data);
+
+  // return (
+  //   <StyledApp style={{ backgroundColor: '#0f0f0f' }}>
+  //     <div style={{ height: 0 }} />
+  //     <Example />
+  //   </StyledApp>
+  // );
 
   return (
     <React.Fragment>
       <ReactSlipAndSlide
         ref={ref}
-        data={data}
+        data={data1}
         snap
         centered
-        itemWidth={400}
+        initialIndex={3}
+        itemWidth={width}
         itemHeight={200}
         useWheel
         // pressToSlide
@@ -174,7 +178,7 @@ export function App() {
           return (
             <div
               style={{
-                width: 400,
+                width: '100%',
                 height: 200,
                 backgroundColor: '#85858573',
                 color: '#000000',
@@ -194,6 +198,15 @@ export function App() {
       <button onClick={() => ref.current?.next()}>Next</button>
       <button onClick={() => ref.current?.goTo({ index: 3, animated: true })}>
         Go To 3
+      </button>
+      <button onClick={() => setWidth(random(100, 400))}>set width</button>
+      <button
+        onClick={() => {
+          const nextData = range(random(3, 20)).map(() => ({ width: 400 }));
+          setData1(nextData);
+        }}
+      >
+        set data
       </button>
       <h1>{currIndex}</h1>
     </React.Fragment>

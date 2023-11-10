@@ -67,6 +67,7 @@ export type ReactSlipAndSlideProps<T extends object> = {
    * @default undefined
    */
   pressToSlide?: boolean;
+  initialIndex?: number;
   containerWidth?: number;
   /**
    * Allows the items to be visible when overflowing the parent container.

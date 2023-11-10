@@ -22,7 +22,6 @@ export const useInterpolation = <T extends object>({
       rangeOffsetPosition,
       engineMode,
       wrapperWidth,
-      OffsetX: OffsetXContext,
     },
   } = Context.useDataContext<T>();
 
@@ -36,8 +35,8 @@ export const useInterpolation = <T extends object>({
   const getTranslateX = React.useCallback((): Interpolation<number, number> => {
     const OffsetX =
       engineMode === 'single'
-        ? OffsetXContext
-        : OffsetXContext.to((offsetX) => offsetX % wrapperWidth);
+        ? Context.OffsetX
+        : Context.OffsetX.to((offsetX) => offsetX % wrapperWidth);
 
     const x = displacement({
       OffsetX,
@@ -55,7 +54,6 @@ export const useInterpolation = <T extends object>({
 
     return to(OffsetX, (x) => x + dynamicOffset);
   }, [
-    OffsetXContext,
     dataLength,
     dynamicOffset,
     engineMode,

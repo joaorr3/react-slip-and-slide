@@ -18,14 +18,7 @@ export const Engine = <T extends object>({
   renderItem,
 }: EngineProps<T>): JSX.Element => {
   const {
-    state: {
-      data,
-      dataLength,
-      itemDimensions,
-      loadingType,
-      visibleItems,
-      OffsetX,
-    },
+    state: { data, dataLength, itemDimensions, loadingType, visibleItems },
   } = Context.useDataContext<T>();
 
   const { itemRefs } = useDynamicDimension();
@@ -39,10 +32,10 @@ export const Engine = <T extends object>({
         dataLength,
         viewSize: itemDimensions.width,
         visibleItems: visibleItems || Math.round(dataLength / 2),
-        offsetX: OffsetX.get(),
+        offsetX: Context.OffsetX.get(),
       });
     },
-    [OffsetX, dataLength, itemDimensions.width, loadingType, visibleItems]
+    [dataLength, itemDimensions.width, loadingType, visibleItems]
   );
 
   return (

@@ -36,6 +36,9 @@ export type ContextModel<T extends object = object> = Required<
   ranges: DynamicRangeSum[];
   interpolators?: Interpolators<number>;
   rangeOffsetPosition: RangeOffsetPosition;
+  /**
+   * @deprecated
+   */
   OffsetX: SpringValue<number>;
 };
 
