@@ -64,7 +64,6 @@ const useProducer = (initialData: ContextModel) => {
         }
         case ActionTypes.SET_IS_READY: {
           if (draft.isReady !== action.payload) {
-            console.log('Explicit SET_IS_READY: ', { payload: action.payload });
             draft.isReady = action.payload;
           }
           break;
