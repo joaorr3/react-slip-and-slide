@@ -37,6 +37,7 @@ type UseEngineIn<T extends object> = Pick<
   | 'onReady'
   | 'onItemPress'
   | 'initialIndex'
+  | 'loadingTime'
 > & {
   instanceRef: React.Ref<ReactSlipAndSlideRef>;
 };
@@ -45,10 +46,11 @@ export const useEngine = <T extends object>({
   snap,
   containerWidth: containerWidthProp,
   pressToSlide,
-  animateStartup = true,
   rubberbandElasticity,
   instanceRef,
   initialIndex,
+  loadingTime,
+  animateStartup,
   onChange,
   onEdges,
   onReady,
@@ -69,12 +71,13 @@ export const useEngine = <T extends object>({
       ranges,
       rangeOffsetPosition,
       momentumMultiplier,
-      // OffsetX,
+      OffsetX,
+      isReady,
+      shouldAnimatedStartup,
+      initId,
     },
-    actions: { setContainerDimensions },
+    actions: { setContainerDimensions, setIsReady },
   } = Context.useDataContext<T>();
-
-  const shouldAnimatedStartup = animateStartup && loadingType === 'eager';
 
   const isFirstRender = useIsFirstRender();
 
@@ -266,7 +269,7 @@ export const useEngine = <T extends object>({
   const spring = React.useCallback(
     ({ offset, immediate, onRest }: SpringIt) => {
       const clampedReleaseOffset = clampReleaseOffset(offset);
-      Context.OffsetX.start({
+      OffsetX.start({
         to: checkActionType(['drag', 'correction'])
           ? offset
           : clampedReleaseOffset,
@@ -285,6 +288,7 @@ export const useEngine = <T extends object>({
     },
     [
       clampReleaseOffset,
+      OffsetX,
       checkActionType,
       handleOnSpringRelease,
       handleOnSpringStart,
@@ -482,7 +486,7 @@ export const useEngine = <T extends object>({
     (direction: Navigate['direction'], immediate?: boolean) => {
       let targetOffset = lastOffset.current;
       if (itemDimensionMode === 'fixed') {
-        const currentIndex = getCurrentIndex({ offset: Context.OffsetX.get() });
+        const currentIndex = getCurrentIndex({ offset: OffsetX.get() });
         const nextIndex = nextIndexByDirection(currentIndex, direction);
         targetOffset = -nextIndex * itemWidth;
       } else {
@@ -500,6 +504,7 @@ export const useEngine = <T extends object>({
       });
     },
     [
+      OffsetX,
       clampIdx,
       getCurrentIndex,
       itemDimensionMode,
@@ -510,39 +515,62 @@ export const useEngine = <T extends object>({
     ]
   );
 
+  /**
+   * Depends on `isReady`
+   */
   const navigate = React.useCallback(
     ({ index, direction, immediate }: Navigate) => {
+      if (!isReady) {
+        return;
+      }
+
       if (index !== undefined) {
         navigateByIndex(index, immediate);
       } else if (direction) {
         navigateByDirection(direction, immediate);
       }
     },
-    [navigateByIndex, navigateByDirection]
+    [isReady, navigateByIndex, navigateByDirection]
   );
 
   const initialNavigation = React.useCallback(() => {
     if (initialIndex !== undefined) {
-      navigate({ index: initialIndex, immediate: true });
+      defer(() => {
+        navigate({ index: initialIndex, immediate: true });
+      });
     }
   }, [initialIndex, navigate]);
 
+  /**
+   * Depends on `isReady`
+   */
   const move = React.useCallback(
     (offset: number) => {
+      if (!isReady) {
+        return;
+      }
+
       springIt({
-        offset: Context.OffsetX.get() + offset,
+        offset: OffsetX.get() + offset,
         actionType: 'navigate',
       });
     },
-    [springIt]
+    [OffsetX, isReady, springIt]
   );
 
+  /**
+   * Depends on `isReady`
+   */
   const goTo = React.useCallback(
     ({
       index: idx,
       centered: alignCentered,
       animated = true,
     }: Parameters<ReactSlipAndSlideRef['goTo']>[0]) => {
+      if (!isReady) {
+        return;
+      }
+
       const nextIndex = clampIdx(idx);
 
       let targetOffset = lastOffset.current;
@@ -577,6 +605,7 @@ export const useEngine = <T extends object>({
       clampIdx,
       container.width,
       getCurrentOffset,
+      isReady,
       itemDimensionMode,
       itemWidth,
       onCallbacks,
@@ -606,37 +635,51 @@ export const useEngine = <T extends object>({
   );
 
   //region FX
+
+  // If we don't need to wait for measurements and there's a new initialization and we're not ready?
   React.useEffect(() => {
-    initialNavigation();
-    if (shouldAnimatedStartup) {
-      if (itemDimensionMode === 'dynamic') {
-        if (ranges.length && container.height) {
-          Opacity.start({
-            to: 1,
-            onRest: () => {
-              initialNavigation();
-              onReady?.(true);
-            },
-          });
-        }
-      } else {
+    if (itemDimensionMode === 'fixed' && !isReady) {
+      setIsReady(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initId]);
+
+  // If we're ready but opacity is 0? (agnostic)
+  React.useEffect(() => {
+    if (isReady) {
+      initialNavigation();
+      onReady?.(true);
+
+      /**
+       * This logic is a bit tricky:
+       * If we explicitly get an animateStartup={false} we honor that config, but..
+       * We will still animate the startup if:
+       * - itemDimensionMode is dynamic (item dimensions props were not provided)
+       * - initialIndex is defined (we need to navigate on startup)
+       * In those cases we will immediately run the animation.
+       * By doing this we avoid a flicker when there's a need to navigate or take measurements on initialization.
+       */
+      if (shouldAnimatedStartup) {
         Opacity.start({
           to: 1,
-          delay: 100,
-          onRest: () => {
-            initialNavigation();
-            onReady?.(true);
-          },
+          delay: loadingTime,
+          immediate: !animateStartup,
         });
       }
-    } else {
-      onReady?.(true);
     }
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [Opacity, container.height, ranges.length, shouldAnimatedStartup]);
+  }, [isReady]);
+
+  // We should react to itemWidth changes because it messes the whole logic
+  React.useEffect(() => {
+    if (isReady) {
+      navigate({ index: index.current, immediate: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itemWidth]);
 
   // Fixes initial offset when: mode === dynamic and centered is true
+  // I think this isn't needed anymore, but let's leave it here just in case.
   React.useEffect(() => {
     if (itemDimensionMode === 'dynamic' && centered) {
       const firstDynamicOffset = -(ranges[0]?.range[rangeOffsetPosition] || 0);
@@ -652,7 +695,7 @@ export const useEngine = <T extends object>({
 
   // Reset to new clampOffset.MAX if is at the end edge and page is resized
   React.useEffect(() => {
-    const { end } = checkEdges({ offset: Context.OffsetX.get() });
+    const { end } = checkEdges({ offset: OffsetX.get() });
     if (end) {
       springIt({
         offset: clampOffset.MAX,
@@ -665,20 +708,15 @@ export const useEngine = <T extends object>({
   // Check edges if the window is resized
   React.useEffect(() => {
     if (!isFirstRender) {
-      onEdges?.(checkEdges({ offset: Context.OffsetX.get() }));
+      onEdges?.(checkEdges({ offset: OffsetX.get() }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screenWidth, clampOffset.MAX]);
 
   React.useEffect(() => {
-    onEdges?.(checkEdges({ offset: Context.OffsetX.get() }));
+    onEdges?.(checkEdges({ offset: OffsetX.get() }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  React.useEffect(() => {
-    navigate({ index: index.current, immediate: true });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [itemWidth]);
 
   useValueChangeReaction(containerWidthProp, (width) => {
     setContainerDimensions({

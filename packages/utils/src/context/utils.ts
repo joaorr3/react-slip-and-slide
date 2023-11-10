@@ -5,9 +5,8 @@ import {
   type LoadingType,
   type ReactSlipAndSlideProps,
 } from '@react-slip-and-slide/models';
-import { clamp, sumBy } from 'lodash';
-import { SpringValue } from '../spring';
-import { baseSpringConfig } from '../utilities';
+import { clamp, sumBy, uniqueId } from 'lodash';
+import { type SpringValue } from '../spring';
 import { processClampOffsets } from '../utilities/helpers';
 import { type ContextModel } from './models';
 
@@ -98,6 +97,8 @@ export function initializeContextData<T extends object>(
     interpolators,
     centered,
     momentumMultiplier = 0,
+    animateStartup = true,
+    initialIndex,
   } = props;
 
   /**
@@ -122,11 +123,19 @@ export function initializeContextData<T extends object>(
   const engineMode: EngineMode =
     infinite || loadingType === 'lazy' ? 'multi' : 'single';
 
+  const shouldAnimatedStartup =
+    !!initialIndex ||
+    itemDimensionMode === 'dynamic' ||
+    (!!animateStartup && loadingType === 'eager');
+
   const initialContextData: ContextModel<T> = {
     _testId,
+    initId: uniqueId('init-'),
     infinite,
     itemDimensionMode,
     loadingType,
+    isReady: itemDimensionMode === 'fixed',
+    shouldAnimatedStartup,
     engineMode,
     data: props.data,
     itemDimensions: {
@@ -151,9 +160,7 @@ export function initializeContextData<T extends object>(
     interpolators,
     rangeOffsetPosition: centered ? 'center' : 'start',
     momentumMultiplier: clamp(momentumMultiplier, 0, 1),
-    OffsetX: new SpringValue(0, {
-      config: baseSpringConfig,
-    }),
+    OffsetX: null as unknown as SpringValue<number>,
   };
 
   return initialContextData;

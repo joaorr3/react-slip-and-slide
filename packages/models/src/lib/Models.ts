@@ -51,7 +51,7 @@ export type Interpolators<T> = {
   [key in InterpolatableProperties]?: T;
 };
 
-export type ReactSlipAndSlideProps<T extends object> = {
+export type ReactSlipAndSlideProps<T extends object> = React.PropsWithChildren<{
   _testId?: string;
   /**
    * By default there's no pre optimization being done, so if you're experiencing unwanted re-renders make sure you preserve reference integrity by memoizing data.
@@ -106,6 +106,12 @@ export type ReactSlipAndSlideProps<T extends object> = {
    */
   animateStartup?: boolean;
   /**
+   * In ms
+   *
+   * Only affects the initial mount
+   */
+  loadingTime?: number;
+  /**
    * The amount of elasticity when dragging beyond the container edges.
    * 0: zero elasticity / disabled
    * @default 1.4
@@ -132,6 +138,12 @@ export type ReactSlipAndSlideProps<T extends object> = {
    * @default 0
    */
   momentumMultiplier?: number;
+  /**
+   * If you pass children, to access the context provider for ex,
+   * this prop allows you to choose the rendering order.
+   * @default 'below'
+   */
+  childrenPosition?: 'above' | 'below';
   renderItem: RenderItem<T>;
   onChange?: (index: number) => void;
   onEdges?: (props: Edges) => void;
@@ -140,7 +152,7 @@ export type ReactSlipAndSlideProps<T extends object> = {
     currentIndex: number;
     pressedItemIndex: number;
   }) => void;
-};
+}>;
 
 export type Edges = { start: boolean; end: boolean };
 

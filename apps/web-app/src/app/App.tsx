@@ -7,6 +7,7 @@ import {
 import React from 'react';
 // import { Example } from './Example';
 import { random, range } from 'lodash';
+import { Example2 } from './Example2';
 
 const StyledApp = styled.div`
   display: flex;
@@ -145,6 +146,8 @@ export function App() {
 
   const [data1, setData1] = React.useState<typeof data>(data);
 
+  return <Example2 />;
+
   // return (
   //   <StyledApp style={{ backgroundColor: '#0f0f0f' }}>
   //     <div style={{ height: 0 }} />
@@ -164,6 +167,7 @@ export function App() {
         itemHeight={200}
         useWheel
         // pressToSlide
+        // This ↓ is essentially the same as passing pressToSlide={true}
         onItemPress={({ currentIndex, pressedItemIndex }) => {
           if (pressedItemIndex > currentIndex) {
             ref.current?.next();

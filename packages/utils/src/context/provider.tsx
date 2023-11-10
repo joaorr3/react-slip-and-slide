@@ -1,7 +1,7 @@
 import { type ReactSlipAndSlideProps } from '@react-slip-and-slide/models';
 import { nothing, produce } from 'immer';
 import React, { type Reducer } from 'react';
-import { SpringValue } from 'react-spring';
+import { useSpringValue } from 'react-spring';
 import { useIsFirstRender } from '../utilities';
 import { baseSpringConfig } from '../utilities/config';
 import {
@@ -11,10 +11,6 @@ import {
   type ContextModel,
 } from './models';
 import { initializeContextData, processContextData } from './utils';
-
-export const OffsetX = new SpringValue(0, {
-  config: baseSpringConfig,
-});
 
 const useProducer = (initialData: ContextModel) => {
   return React.useReducer<Reducer<ContextModel, Actions>>(
@@ -51,10 +47,26 @@ const useProducer = (initialData: ContextModel) => {
         }
         case ActionTypes.SET_ITEM_DIMENSION_MAP: {
           draft.itemDimensionMap = action.payload;
+
+          if (action.payload.length) {
+            draft.isReady = true;
+          }
+
           break;
         }
         case ActionTypes.SET_RANGES: {
           draft.ranges = action.payload;
+
+          if (action.payload.length) {
+            draft.isReady = true;
+          }
+          break;
+        }
+        case ActionTypes.SET_IS_READY: {
+          if (draft.isReady !== action.payload) {
+            console.log('Explicit SET_IS_READY: ', { payload: action.payload });
+            draft.isReady = action.payload;
+          }
           break;
         }
         default: {
@@ -78,6 +90,10 @@ export function DataProvider({ props, children }: DataProviderProps) {
   const isFirstRender = useIsFirstRender();
   const [state, dispatch] = useProducer(initializeContextData(props));
 
+  const OffsetX = useSpringValue(0, {
+    config: baseSpringConfig,
+  });
+
   const actions = React.useMemo(
     (): ContextHandlers<object>['actions'] => ({
       init: (payload) => dispatch({ type: ActionTypes.INIT, payload }),
@@ -89,6 +105,8 @@ export function DataProvider({ props, children }: DataProviderProps) {
         dispatch({ type: ActionTypes.SET_ITEM_DIMENSION_MAP, payload }),
       setRanges: (payload) =>
         dispatch({ type: ActionTypes.SET_RANGES, payload }),
+      setIsReady: (payload) =>
+        dispatch({ type: ActionTypes.SET_IS_READY, payload }),
     }),
     [dispatch]
   );
@@ -112,8 +130,15 @@ export function DataProvider({ props, children }: DataProviderProps) {
   ]);
 
   const contextHandlers: ContextHandlers<object> = React.useMemo(
-    () => ({ state: processContextData(state), actions, dispatch }),
-    [actions, dispatch, state]
+    () => ({
+      state: {
+        ...processContextData(state),
+        OffsetX,
+      },
+      actions,
+      dispatch,
+    }),
+    [OffsetX, actions, dispatch, state]
   );
 
   return (
