@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.7.0](https://github.com/joaorr3/react-slip-and-slide/compare/v3.6.1...v3.7.0) (2023-11-21)
+
+
+### Features
+
+* **ReactSlipAndSlide / utils / models:** allow the component to be reinitialized from the ref + add listener prop ([a43c173](https://github.com/joaorr3/react-slip-and-slide/commit/a43c1733ec64b7cbe3e2112461de40cd7e44e157))
+
 ### [3.6.1](https://github.com/joaorr3/react-slip-and-slide/compare/v3.6.0...v3.6.1) (2023-11-10)
 
 ## [3.6.0](https://github.com/joaorr3/react-slip-and-slide/compare/v3.5.0...v3.6.0) (2023-11-10)
