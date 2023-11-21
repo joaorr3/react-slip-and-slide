@@ -16,7 +16,7 @@ export const useItemsRange = ({
     [itemDimensionMap]
   );
 
-  if (itemDimensionMode === 'fixed') {
+  if (itemDimensionMode === 'static') {
     return { ranges: [], currentIndex: 0 };
   }
 

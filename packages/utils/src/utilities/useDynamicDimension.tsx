@@ -6,7 +6,7 @@ import { getDynamicRangeSum } from './helpers';
 
 export const useDynamicDimension = () => {
   const {
-    state: { dataLength, itemDimensionMode },
+    state: { dataLength, itemDimensionMode, initId },
     actions: { setItemDimensionMap, setRanges },
   } = Context.useDataContext();
 
@@ -41,7 +41,14 @@ export const useDynamicDimension = () => {
         setRanges(getDynamicRangeSum(itemDimensionMap));
       });
     }
-  }, [dataLength, itemDimensionMode, measure, setItemDimensionMap, setRanges]);
+  }, [
+    dataLength,
+    itemDimensionMode,
+    initId,
+    measure,
+    setItemDimensionMap,
+    setRanges,
+  ]);
 
   return {
     itemRefs,

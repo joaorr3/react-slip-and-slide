@@ -55,7 +55,7 @@ function ItemBaseComponent<T extends object>(
     };
   }
 
-  if (itemDimensionMode === 'fixed') {
+  if (itemDimensionMode === 'static') {
     itemStyles.current = {
       ...itemStyles.current,
       ...elementDimensionStyles(itemDimensions),

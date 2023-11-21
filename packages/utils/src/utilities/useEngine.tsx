@@ -48,7 +48,7 @@ export const useEngine = <T extends object>({
   pressToSlide,
   rubberbandElasticity,
   instanceRef,
-  initialIndex,
+  initialIndex = 0,
   loadingTime,
   animateStartup,
   onChange,
@@ -76,12 +76,12 @@ export const useEngine = <T extends object>({
       shouldAnimatedStartup,
       initId,
     },
-    actions: { setContainerDimensions, setIsReady },
+    actions: { setContainerDimensions, setIsReady, reInit },
   } = Context.useDataContext<T>();
 
   const isFirstRender = useIsFirstRender();
 
-  const index = React.useRef(0);
+  const index = React.useRef(initialIndex);
 
   const [_, reRender] = React.useState<number>(0);
   const lastOffset = React.useRef(0);
@@ -123,7 +123,7 @@ export const useEngine = <T extends object>({
 
   const clampReleaseOffset = React.useCallback(
     (offset: number) => {
-      if (infinite && itemDimensionMode === 'fixed') {
+      if (infinite && itemDimensionMode === 'static') {
         return offset;
       }
 
@@ -234,7 +234,7 @@ export const useEngine = <T extends object>({
     (clampedReleaseOffset: number) => {
       if (checkActionType(['release', 'navigate'])) {
         lastOffset.current = clampedReleaseOffset;
-        if (itemDimensionMode === 'fixed') {
+        if (itemDimensionMode === 'static') {
           index.current = clampIdx(
             getRelativeIndex({ offset: lastOffset.current })
           );
@@ -374,7 +374,7 @@ export const useEngine = <T extends object>({
 
   const withSnap = React.useCallback(
     ({ offset }: { offset: number }) => {
-      if (itemDimensionMode === 'fixed') {
+      if (itemDimensionMode === 'static') {
         const page = getCurrentIndexByOffset(-offset);
         const finalOffset = -page * itemWidth;
 
@@ -461,7 +461,7 @@ export const useEngine = <T extends object>({
     (idx: number, immediate?: boolean) => {
       const index = clampIdx(idx);
       let targetOffset = lastOffset.current;
-      if (itemDimensionMode === 'fixed') {
+      if (itemDimensionMode === 'static') {
         targetOffset = getCurrentOffset({ index });
       } else {
         targetOffset = -ranges[index].range[rangeOffsetPosition];
@@ -485,7 +485,7 @@ export const useEngine = <T extends object>({
   const navigateByDirection = React.useCallback(
     (direction: Navigate['direction'], immediate?: boolean) => {
       let targetOffset = lastOffset.current;
-      if (itemDimensionMode === 'fixed') {
+      if (itemDimensionMode === 'static') {
         const currentIndex = getCurrentIndex({ offset: OffsetX.get() });
         const nextIndex = nextIndexByDirection(currentIndex, direction);
         targetOffset = -nextIndex * itemWidth;
@@ -576,7 +576,7 @@ export const useEngine = <T extends object>({
       let targetOffset = lastOffset.current;
       let currentItemWidth = itemWidth;
 
-      if (itemDimensionMode === 'fixed') {
+      if (itemDimensionMode === 'static') {
         targetOffset = getCurrentOffset({ index: nextIndex });
       } else {
         currentItemWidth = ranges[nextIndex].width;
@@ -638,7 +638,7 @@ export const useEngine = <T extends object>({
 
   // If we don't need to wait for measurements and there's a new initialization and we're not ready?
   React.useEffect(() => {
-    if (itemDimensionMode === 'fixed' && !isReady) {
+    if (itemDimensionMode === 'static' && !isReady) {
       setIsReady(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -655,7 +655,7 @@ export const useEngine = <T extends object>({
        * If we explicitly get an animateStartup={false} we honor that config, but..
        * We will still animate the startup if:
        * - itemDimensionMode is dynamic (item dimensions props were not provided)
-       * - initialIndex is defined (we need to navigate on startup)
+       * - initialIndex is defined (we need to navigate to that initialIndex on startup)
        * In those cases we will immediately run the animation.
        * By doing this we avoid a flicker when there's a need to navigate or take measurements on initialization.
        */
@@ -729,12 +729,13 @@ export const useEngine = <T extends object>({
   React.useImperativeHandle<ReactSlipAndSlideRef, ReactSlipAndSlideRef>(
     instanceRef,
     () => ({
+      reinitialize: reInit,
       next: () => navigate({ direction: 'next' }),
       previous: () => navigate({ direction: 'prev' }),
       goTo,
       move,
     }),
-    [goTo, move, navigate]
+    [goTo, move, navigate, reInit]
   );
 
   return {

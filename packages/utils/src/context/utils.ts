@@ -41,7 +41,7 @@ export function processContextData(data: ContextModel): ContextModel {
 
   const itemDimensions: BaseDimensions = {
     width: fullWidthItem ? container.width : itemWidth || largestItem.width,
-    height: itemDimensionMode === 'fixed' ? _itemHeight : largestItem.height,
+    height: itemDimensionMode === 'static' ? _itemHeight : largestItem.height,
   };
 
   const containerDimensions: BaseDimensions = {
@@ -50,7 +50,7 @@ export function processContextData(data: ContextModel): ContextModel {
   };
 
   const wrapperWidth =
-    itemDimensionMode === 'fixed'
+    itemDimensionMode === 'static'
       ? dataLength * itemDimensions.width
       : dynamicWrapperWidth;
 
@@ -101,25 +101,12 @@ export function initializeContextData<T extends object>(
     initialIndex,
   } = props;
 
-  /**
-   * This flag indicates how we should deal with the item dimensions.
-   * "fixed" means that we the get the values from the props, so we don't need to measure them.
-   * "dynamic" means we need to perform a measurement on every item.
-   */
   const itemDimensionMode: ItemDimensionMode =
-    (itemWidth && itemHeight) || fullWidthItem ? 'fixed' : 'dynamic';
+    (itemWidth && itemHeight) || fullWidthItem ? 'static' : 'dynamic';
 
-  const infinite = itemDimensionMode === 'fixed' && !!_infinite;
-  // LazyLoad only if necessary
+  const infinite = itemDimensionMode === 'static' && !!_infinite;
   const loadingType: LoadingType = visibleItems === 0 ? 'eager' : 'lazy';
 
-  /**
-   * This flag indicates how we utilize the the gesture values.
-   * "multi" means that we're applying a translate transform on every item. This is required when "infinite" is true.
-   * "single" means we're using the translation value on the container instead of the items.
-   *
-   * The default will be "single" since it requires less computation.
-   */
   const engineMode: EngineMode =
     infinite || loadingType === 'lazy' ? 'multi' : 'single';
 
@@ -134,7 +121,7 @@ export function initializeContextData<T extends object>(
     infinite,
     itemDimensionMode,
     loadingType,
-    isReady: itemDimensionMode === 'fixed',
+    isReady: itemDimensionMode === 'static',
     shouldAnimatedStartup,
     engineMode,
     data: props.data,

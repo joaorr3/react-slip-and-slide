@@ -2,6 +2,10 @@ import { type FluidValue } from '@react-spring/shared';
 import { type AnimationResult, type SpringValue } from 'react-spring';
 
 export type ReactSlipAndSlideRef = {
+  /**
+   * This could be useful if you don't provide item dimensions and need to restart de component if the item internal dimensions had change.
+   */
+  reinitialize: () => void;
   next: () => void;
   previous: () => void;
   goTo: (params: {
@@ -144,6 +148,13 @@ export type ReactSlipAndSlideProps<T extends object> = React.PropsWithChildren<{
    * @default 'below'
    */
   childrenPosition?: 'above' | 'below';
+  /**
+   * Advance usage prop.
+   * Make the component react to external dependencies.
+   *
+   * This covers a particular use case where you might need to trigger a full re-initialization in both dynamic or static modes.
+   */
+  listener?: React.DependencyList;
   renderItem: RenderItem<T>;
   onChange?: (index: number) => void;
   onEdges?: (props: Edges) => void;
@@ -170,7 +181,26 @@ export type BaseDimensions = {
 
 export type ContainerDimensions = BaseDimensions;
 
-export type ItemDimensionMode = 'dynamic' | 'fixed';
+/**
+ * This flag indicates how we should deal with the item dimensions.
+ * "static" means that we the get the values from the props, so we don't need to measure them. (You provide the dimensions)
+ * "dynamic" means we need to measure every item.
+ */
+export type ItemDimensionMode = 'dynamic' | 'static';
+
+/**
+ * This flag indicates how we utilize the the gesture values.
+ * "multi" means that we're applying a translate transform on every item. This is required when "infinite" is true.
+ * "single" means we're using the translation value on the container instead of the items.
+ *
+ * The default will be "single" since it requires less computation.
+ */
+export type EngineMode = 'multi' | 'single';
+
+/**
+ * LazyLoad only if necessary
+ */
+export type LoadingType = 'lazy' | 'eager';
 
 // -- Utils
 
@@ -225,9 +255,6 @@ export type IsInRange = {
   offsetX: number;
   visibleItems: number;
 };
-
-export type EngineMode = 'multi' | 'single';
-export type LoadingType = 'lazy' | 'eager';
 
 export type ClampOffset = {
   MIN: number;

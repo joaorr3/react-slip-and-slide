@@ -1,5 +1,6 @@
 import { type ReactSlipAndSlideProps } from '@react-slip-and-slide/models';
 import { nothing, produce } from 'immer';
+import { uniqueId } from 'lodash';
 import React, { type Reducer } from 'react';
 import { useSpringValue } from 'react-spring';
 import { useIsFirstRender } from '../utilities';
@@ -18,6 +19,13 @@ const useProducer = (initialData: ContextModel) => {
       switch (action.type) {
         case ActionTypes.INIT: {
           return action.payload;
+        }
+        case ActionTypes.RE_INIT: {
+          if (draft.itemDimensionMode === 'dynamic') {
+            draft.isReady = false;
+          }
+          draft.initId = action.payload.initId;
+          break;
         }
         case ActionTypes.SET_CONTAINER_DIMENSIONS: {
           const { width, height } = action.payload;
@@ -38,7 +46,7 @@ const useProducer = (initialData: ContextModel) => {
 
           const payloadWrapperWidth = action.payload;
           const nextWrapperWidth =
-            itemDimensionMode === 'fixed'
+            itemDimensionMode === 'static'
               ? dataLength * itemWidth
               : payloadWrapperWidth;
 
@@ -96,6 +104,11 @@ export function DataProvider({ props, children }: DataProviderProps) {
   const actions = React.useMemo(
     (): ContextHandlers<object>['actions'] => ({
       init: (payload) => dispatch({ type: ActionTypes.INIT, payload }),
+      reInit: () =>
+        dispatch({
+          type: ActionTypes.RE_INIT,
+          payload: { initId: uniqueId('init-') },
+        }),
       setContainerDimensions: (payload) =>
         dispatch({ type: ActionTypes.SET_CONTAINER_DIMENSIONS, payload }),
       setWrapperWidth: (payload) =>
@@ -126,6 +139,8 @@ export function DataProvider({ props, children }: DataProviderProps) {
     props.interpolators,
     props.centered,
     props.momentumMultiplier,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    ...(props.listener || []),
   ]);
 
   const contextHandlers: ContextHandlers<object> = React.useMemo(

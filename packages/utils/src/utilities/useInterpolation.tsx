@@ -47,7 +47,7 @@ export const useInterpolation = <T extends object>({
       infinite,
     });
 
-    if (itemDimensionMode === 'fixed') {
+    if (itemDimensionMode === 'static') {
       return x
         .to((val) => val / itemWidth)
         .to([-1, 0, 1], [-itemWidth, 0, itemWidth]);

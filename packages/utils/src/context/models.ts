@@ -44,6 +44,7 @@ export type ContextModel<T extends object = object> = Required<
 
 export enum ActionTypes {
   INIT = 'INIT',
+  RE_INIT = 'RE_INIT',
   SET_CONTAINER_DIMENSIONS = 'SET_CONTAINER_DIMENSIONS',
   SET_WRAPPER_WIDTH = 'SET_WRAPPER_WIDTH',
   SET_ITEM_DIMENSION_MAP = 'SET_ITEM_DIMENSION_MAP',
@@ -53,7 +54,12 @@ export enum ActionTypes {
 
 export type InitActionType = {
   type: ActionTypes.INIT;
-  payload: Partial<ContextModel>;
+  payload?: Partial<ContextModel>;
+};
+
+export type ReInitActionType = {
+  type: ActionTypes.RE_INIT;
+  payload: Pick<ContextModel, 'initId'>;
 };
 
 export type SetContainerDimensionsActionType = {
@@ -83,6 +89,7 @@ export type SetIsReadyActionType = {
 
 export type Actions =
   | InitActionType
+  | ReInitActionType
   | SetContainerDimensionsActionType
   | SetWrapperWidthActionType
   | SetItemDimensionMapActionType
@@ -93,7 +100,8 @@ export type ContextHandlers<T extends object> = {
   state: ContextModel<T>;
   dispatch: React.Dispatch<Actions>;
   actions: {
-    init: (payload: InitActionType['payload']) => void;
+    init: (payload?: InitActionType['payload']) => void;
+    reInit: () => void;
     setContainerDimensions: (
       payload: SetContainerDimensionsActionType['payload']
     ) => void;

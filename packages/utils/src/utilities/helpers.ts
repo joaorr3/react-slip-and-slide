@@ -179,7 +179,7 @@ export const processClampOffsets = ({
   let MIN = 0;
   let MAX = 0;
 
-  if (itemDimensionMode === 'fixed') {
+  if (itemDimensionMode === 'static') {
     MAX = -wrapperWidth + containerWidth;
 
     if (centered) {
