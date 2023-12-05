@@ -1,13 +1,14 @@
-import styled from 'styled-components';
+import React from 'react';
 import {
   ReactSlipAndSlide,
-  type ReactSlipAndSlideRef,
   type ReactSlipAndSlideProps,
+  type ReactSlipAndSlideRef,
 } from 'react-slip-and-slide';
-import React from 'react';
+import styled from 'styled-components';
 // import { Example } from './Example';
 import { random, range } from 'lodash';
 import { Example2 } from './Example2';
+import { Example } from './Example';
 
 const StyledApp = styled.div`
   display: flex;
@@ -146,7 +147,7 @@ export function App() {
 
   const [data1, setData1] = React.useState<typeof data>(data);
 
-  return <Example2 />;
+  // return <Example2 />;
 
   // return (
   //   <StyledApp style={{ backgroundColor: '#0f0f0f' }}>
@@ -165,20 +166,21 @@ export function App() {
         initialIndex={3}
         itemWidth={width}
         itemHeight={200}
+        // momentumMultiplier={2}
         useWheel
         // pressToSlide
         // This ↓ is essentially the same as passing pressToSlide={true}
-        onItemPress={({ currentIndex, pressedItemIndex }) => {
-          if (pressedItemIndex > currentIndex) {
-            ref.current?.next();
-          } else if (pressedItemIndex < currentIndex) {
-            ref.current?.previous();
-          }
-        }}
+        // onItemPress={({ currentIndex, pressedItemIndex }) => {
+        //   if (pressedItemIndex > currentIndex) {
+        //     ref.current?.next();
+        //   } else if (pressedItemIndex < currentIndex) {
+        //     ref.current?.previous();
+        //   }
+        // }}
         onChange={(i) => {
           setCurrIndex(i);
         }}
-        renderItem={({ index, item: { width } }) => {
+        renderItem={({ index }) => {
           return (
             <div
               style={{
@@ -200,9 +202,6 @@ export function App() {
       />
       <button onClick={() => ref.current?.previous()}>Prev</button>
       <button onClick={() => ref.current?.next()}>Next</button>
-      <button onClick={() => ref.current?.goTo({ index: 3, animated: true })}>
-        Go To 3
-      </button>
       <button onClick={() => setWidth(random(100, 400))}>set width</button>
       <button
         onClick={() => {
@@ -212,6 +211,16 @@ export function App() {
       >
         set data
       </button>
+
+      <div>
+        {data1.map((_, index) => {
+          return (
+            <button onClick={() => ref.current?.goTo({ index })}>
+              Go To {index}
+            </button>
+          );
+        })}
+      </div>
       <h1>{currIndex}</h1>
     </React.Fragment>
   );

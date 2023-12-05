@@ -14,7 +14,16 @@ const StyledBox = styled.div<StyledBoxProps>`
 `;
 
 export const BoxBase = (
-  { children, styles, willMeasure, onPress, web, native: _, ...rest }: BoxProps,
+  {
+    children,
+    styles,
+    willMeasure,
+    onPress,
+    onPressStart,
+    web,
+    native: _,
+    ...rest
+  }: BoxProps,
   ref: React.Ref<BoxRef>
 ): JSX.Element => {
   const divRef = React.useRef<HTMLDivElement>(null);
@@ -46,6 +55,8 @@ export const BoxBase = (
       ref={divRef}
       onClick={onPress}
       styles={styles}
+      onMouseDown={onPressStart}
+      onTouchStart={onPressStart}
       {...merge(web, rest)}
     >
       {children}

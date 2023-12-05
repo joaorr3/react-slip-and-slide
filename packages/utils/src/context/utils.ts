@@ -96,7 +96,7 @@ export function initializeContextData<T extends object>(
     containerWidth,
     interpolators,
     centered,
-    momentumMultiplier = 0,
+    momentumMultiplier = 2,
     animateStartup = true,
     initialIndex,
   } = props;
@@ -146,7 +146,7 @@ export function initializeContextData<T extends object>(
     ranges: [],
     interpolators,
     rangeOffsetPosition: centered ? 'center' : 'start',
-    momentumMultiplier: clamp(momentumMultiplier, 0, 1),
+    momentumMultiplier: clamp(momentumMultiplier, 0, 10),
     OffsetX: null as unknown as SpringValue<number>,
   };
 

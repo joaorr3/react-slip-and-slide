@@ -1,6 +1,7 @@
 import { type BoxRef } from '@react-slip-and-slide/models';
 import React from 'react';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { Context } from '../../../context';
 import { Wrapper } from '../../Styled';
 import { type GestureContainerProps } from '../models';
 
@@ -19,6 +20,12 @@ export const GestureContainerComponent = (
   }: GestureContainerProps,
   ref: React.Ref<BoxRef>
 ): JSX.Element => {
+  const {
+    state: { OffsetX },
+  } = Context.useDataContext<any>();
+
+  const isPressStart = React.useRef<boolean>(false);
+
   const panGesture = Gesture.Pan()
     .onUpdate(({ translationX, velocityX, state }) => {
       const dir = velocityX > 0 ? 'right' : velocityX < 0 ? 'left' : 'center';
@@ -28,12 +35,13 @@ export const GestureContainerComponent = (
         lastValidDirection.current = dir;
       }
 
-      isIntentionalDrag.current = Math.abs(translationX) >= 40;
+      isIntentionalDrag.current =
+        Math.abs(translationX) >= 40 || isPressStart.current;
       isDragging.current = state === 4;
 
       const offset = lastOffset.current + translationX;
 
-      onDrag(offset, 'drag');
+      onDrag(offset, 'drag', true);
     })
     .onEnd(({ velocityX, translationX, state }) => {
       isDragging.current = state === 4;
@@ -44,11 +52,26 @@ export const GestureContainerComponent = (
       const velocity = unsignedVelocity > 320 ? normalizedVelocity : 0;
 
       onRelease({ offset, velocity });
+      isPressStart.current = false;
     });
+
+  const handleOnPressStart = () => {
+    if (OffsetX.get() !== lastOffset.current) {
+      isPressStart.current = true;
+      lastOffset.current = OffsetX.get();
+      onDrag(lastOffset.current, 'drag', true);
+    }
+  };
 
   return (
     <GestureDetector gesture={panGesture}>
-      <Wrapper ref={ref} willMeasure style={style} styles={styles}>
+      <Wrapper
+        ref={ref}
+        willMeasure
+        style={style}
+        styles={styles}
+        onPressStart={handleOnPressStart}
+      >
         {children}
       </Wrapper>
     </GestureDetector>

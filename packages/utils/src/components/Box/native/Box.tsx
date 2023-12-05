@@ -19,7 +19,16 @@ const StyledBox = styled(View)<StyledBoxProps>`
 `;
 
 export const BoxBase = (
-  { children, styles, willMeasure, onPress, native, web: _, ...rest }: BoxProps,
+  {
+    children,
+    styles,
+    willMeasure,
+    onPress,
+    onPressStart,
+    native,
+    web: _,
+    ...rest
+  }: BoxProps,
   ref: React.Ref<BoxRef>
 ): JSX.Element => {
   const viewRef = React.useRef<View>(null);
@@ -73,6 +82,7 @@ export const BoxBase = (
         ref={viewRef}
         styles={styles}
         onLayout={handleOnLayout}
+        onTouchStart={onPressStart}
         {...merge(native, rest)}
       >
         {children}

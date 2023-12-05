@@ -7,13 +7,20 @@ export const baseSpringConfig = {
   mass: 1,
 };
 
+export const snappySpringConfig = {
+  ...baseSpringConfig,
+  tension: 320,
+};
+
 export const springConfigByActionType: Record<
   ActionType,
   Pick<SpringConfig, 'tension' | 'friction' | 'mass'>
 > = {
   drag: baseSpringConfig,
   wheel: baseSpringConfig,
-  navigate: { tension: 320, friction: 32, mass: 1 },
   release: baseSpringConfig,
   correction: baseSpringConfig,
+  wheelSnap: snappySpringConfig,
+  navigate: snappySpringConfig,
+  ref: snappySpringConfig,
 };

@@ -1,18 +1,34 @@
-import { bound } from './utils';
+import { clamp } from 'lodash';
 
-export const rubberband = (
-  offset: number,
-  multiplier = 2,
-  [min, max]: [number, number]
+const scale = ({ size, multiplier }: { size: number; multiplier: number }) => {
+  return (offset: number) => {
+    if (size === 0 || Math.abs(size) === Infinity) {
+      return Math.pow(offset, multiplier * 5);
+    }
+    return (offset * size * multiplier) / (size + multiplier * offset);
+  };
+};
+
+export const createRubberband = (
+  [min, max]: [number, number],
+  multiplier = 0.15
 ) => {
-  if (offset <= max && offset >= min) {
-    return offset;
-  }
+  const size = max - min;
 
-  const isBelow = offset < min;
-  const isAbove = offset > max;
-  const overflow = isAbove ? offset - max : isBelow ? offset - min : 0;
-  const safeMultiplier = bound({ value: multiplier, lower: 1, upper: 10 });
-  const res = offset - overflow / safeMultiplier;
-  return res;
+  const rub = scale({ size, multiplier });
+
+  return (offset: number) => {
+    if (multiplier === 0) {
+      return clamp(offset, min, max);
+    }
+
+    switch (true) {
+      case offset < min:
+        return -rub(min - offset) + min;
+      case offset > max:
+        return +rub(offset - max) + max;
+      default:
+        return offset;
+    }
+  };
 };

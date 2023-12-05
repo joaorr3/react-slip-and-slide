@@ -19,7 +19,7 @@ function ReactSlipAndSlideComponent<T extends object>(
     containerWidth,
     pressToSlide,
     animateStartup = true,
-    rubberbandElasticity = 1.4,
+    rubberbandElasticity = 0.1,
     overflowHidden = true,
     useWheel,
     initialIndex,
@@ -66,6 +66,7 @@ function ReactSlipAndSlideComponent<T extends object>(
       useWheel={useWheel}
       style={{ opacity: Opacity }}
       styles={gestureContainerStyles}
+      snap={snap}
       onDrag={handlers.onDrag}
       onRelease={handlers.onRelease}
     >

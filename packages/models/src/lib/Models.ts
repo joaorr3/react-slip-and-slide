@@ -24,13 +24,16 @@ export type Direction = ValidDirection | 'center';
 export type ActionType =
   | 'drag'
   | 'wheel'
+  | 'wheelSnap'
   | 'navigate'
   | 'release'
-  | 'correction';
+  | 'correction'
+  | 'ref';
 
 export type SpringIt = {
   offset: number;
   immediate?: boolean;
+  actionType: ActionType;
   onRest?: (x: AnimationResult<SpringValue<number>>) => void;
 };
 
@@ -38,6 +41,7 @@ export type Navigate = {
   index?: number;
   direction?: 'next' | 'prev';
   immediate?: boolean;
+  actionType?: ActionType;
 };
 
 export type RenderItemProps<T extends object> = {
@@ -137,7 +141,7 @@ export type ReactSlipAndSlideProps<T extends object> = React.PropsWithChildren<{
   useWheel?: boolean;
   /**
    * Controls how much momentum the release will have when snap if false.
-   * To prevent bad UX the expected range is between 0 and 1.
+   * Expected range is between 0 and 10.
    * @example 0.6
    * @default 0
    */

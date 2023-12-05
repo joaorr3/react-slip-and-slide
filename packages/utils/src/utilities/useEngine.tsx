@@ -22,7 +22,7 @@ import {
   useIsFirstRender,
   useValueChangeReaction,
 } from './helpers';
-import { rubberband } from './rubberband';
+import { createRubberband } from './rubberband';
 import { useScreenDimensions } from './useScreenDimensions';
 
 type UseEngineIn<T extends object> = Pick<
@@ -91,6 +91,16 @@ export const useEngine = <T extends object>({
   const direction = React.useRef<Direction>('center');
   const lastValidDirection = React.useRef<ValidDirection | null>(null);
   const isIntentionalDrag = React.useRef<boolean>(false);
+
+  const rubberband = React.useMemo(
+    () =>
+      createRubberband(
+        [clampOffset.MAX, clampOffset.MIN],
+        rubberbandElasticity
+      ),
+    [clampOffset.MAX, clampOffset.MIN, rubberbandElasticity]
+  );
+
   const actionType = React.useRef<ActionType>('release');
 
   const Opacity = useSpringValue(shouldAnimatedStartup ? 0 : 1, {
@@ -116,6 +126,10 @@ export const useEngine = <T extends object>({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [container, screenWidth]);
+
+  const setActionType = (type: ActionType) => {
+    actionType.current = type;
+  };
 
   const checkActionType = React.useCallback((actionTypes: ActionType[]) => {
     return actionTypes.includes(actionType.current);
@@ -267,7 +281,7 @@ export const useEngine = <T extends object>({
   );
 
   const spring = React.useCallback(
-    ({ offset, immediate, onRest }: SpringIt) => {
+    ({ offset, immediate, onRest }: Omit<SpringIt, 'actionType'>) => {
       const clampedReleaseOffset = clampReleaseOffset(offset);
       OffsetX.start({
         to: checkActionType(['drag', 'correction'])
@@ -297,13 +311,8 @@ export const useEngine = <T extends object>({
   );
 
   const springIt = React.useCallback(
-    ({
-      offset,
-      immediate,
-      actionType: _actionType,
-      onRest,
-    }: SpringIt & { actionType: ActionType }) => {
-      actionType.current = _actionType;
+    ({ offset, immediate, actionType: type, onRest }: SpringIt) => {
+      setActionType(type);
       spring({ offset, immediate, onRest });
     },
     [spring]
@@ -342,15 +351,72 @@ export const useEngine = <T extends object>({
     [dataLength, snap, wrapperWidth]
   );
 
+  const nextIndexByDirection = (
+    index: number,
+    direction: Navigate['direction']
+  ) => {
+    if (direction === 'next') {
+      return index + 1;
+    } else if (direction === 'prev') {
+      return index - 1;
+    }
+    return index;
+  };
+
+  const navigateByDirection = React.useCallback(
+    (
+      direction: Navigate['direction'],
+      immediate?: boolean,
+      actionType: ActionType = 'navigate'
+    ) => {
+      let targetOffset = lastOffset.current;
+      if (itemDimensionMode === 'static') {
+        const currentIndex = getCurrentIndex({ offset: OffsetX.get() });
+        const nextIndex = nextIndexByDirection(currentIndex, direction);
+        targetOffset = -nextIndex * itemWidth;
+      } else {
+        const nextIndex = clampIdx(
+          nextIndexByDirection(index.current, direction)
+        );
+
+        targetOffset = -ranges[nextIndex].range[rangeOffsetPosition];
+      }
+
+      springIt({
+        offset: targetOffset,
+        actionType,
+        immediate,
+      });
+    },
+    [
+      OffsetX,
+      clampIdx,
+      getCurrentIndex,
+      itemDimensionMode,
+      itemWidth,
+      rangeOffsetPosition,
+      ranges,
+      springIt,
+    ]
+  );
+
   const drag = React.useCallback(
-    (x: number, actionType: ActionType) => {
-      const offset =
-        infinite || actionType === 'wheel'
-          ? x
-          : rubberband(x, rubberbandElasticity, [
-              clampOffset.MAX,
-              clampOffset.MIN,
-            ]);
+    (x: number, actionType: ActionType, immediate: boolean) => {
+      if (actionType === 'wheelSnap') {
+        navigateByDirection(
+          direction.current === 'left'
+            ? 'prev'
+            : direction.current === 'right'
+            ? 'next'
+            : undefined,
+          false,
+          'wheelSnap'
+        );
+
+        return;
+      }
+
+      const offset = infinite ? x : rubberband(x);
 
       if (Platform.is('web')) {
         onEdge?.(checkEdges({ offset }));
@@ -359,17 +425,10 @@ export const useEngine = <T extends object>({
       springIt({
         offset,
         actionType,
+        immediate,
       });
     },
-    [
-      checkEdges,
-      clampOffset.MAX,
-      clampOffset.MIN,
-      infinite,
-      onEdge,
-      rubberbandElasticity,
-      springIt,
-    ]
+    [checkEdges, infinite, navigateByDirection, onEdge, rubberband, springIt]
   );
 
   const withSnap = React.useCallback(
@@ -445,68 +504,39 @@ export const useEngine = <T extends object>({
     [snap, springIt, withMomentum, withSnap]
   );
 
-  const nextIndexByDirection = (
-    index: number,
-    direction: Navigate['direction']
-  ) => {
-    if (direction === 'next') {
-      return index + 1;
-    } else if (direction === 'prev') {
-      return index - 1;
-    }
-    return index;
-  };
-
   const navigateByIndex = React.useCallback(
-    (idx: number, immediate?: boolean) => {
-      const index = clampIdx(idx);
+    (
+      idx: number,
+      immediate?: boolean,
+      actionType: ActionType = 'navigate',
+      alignCentered = false
+    ) => {
+      const nextIndex = clampIdx(idx);
       let targetOffset = lastOffset.current;
+      let currentItemWidth = itemWidth;
       if (itemDimensionMode === 'static') {
-        targetOffset = getCurrentOffset({ index });
+        targetOffset = getCurrentOffset({ index: nextIndex });
       } else {
-        targetOffset = -ranges[index].range[rangeOffsetPosition];
-      }
-      springIt({
-        offset: targetOffset,
-        actionType: 'navigate',
-        immediate,
-      });
-    },
-    [
-      clampIdx,
-      getCurrentOffset,
-      itemDimensionMode,
-      rangeOffsetPosition,
-      ranges,
-      springIt,
-    ]
-  );
-
-  const navigateByDirection = React.useCallback(
-    (direction: Navigate['direction'], immediate?: boolean) => {
-      let targetOffset = lastOffset.current;
-      if (itemDimensionMode === 'static') {
-        const currentIndex = getCurrentIndex({ offset: OffsetX.get() });
-        const nextIndex = nextIndexByDirection(currentIndex, direction);
-        targetOffset = -nextIndex * itemWidth;
-      } else {
-        const nextIndex = clampIdx(
-          nextIndexByDirection(index.current, direction)
-        );
-
+        currentItemWidth = ranges[nextIndex].width;
         targetOffset = -ranges[nextIndex].range[rangeOffsetPosition];
       }
 
+      if (alignCentered && !centered) {
+        targetOffset =
+          targetOffset + container.width / 2 - currentItemWidth / 2;
+      }
+
       springIt({
         offset: targetOffset,
-        actionType: 'navigate',
+        actionType,
         immediate,
       });
     },
     [
-      OffsetX,
+      centered,
       clampIdx,
-      getCurrentIndex,
+      container.width,
+      getCurrentOffset,
       itemDimensionMode,
       itemWidth,
       rangeOffsetPosition,
@@ -519,15 +549,15 @@ export const useEngine = <T extends object>({
    * Depends on `isReady`
    */
   const navigate = React.useCallback(
-    ({ index, direction, immediate }: Navigate) => {
+    ({ index, direction, immediate, actionType = 'navigate' }: Navigate) => {
       if (!isReady) {
         return;
       }
 
       if (index !== undefined) {
-        navigateByIndex(index, immediate);
+        navigateByIndex(index, immediate, actionType);
       } else if (direction) {
-        navigateByDirection(direction, immediate);
+        navigateByDirection(direction, immediate, actionType);
       }
     },
     [isReady, navigateByIndex, navigateByDirection]
@@ -563,56 +593,17 @@ export const useEngine = <T extends object>({
    */
   const goTo = React.useCallback(
     ({
-      index: idx,
-      centered: alignCentered,
+      index,
       animated = true,
+      centered,
     }: Parameters<ReactSlipAndSlideRef['goTo']>[0]) => {
       if (!isReady) {
         return;
       }
 
-      const nextIndex = clampIdx(idx);
-
-      let targetOffset = lastOffset.current;
-      let currentItemWidth = itemWidth;
-
-      if (itemDimensionMode === 'static') {
-        targetOffset = getCurrentOffset({ index: nextIndex });
-      } else {
-        currentItemWidth = ranges[nextIndex].width;
-        targetOffset = -ranges[nextIndex].range[rangeOffsetPosition];
-      }
-
-      // if the wrapper is already centered this is a no-op
-      if (alignCentered && !centered) {
-        targetOffset =
-          targetOffset + container.width / 2 - currentItemWidth / 2;
-      }
-
-      if (!animated) {
-        index.current = nextIndex;
-        onCallbacks();
-      }
-
-      springIt({
-        offset: targetOffset,
-        actionType: 'navigate',
-        immediate: !animated,
-      });
+      navigateByIndex(index, !animated, 'ref', centered);
     },
-    [
-      centered,
-      clampIdx,
-      container.width,
-      getCurrentOffset,
-      isReady,
-      itemDimensionMode,
-      itemWidth,
-      onCallbacks,
-      rangeOffsetPosition,
-      ranges,
-      springIt,
-    ]
+    [isReady, navigateByIndex]
   );
 
   const handlePressToSlide = React.useCallback(
