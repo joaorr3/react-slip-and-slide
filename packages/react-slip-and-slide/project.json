@@ -32,7 +32,8 @@
           "react-native-gesture-handler",
           "react-spring",
           "rxjs",
-          "styled-components"
+          "styled-components",
+          "lethargy-ts"
         ]
       }
     },
