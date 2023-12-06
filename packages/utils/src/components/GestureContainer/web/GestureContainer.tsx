@@ -9,7 +9,6 @@ import { Wrapper } from '../../Styled';
 import { type GestureContainerProps } from '../models';
 
 type HandleGesture = {
-  immediate: boolean;
   active: boolean;
   mx: number;
   dirX: number;
@@ -40,7 +39,6 @@ export const GestureContainerComponent = (
 
   const internalRef = React.useRef<BoxRef>(null);
   const refs = mergeRefs<BoxRef>([ref, internalRef]);
-  const isPressing = React.useRef<boolean>(false);
 
   const lethargy = React.useMemo(
     () =>
@@ -54,7 +52,7 @@ export const GestureContainerComponent = (
   );
 
   const handleGesture = React.useCallback(
-    ({ immediate, active, mx, dirX, vx, actionType }: HandleGesture) => {
+    ({ active, mx, dirX, vx, actionType }: HandleGesture) => {
       const dir = dirX < 0 ? 'left' : dirX > 0 ? 'right' : 'center';
       direction.current = dir;
 
@@ -63,14 +61,13 @@ export const GestureContainerComponent = (
       }
       const offset = lastOffset.current + mx;
 
-      isIntentionalDrag.current = Math.abs(mx) >= 40 || isPressing.current;
+      isIntentionalDrag.current = Math.abs(mx) >= 40;
       isDragging.current = Math.abs(mx) !== 0;
 
-      if (active || immediate) {
-        onDrag(offset, actionType, immediate);
+      if (active) {
+        onDrag(offset, actionType);
       } else {
         onRelease({ offset, velocity: vx * 100 });
-        isPressing.current = false;
       }
     },
     [
@@ -85,10 +82,9 @@ export const GestureContainerComponent = (
   );
 
   const handleOnPressStart = () => {
-    if (OffsetX.get() !== lastOffset.current) {
-      isPressing.current = true;
+    if (OffsetX.isAnimating && OffsetX.get() !== lastOffset.current) {
       lastOffset.current = OffsetX.get();
-      onDrag(lastOffset.current, 'drag', true);
+      OffsetX.stop();
     }
   };
 
@@ -97,7 +93,6 @@ export const GestureContainerComponent = (
     throttle(
       (active: boolean, move: number, dir: number) => {
         handleGesture({
-          immediate: active,
           active,
           mx: move,
           dirX: dir,
@@ -117,13 +112,11 @@ export const GestureContainerComponent = (
       onMouseDown: handleOnPressStart,
       onDrag: ({
         active,
-        down,
         movement: [mx],
         direction: [dirX],
         velocity: [vx],
       }) => {
         handleGesture({
-          immediate: down,
           active,
           mx,
           dirX,
@@ -146,7 +139,6 @@ export const GestureContainerComponent = (
           }
         } else {
           handleGesture({
-            immediate: active,
             active,
             mx: move,
             dirX: dir,

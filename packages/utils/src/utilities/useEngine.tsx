@@ -401,7 +401,7 @@ export const useEngine = <T extends object>({
   );
 
   const drag = React.useCallback(
-    (x: number, actionType: ActionType, immediate: boolean) => {
+    (x: number, actionType: ActionType) => {
       if (actionType === 'wheelSnap') {
         navigateByDirection(
           direction.current === 'left'
@@ -425,7 +425,6 @@ export const useEngine = <T extends object>({
       springIt({
         offset,
         actionType,
-        immediate,
       });
     },
     [checkEdges, infinite, navigateByDirection, onEdge, rubberband, springIt]

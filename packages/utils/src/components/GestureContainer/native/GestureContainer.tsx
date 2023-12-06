@@ -41,7 +41,7 @@ export const GestureContainerComponent = (
 
       const offset = lastOffset.current + translationX;
 
-      onDrag(offset, 'drag', true);
+      onDrag(offset, 'drag');
     })
     .onEnd(({ velocityX, translationX, state }) => {
       isDragging.current = state === 4;
@@ -56,10 +56,9 @@ export const GestureContainerComponent = (
     });
 
   const handleOnPressStart = () => {
-    if (OffsetX.get() !== lastOffset.current) {
-      isPressStart.current = true;
+    if (OffsetX.isAnimating && OffsetX.get() !== lastOffset.current) {
       lastOffset.current = OffsetX.get();
-      onDrag(lastOffset.current, 'drag', true);
+      OffsetX.stop();
     }
   };
 
