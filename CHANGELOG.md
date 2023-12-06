@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [3.8.2](https://github.com/joaorr3/react-slip-and-slide/compare/v3.8.1...v3.8.2) (2023-12-06)
+
+
+### Bug Fixes
+
+* **GestureContainer:** fix drag glitch ([235311d](https://github.com/joaorr3/react-slip-and-slide/commit/235311d460033aaa7e52a77102b48c477001e686))
+
 ### [3.8.1](https://github.com/joaorr3/react-slip-and-slide/compare/v3.8.0...v3.8.1) (2023-12-05)
 
 ## [3.8.0](https://github.com/joaorr3/react-slip-and-slide/compare/v3.7.0...v3.8.0) (2023-12-05)
