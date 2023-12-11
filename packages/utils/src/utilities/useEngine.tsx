@@ -20,7 +20,6 @@ import {
   getCurrentDynamicIndex,
   getNextDynamicOffset,
   useIsFirstRender,
-  useValueChangeReaction,
 } from './helpers';
 import { createRubberband } from './rubberband';
 import { useScreenDimensions } from './useScreenDimensions';
@@ -88,7 +87,7 @@ export const useEngine = <T extends object>({
 
   const containerRef = React.useRef<BoxRef>(null);
   const isDragging = React.useRef<boolean>(false);
-  const direction = React.useRef<Direction>('center');
+  const direction = React.useRef<Direction>(false);
   const lastValidDirection = React.useRef<ValidDirection | null>(null);
   const isIntentionalDrag = React.useRef<boolean>(false);
 
@@ -114,16 +113,14 @@ export const useEngine = <T extends object>({
   const { width: screenWidth } = useScreenDimensions();
 
   React.useLayoutEffect(() => {
-    if (!containerWidthProp) {
-      defer(() => {
-        containerRef.current?.measure().then(({ width }) => {
-          setContainerDimensions({
-            ...container,
-            width,
-          });
+    defer(() => {
+      containerRef.current?.measure().then(({ width, height }) => {
+        setContainerDimensions({
+          height: container.height || height,
+          width: containerWidthProp ?? width,
         });
       });
-    }
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [container, screenWidth]);
 
@@ -239,14 +236,24 @@ export const useEngine = <T extends object>({
   }, [checkActionType, checkEdges, onEdge]);
 
   const handleOnSpringRest = React.useCallback(() => {
-    if (checkActionType(['release', 'navigate', 'correction'])) {
+    if (
+      checkActionType([
+        'release',
+        'navigate',
+        'correction',
+        'wheel',
+        'wheelSnap',
+      ])
+    ) {
       onCallbacks();
     }
   }, [checkActionType, onCallbacks]);
 
   const handleOnSpringRelease = React.useCallback(
     (clampedReleaseOffset: number) => {
-      if (checkActionType(['release', 'navigate'])) {
+      if (
+        checkActionType(['release', 'navigate', 'ref', 'wheel', 'wheelSnap'])
+      ) {
         lastOffset.current = clampedReleaseOffset;
         if (itemDimensionMode === 'static') {
           index.current = clampIdx(
@@ -707,12 +714,6 @@ export const useEngine = <T extends object>({
     onEdges?.(checkEdges({ offset: OffsetX.get() }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useValueChangeReaction(containerWidthProp, (width) => {
-    setContainerDimensions({
-      width,
-    });
-  });
 
   //endregion
 
