@@ -6,8 +6,18 @@ export type ReactSlipAndSlideRef = {
    * This could be useful if you don't provide item dimensions and need to restart de component if the item internal dimensions had change.
    */
   reinitialize: () => void;
+  /**
+   * Slides to the next item. (Respects `infinite=true`)
+   */
   next: () => void;
+  /**
+   * Slides to the previous item. (Respects `infinite=true`)
+   */
   previous: () => void;
+  /**
+   * Unlike `next` and `previous` this method doesn't trigger `onChange`.
+   * You'll need to set your external state when you call this.
+   */
   goTo: (params: {
     index: number;
     animated?: boolean;
@@ -20,7 +30,7 @@ export type ReactSlipAndSlideRef = {
 };
 
 export type ValidDirection = 'left' | 'right';
-export type Direction = ValidDirection | 'center';
+export type Direction = ValidDirection | false;
 export type ActionType =
   | 'drag'
   | 'wheel'
@@ -77,6 +87,7 @@ export type ReactSlipAndSlideProps<T extends object> = React.PropsWithChildren<{
   pressToSlide?: boolean;
   initialIndex?: number;
   containerWidth?: number;
+  containerHeight?: number;
   /**
    * Allows the items to be visible when overflowing the parent container.
    *
@@ -159,6 +170,14 @@ export type ReactSlipAndSlideProps<T extends object> = React.PropsWithChildren<{
    * This covers a particular use case where you might need to trigger a full re-initialization in both dynamic or static modes.
    */
   listener?: React.DependencyList;
+  /**
+   * Only relevant when snap is true.
+   *
+   * Defines when a drag gesture is considered intentional.
+   * For example, if you define `40`(px) the user will need to drag at least >= 40px.
+   * @default 20
+   */
+  intentionalDragThreshold?: number;
   renderItem: RenderItem<T>;
   onChange?: (index: number) => void;
   onEdges?: (props: Edges) => void;

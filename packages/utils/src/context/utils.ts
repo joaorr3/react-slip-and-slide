@@ -34,6 +34,7 @@ export function processContextData(data: ContextModel): ContextModel {
     fullWidthItem,
     itemDimensionMode,
     itemDimensionMap,
+    needsMeasurements,
   } = data;
 
   const largestItem = getLargestDynamicItem(itemDimensionMap);
@@ -41,12 +42,12 @@ export function processContextData(data: ContextModel): ContextModel {
 
   const itemDimensions: BaseDimensions = {
     width: fullWidthItem ? container.width : itemWidth || largestItem.width,
-    height: itemDimensionMode === 'static' ? _itemHeight : largestItem.height,
+    height: needsMeasurements ? largestItem.height : _itemHeight,
   };
 
   const containerDimensions: BaseDimensions = {
     width: container.width,
-    height: itemDimensions.height,
+    height: container.height || itemDimensions.height,
   };
 
   const wrapperWidth =
@@ -94,6 +95,7 @@ export function initializeContextData<T extends object>(
     infinite: _infinite,
     visibleItems = 0,
     containerWidth,
+    containerHeight,
     interpolators,
     centered,
     momentumMultiplier = 2,
@@ -102,7 +104,7 @@ export function initializeContextData<T extends object>(
   } = props;
 
   const itemDimensionMode: ItemDimensionMode =
-    (itemWidth && itemHeight) || fullWidthItem ? 'static' : 'dynamic';
+    itemWidth || fullWidthItem ? 'static' : 'dynamic';
 
   const infinite = itemDimensionMode === 'static' && !!_infinite;
   const loadingType: LoadingType = visibleItems === 0 ? 'eager' : 'lazy';
@@ -115,9 +117,23 @@ export function initializeContextData<T extends object>(
     itemDimensionMode === 'dynamic' ||
     (!!animateStartup && loadingType === 'eager');
 
+  /**
+   * Will be true if we have no way of knowing the item dimensions or the container height in advance.
+   *
+   * Note that, if `infinite` is true, a layout shift is expected if you only provide `itemWidth`.
+   * That layout shift will be exactly the size of the highest item though..
+   */
+  const needsMeasurements =
+    itemDimensionMode === 'dynamic' ||
+    (itemDimensionMode === 'static' &&
+      engineMode === 'multi' &&
+      !itemHeight &&
+      !containerHeight);
+
   const initialContextData: ContextModel<T> = {
     _testId,
     initId: uniqueId('init-'),
+    needsMeasurements,
     infinite,
     itemDimensionMode,
     loadingType,
@@ -131,7 +147,7 @@ export function initializeContextData<T extends object>(
     },
     container: {
       width: containerWidth || 0,
-      height: itemHeight || 0,
+      height: containerHeight || itemHeight || 0,
     },
     centered: !!centered,
     visibleItems: props.visibleItems || 0,

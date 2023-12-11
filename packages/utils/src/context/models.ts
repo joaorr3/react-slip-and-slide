@@ -26,6 +26,7 @@ export type ContextModel<T extends object = object> = Required<
 > & {
   initId: string;
   isReady: boolean;
+  needsMeasurements: boolean;
   shouldAnimatedStartup: boolean;
   itemDimensionMode: ItemDimensionMode;
   engineMode: EngineMode;

@@ -50,7 +50,7 @@ export function getCurrentDynamicIndex(
     finalIndex = item.index;
   }
 
-  if (direction === 'center') {
+  if (!direction) {
     finalIndex = item.index;
   }
 

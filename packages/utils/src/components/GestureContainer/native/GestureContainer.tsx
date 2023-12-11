@@ -14,6 +14,7 @@ export const GestureContainerComponent = (
     lastOffset,
     isIntentionalDrag,
     isDragging,
+    intentionalDragThreshold,
     onDrag,
     onRelease,
     children,
@@ -24,19 +25,22 @@ export const GestureContainerComponent = (
     state: { OffsetX },
   } = Context.useDataContext<any>();
 
-  const isPressStart = React.useRef<boolean>(false);
-
   const panGesture = Gesture.Pan()
     .onUpdate(({ translationX, velocityX, state }) => {
-      const dir = velocityX > 0 ? 'right' : velocityX < 0 ? 'left' : 'center';
+      if (translationX === 0) {
+        onRelease({ offset: lastOffset.current, velocity: velocityX * 100 });
+        return;
+      }
+
+      const dir = velocityX > 0 ? 'right' : velocityX < 0 ? 'left' : false;
       direction.current = dir;
 
-      if (dir !== 'center') {
+      if (dir) {
         lastValidDirection.current = dir;
       }
 
       isIntentionalDrag.current =
-        Math.abs(translationX) >= 40 || isPressStart.current;
+        Math.abs(translationX) >= intentionalDragThreshold;
       isDragging.current = state === 4;
 
       const offset = lastOffset.current + translationX;
@@ -52,7 +56,6 @@ export const GestureContainerComponent = (
       const velocity = unsignedVelocity > 320 ? normalizedVelocity : 0;
 
       onRelease({ offset, velocity });
-      isPressStart.current = false;
     });
 
   const handleOnPressStart = () => {

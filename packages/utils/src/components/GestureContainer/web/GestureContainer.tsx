@@ -27,6 +27,7 @@ export const GestureContainerComponent = (
     isDragging,
     useWheel,
     snap,
+    intentionalDragThreshold,
     onDrag,
     onRelease,
     children,
@@ -53,15 +54,20 @@ export const GestureContainerComponent = (
 
   const handleGesture = React.useCallback(
     ({ active, mx, dirX, vx, actionType }: HandleGesture) => {
-      const dir = dirX < 0 ? 'left' : dirX > 0 ? 'right' : 'center';
+      if (mx === 0) {
+        onRelease({ offset: lastOffset.current, velocity: vx * 100 });
+        return;
+      }
+
+      const dir = dirX < 0 ? 'left' : dirX > 0 ? 'right' : false;
       direction.current = dir;
 
-      if (dir !== 'center') {
+      if (dir) {
         lastValidDirection.current = dir;
       }
       const offset = lastOffset.current + mx;
 
-      isIntentionalDrag.current = Math.abs(mx) >= 40;
+      isIntentionalDrag.current = Math.abs(mx) >= intentionalDragThreshold;
       isDragging.current = Math.abs(mx) !== 0;
 
       if (active) {
@@ -72,6 +78,7 @@ export const GestureContainerComponent = (
     },
     [
       direction,
+      intentionalDragThreshold,
       isDragging,
       isIntentionalDrag,
       lastOffset,

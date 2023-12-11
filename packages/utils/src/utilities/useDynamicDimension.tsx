@@ -6,12 +6,12 @@ import { getDynamicRangeSum } from './helpers';
 
 export const useDynamicDimension = () => {
   const {
-    state: { dataLength, itemDimensionMode, initId },
+    state: { dataLength, initId, needsMeasurements },
     actions: { setItemDimensionMap, setRanges },
   } = Context.useDataContext();
 
   const itemRefs = React.useMemo<Array<React.RefObject<BoxRef>>>(() => {
-    if (itemDimensionMode === 'dynamic') {
+    if (needsMeasurements) {
       return times(dataLength, () => React.createRef());
     }
     return [];
@@ -35,7 +35,7 @@ export const useDynamicDimension = () => {
   }, [itemRefs]);
 
   React.useEffect(() => {
-    if (itemDimensionMode === 'dynamic') {
+    if (needsMeasurements) {
       measure().then((itemDimensionMap) => {
         setItemDimensionMap(itemDimensionMap);
         setRanges(getDynamicRangeSum(itemDimensionMap));
@@ -43,9 +43,9 @@ export const useDynamicDimension = () => {
     }
   }, [
     dataLength,
-    itemDimensionMode,
     initId,
     measure,
+    needsMeasurements,
     setItemDimensionMap,
     setRanges,
   ]);

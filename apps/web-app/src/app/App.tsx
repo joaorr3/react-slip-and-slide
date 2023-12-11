@@ -165,7 +165,9 @@ export function App() {
         centered
         initialIndex={3}
         itemWidth={width}
-        itemHeight={200}
+        // containerHeight={200}
+        // itemHeight={200}
+        // infinite
         // momentumMultiplier={2}
         useWheel
         // pressToSlide

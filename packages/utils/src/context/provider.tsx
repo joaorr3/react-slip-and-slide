@@ -136,9 +136,11 @@ export function DataProvider({ props, children }: DataProviderProps) {
     props.infinite,
     props.visibleItems,
     props.containerWidth,
+    props.containerHeight,
     props.interpolators,
     props.centered,
     props.momentumMultiplier,
+    props.intentionalDragThreshold,
     // eslint-disable-next-line react-hooks/exhaustive-deps
     ...(props.listener || []),
   ]);
