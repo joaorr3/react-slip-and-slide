@@ -1,6 +1,7 @@
 import {
   type ActionType,
   type Direction,
+  type Navigate,
   type ValidDirection,
 } from '@react-slip-and-slide/models';
 import type React from 'react';
@@ -20,4 +21,5 @@ export type GestureContainerProps = React.PropsWithChildren<{
   intentionalDragThreshold: number;
   onDrag: (offset: number, actionType: ActionType) => void;
   onRelease: (props: { offset: number; velocity: number }) => void;
+  navigate: (props: Navigate) => void;
 }>;

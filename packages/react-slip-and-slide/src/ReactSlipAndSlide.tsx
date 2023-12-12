@@ -71,6 +71,7 @@ function ReactSlipAndSlideComponent<T extends object>(
       intentionalDragThreshold={intentionalDragThreshold}
       onDrag={handlers.onDrag}
       onRelease={handlers.onRelease}
+      navigate={handlers.navigate}
     >
       <Engine onItemPress={handlers.onItemPress} renderItem={renderItem} />
     </GestureContainer>

@@ -30,6 +30,7 @@ export const GestureContainerComponent = (
     intentionalDragThreshold,
     onDrag,
     onRelease,
+    navigate,
     children,
   }: GestureContainerProps,
   ref: React.Ref<BoxRef>
@@ -98,19 +99,17 @@ export const GestureContainerComponent = (
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleOnWheel = React.useCallback(
     throttle(
-      (active: boolean, move: number, dir: number) => {
-        handleGesture({
-          active,
-          mx: move,
-          dirX: dir,
-          vx: 0,
-          actionType: 'wheelSnap',
-        });
+      (dir: number) => {
+        const direction = dir < 0 ? 'prev' : dir > 0 ? 'next' : false;
+
+        if (direction) {
+          navigate({ direction, actionType: 'wheelSnap' });
+        }
       },
       200,
       { leading: true, trailing: false }
     ),
-    []
+    [navigate]
   );
 
   useGesture(
@@ -142,7 +141,7 @@ export const GestureContainerComponent = (
 
         if (snap) {
           if (lethargy.check(event)) {
-            handleOnWheel(active, move, dir);
+            handleOnWheel(dir);
           }
         } else {
           handleGesture({

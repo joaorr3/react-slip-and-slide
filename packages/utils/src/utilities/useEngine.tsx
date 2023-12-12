@@ -236,24 +236,14 @@ export const useEngine = <T extends object>({
   }, [checkActionType, checkEdges, onEdge]);
 
   const handleOnSpringRest = React.useCallback(() => {
-    if (
-      checkActionType([
-        'release',
-        'navigate',
-        'correction',
-        'wheel',
-        'wheelSnap',
-      ])
-    ) {
+    if (checkActionType(['release', 'navigate', 'correction', 'wheelSnap'])) {
       onCallbacks();
     }
   }, [checkActionType, onCallbacks]);
 
   const handleOnSpringRelease = React.useCallback(
     (clampedReleaseOffset: number) => {
-      if (
-        checkActionType(['release', 'navigate', 'ref', 'wheel', 'wheelSnap'])
-      ) {
+      if (checkActionType(['release', 'navigate', 'ref', 'wheelSnap'])) {
         lastOffset.current = clampedReleaseOffset;
         if (itemDimensionMode === 'static') {
           index.current = clampIdx(
@@ -299,10 +289,11 @@ export const useEngine = <T extends object>({
           handleOnSpringStart();
         },
         onRest: (x) => {
-          handleOnSpringRest();
           onRest?.(x);
         },
         config: springConfigByActionType[actionType.current],
+      }).then(() => {
+        handleOnSpringRest();
       });
 
       handleOnSpringRelease(clampedReleaseOffset);
@@ -409,20 +400,6 @@ export const useEngine = <T extends object>({
 
   const drag = React.useCallback(
     (x: number, actionType: ActionType) => {
-      if (actionType === 'wheelSnap') {
-        navigateByDirection(
-          direction.current === 'left'
-            ? 'prev'
-            : direction.current === 'right'
-            ? 'next'
-            : undefined,
-          false,
-          'wheelSnap'
-        );
-
-        return;
-      }
-
       const offset = infinite ? x : rubberband(x);
 
       if (Platform.is('web')) {
@@ -434,7 +411,7 @@ export const useEngine = <T extends object>({
         actionType,
       });
     },
-    [checkEdges, infinite, navigateByDirection, onEdge, rubberband, springIt]
+    [checkEdges, infinite, onEdge, rubberband, springIt]
   );
 
   const withSnap = React.useCallback(
@@ -725,8 +702,7 @@ export const useEngine = <T extends object>({
       previous: () => navigate({ direction: 'prev' }),
       goTo,
       move,
-    }),
-    [goTo, move, navigate, reInit]
+    })
   );
 
   return {
@@ -734,6 +710,7 @@ export const useEngine = <T extends object>({
       onDrag: drag,
       onRelease: release,
       onItemPress: handleOnItemPress,
+      navigate,
     },
     state: {
       container,
