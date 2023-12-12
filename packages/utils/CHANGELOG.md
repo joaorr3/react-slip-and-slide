@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [3.9.1](https://github.com/joaorr3/react-slip-and-slide/compare/v3.9.0...v3.9.1) (2023-12-12)
+
+
+### Bug Fixes
+
+* **useEngine:** fix wheel navigation when snap is false ([4be7be5](https://github.com/joaorr3/react-slip-and-slide/commit/4be7be5d98540f32dc3616138de1f9676241bec1))
+
 ## [3.9.0](https://github.com/joaorr3/react-slip-and-slide/compare/v3.8.2...v3.9.0) (2023-12-11)
 
 
