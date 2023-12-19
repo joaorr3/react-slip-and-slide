@@ -500,8 +500,10 @@ export const useEngine = <T extends object>({
       if (itemDimensionMode === 'static') {
         targetOffset = getCurrentOffset({ index: nextIndex });
       } else {
-        currentItemWidth = ranges[nextIndex].width;
-        targetOffset = -ranges[nextIndex].range[rangeOffsetPosition];
+        if (ranges.length) {
+          currentItemWidth = ranges[nextIndex].width;
+          targetOffset = -ranges[nextIndex].range[rangeOffsetPosition];
+        }
       }
 
       if (alignCentered && !centered) {
