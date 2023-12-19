@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.9.6](https://github.com/joaorr3/react-slip-and-slide/compare/v3.9.5...v3.9.6) (2023-12-19)
+
+
+### Bug Fixes
+
+* **GestureContainer:** run gestures on js thread for native ([b570301](https://github.com/joaorr3/react-slip-and-slide/commit/b5703014e77391c678e2412e0420976e45b8f9d8))
+
 ## [3.9.5](https://github.com/joaorr3/react-slip-and-slide/compare/v3.9.4...v3.9.5) (2023-12-19)
 
 
