@@ -12,7 +12,9 @@
         "main": "packages/models/src/index.ts",
         "tsConfig": "packages/models/tsconfig.lib.json",
         "assets": ["packages/models/*.md"],
-        "buildableProjectDepsInPackageJsonType": "dependencies",
+        "updateBuildableProjectDepsInPackageJson": true,
+        "skipTypings": false,
+        "format": [],
         "excludeDeps": ["react-dom", "tslib"]
       }
     },

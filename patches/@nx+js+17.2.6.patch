@@ -1,8 +1,31 @@
+diff --git a/node_modules/@nx/js/src/executors/tsc/tsc.impl.js b/node_modules/@nx/js/src/executors/tsc/tsc.impl.js
+index ebaf057..d563e8e 100644
+--- a/node_modules/@nx/js/src/executors/tsc/tsc.impl.js
++++ b/node_modules/@nx/js/src/executors/tsc/tsc.impl.js
+@@ -63,12 +63,12 @@ async function* tscExecutor(_options, context) {
+     const typescriptCompilation = (0, compile_typescript_files_1.compileTypeScriptFiles)(options, tsCompilationOptions, async () => {
+         await assetHandler.processAllAssetsOnce();
+         (0, update_package_json_1.updatePackageJson)({
+-            ...options,
+-            additionalEntryPoints: (0, create_entry_points_1.createEntryPoints)(options.additionalEntryPoints, context.root),
+-            format: [determineModuleFormatFromTsConfig(options.tsConfig)],
+-            // As long as d.ts files match their .js counterparts, we don't need to emit them.
+-            // TSC can match them correctly based on file names.
+-            skipTypings: true,
++          additionalEntryPoints: (0, create_entry_points_1.createEntryPoints)(options.additionalEntryPoints, context.root),
++          format: [determineModuleFormatFromTsConfig(options.tsConfig)],
++          // As long as d.ts files match their .js counterparts, we don't need to emit them.
++          // TSC can match them correctly based on file names.
++          skipTypings: true,
++          ...options,
+         }, context, target, dependencies);
+         (0, inline_1.postProcessInlinedDependencies)(tsCompilationOptions.outputPath, tsCompilationOptions.projectRoot, inlineProjectGraph);
+     });
 diff --git a/node_modules/@nx/js/src/utils/package-json/update-package-json.js b/node_modules/@nx/js/src/utils/package-json/update-package-json.js
-index 0d47ce7..fdaed5a 100644
+index 06d7086..b00e4dd 100644
 --- a/node_modules/@nx/js/src/utils/package-json/update-package-json.js
 +++ b/node_modules/@nx/js/src/utils/package-json/update-package-json.js
-@@ -39,6 +39,15 @@ function updatePackageJson(options, context, target, dependencies, fileMap = nul
+@@ -37,6 +37,15 @@ function updatePackageJson(options, context, target, dependencies, fileMap = nul
      }
      // update package specific settings
      packageJson = getUpdatedPackageJsonContent(packageJson, options);
