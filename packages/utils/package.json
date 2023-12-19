@@ -6,7 +6,7 @@
     "./src/index.js": "./src/index.native.js"
   },
   "peerDependencies": {
-    "react-native": ">=0.71",
+    "react-native": ">=0.72",
     "@react-spring/native": ">=9.6",
     "@react-spring/web": ">=9.6",
     "styled-components": ">=5",

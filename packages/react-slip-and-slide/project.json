@@ -13,6 +13,7 @@
         "tsConfig": "packages/react-slip-and-slide/tsconfig.lib.json",
         "assets": ["packages/react-slip-and-slide/*.md"],
         "buildableProjectDepsInPackageJsonType": "dependencies",
+        "updateBuildableProjectDepsInPackageJson": true,
         "clean": false,
         "excludeDeps": [
           "react-dom",

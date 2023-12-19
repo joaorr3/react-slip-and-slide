@@ -13,6 +13,7 @@
         "tsConfig": "packages/utils/tsconfig.lib.json",
         "assets": ["packages/utils/*.md"],
         "buildableProjectDepsInPackageJsonType": "dependencies",
+        "updateBuildableProjectDepsInPackageJson": true,
         "excludeDeps": ["react-dom", "tslib"]
       }
     },
