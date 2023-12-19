@@ -38,6 +38,8 @@ testem.log
 .DS_Store
 Thumbs.db
 
+.nx/cache
+
 # React Native
 
 # OSX
@@ -98,8 +100,8 @@ yarn-error.log
 *.jsbundle
 
 # Ruby / CocoaPods
-/ios/Pods/
-/vendor/bundle/
+**/ios/Pods/
+**/vendor/bundle/
 
 # Temporary files created by Metro to check the health of the file watcher
 .metro-health-check*
@@ -107,5 +109,5 @@ yarn-error.log
 # testing
 /coverage
 
-apps/native-app/ios/Pods/*
 
+apps/mobile-e2e/artifacts

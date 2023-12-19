@@ -1,16 +1,3 @@
 {
   "presets": ["module:metro-react-native-babel-preset"]
-  // "plugins": [
-  //   [
-  //     "module-resolver",
-  //     {
-  //       "root": ["./"],
-  //       "extensions": [".ts", ".tsx", ".js"],
-  //       "alias": {
-  //         "@react-slip-and-slide/utils": "../../packages/utils/src/index.native.ts",
-  //         "react-slip-and-slide": "../../packages/react-slip-and-slide/src/index.native.ts"
-  //       }
-  //     }
-  //   ]
-  // ]
 }
