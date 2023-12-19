@@ -7,7 +7,7 @@
  * You might need to authenticate with NPM before running this script.
  */
 
-import nrwlPkg from '@nrwl/devkit';
+import nrwlPkg from '@nx/devkit';
 import chalk from 'chalk';
 import { execSync } from 'child_process';
 import { readFileSync, writeFileSync } from 'fs';

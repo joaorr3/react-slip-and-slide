@@ -8,7 +8,7 @@ index 0d47ce7..fdaed5a 100644
      packageJson = getUpdatedPackageJsonContent(packageJson, options);
 +
 +    {
-+      Object.keys(packageJson.dependencies).forEach((key) => {
++      Object.keys(packageJson.dependencies || {}).forEach((key) => {
 +        if(options?.excludeDeps?.includes(key)) {
 +          delete packageJson.dependencies[key]
 +        }
