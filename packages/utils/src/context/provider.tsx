@@ -2,7 +2,7 @@ import { type ReactSlipAndSlideProps } from '@react-slip-and-slide/models';
 import { nothing, produce } from 'immer';
 import { uniqueId } from 'lodash';
 import React, { type Reducer } from 'react';
-import { useSpringValue } from 'react-spring';
+import { useSpringValue } from '../spring';
 import { useIsFirstRender } from '../utilities';
 import { baseSpringConfig } from '../utilities/config';
 import {
