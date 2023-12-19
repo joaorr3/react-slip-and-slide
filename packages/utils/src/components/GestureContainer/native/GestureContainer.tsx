@@ -26,6 +26,7 @@ export const GestureContainerComponent = (
   } = Context.useDataContext<any>();
 
   const panGesture = Gesture.Pan()
+    .runOnJS(true)
     .onUpdate(({ translationX, velocityX, state }) => {
       if (translationX === 0) {
         onRelease({ offset: lastOffset.current, velocity: velocityX * 100 });
