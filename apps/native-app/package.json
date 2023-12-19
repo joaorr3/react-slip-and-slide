@@ -1,6 +1,6 @@
 {
   "name": "native-app",
-  "version": "0.0.1",
+  "version": "3.9.2",
   "private": true,
   "dependencies": {
     "@react-native/metro-config": "*",
