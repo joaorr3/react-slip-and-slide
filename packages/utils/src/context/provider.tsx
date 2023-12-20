@@ -56,7 +56,7 @@ const useProducer = (initialData: ContextModel) => {
         case ActionTypes.SET_ITEM_DIMENSION_MAP: {
           draft.itemDimensionMap = action.payload;
 
-          if (action.payload.length) {
+          if (action.payload.length && draft.ranges.length) {
             draft.isReady = true;
           }
 
@@ -65,7 +65,7 @@ const useProducer = (initialData: ContextModel) => {
         case ActionTypes.SET_RANGES: {
           draft.ranges = action.payload;
 
-          if (action.payload.length) {
+          if (action.payload.length && draft.itemDimensionMap.length) {
             draft.isReady = true;
           }
           break;
@@ -157,6 +157,11 @@ export function DataProvider({ props, children }: DataProviderProps) {
     [OffsetX, actions, dispatch, state]
   );
 
+  console.log('contextHandlers: ', {
+    isReady: contextHandlers.state.isReady,
+    ranges: contextHandlers.state.ranges,
+    itemDimensionMap: contextHandlers.state.itemDimensionMap,
+  });
   return (
     <dataContext.Provider value={contextHandlers}>
       {children}
