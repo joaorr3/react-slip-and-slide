@@ -157,11 +157,6 @@ export function DataProvider({ props, children }: DataProviderProps) {
     [OffsetX, actions, dispatch, state]
   );
 
-  console.log('contextHandlers: ', {
-    isReady: contextHandlers.state.isReady,
-    ranges: contextHandlers.state.ranges,
-    itemDimensionMap: contextHandlers.state.itemDimensionMap,
-  });
   return (
     <dataContext.Provider value={contextHandlers}>
       {children}
