@@ -52,6 +52,7 @@ export type Navigate = {
   direction?: 'next' | 'prev';
   immediate?: boolean;
   actionType?: ActionType;
+  alignCentered?: boolean;
 };
 
 export type RenderItemProps<T extends object> = {
@@ -85,7 +86,7 @@ export type ReactSlipAndSlideProps<T extends object> = React.PropsWithChildren<{
    * @default undefined
    */
   pressToSlide?: boolean;
-  initialIndex?: number;
+  initialIndex?: number | { index: number; centered?: boolean };
   containerWidth?: number;
   containerHeight?: number;
   /**

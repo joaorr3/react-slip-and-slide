@@ -65,7 +65,7 @@ export const Item = ({ active, index, item }: ItemProps): JSX.Element => {
         style={{ fontSize: 14, color: !active ? '#0f0f0f' : '#f1f1f1' }}
         numberOfLines={1}
       >
-        {item.label}
+        {index} - {item.label}
       </Text>
     </View>
   );
@@ -99,6 +99,10 @@ const App = () => {
             //   opacity: 0.6,
             //   scale: 0.9,
             // }}
+            initialIndex={{
+              index: 4,
+              centered: true,
+            }}
             momentumMultiplier={0.8}
             // onChange={setIndex}
             onItemPress={({ pressedItemIndex }) => {

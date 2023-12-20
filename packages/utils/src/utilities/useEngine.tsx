@@ -47,7 +47,7 @@ export const useEngine = <T extends object>({
   pressToSlide,
   rubberbandElasticity,
   instanceRef,
-  initialIndex = 0,
+  initialIndex: _initialIndex,
   loadingTime,
   animateStartup,
   onChange,
@@ -79,6 +79,11 @@ export const useEngine = <T extends object>({
   } = Context.useDataContext<T>();
 
   const isFirstRender = useIsFirstRender();
+
+  const initialIndex =
+    typeof _initialIndex === 'number'
+      ? _initialIndex
+      : _initialIndex?.index || 0;
 
   const index = React.useRef(initialIndex);
 
@@ -534,13 +539,19 @@ export const useEngine = <T extends object>({
    * Depends on `isReady`
    */
   const navigate = React.useCallback(
-    ({ index, direction, immediate, actionType = 'navigate' }: Navigate) => {
+    ({
+      index,
+      direction,
+      immediate,
+      actionType = 'navigate',
+      alignCentered,
+    }: Navigate) => {
       if (!isReady) {
         return;
       }
 
       if (index !== undefined) {
-        navigateByIndex(index, immediate, actionType);
+        navigateByIndex(index, immediate, actionType, alignCentered);
       } else if (direction) {
         navigateByDirection(direction, immediate, actionType);
       }
@@ -550,8 +561,11 @@ export const useEngine = <T extends object>({
 
   const initialNavigation = React.useCallback(() => {
     if (initialIndex !== undefined) {
+      const alignCentered =
+        typeof _initialIndex === 'object' ? _initialIndex.centered : undefined;
+
       defer(() => {
-        navigate({ index: initialIndex, immediate: true });
+        navigate({ index: initialIndex, immediate: true, alignCentered });
       });
     }
   }, [initialIndex, navigate]);
