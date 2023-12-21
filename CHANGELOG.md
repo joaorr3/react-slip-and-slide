@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.10.3](https://github.com/joaorr3/react-slip-and-slide/compare/v3.10.2...v3.10.3) (2023-12-21)
+
+
+### Bug Fixes
+
+* **GestureContainer:** fix android drag gesture when snap is false ([4c332c1](https://github.com/joaorr3/react-slip-and-slide/commit/4c332c106a23457fa1918d1c896d19a61d3b9a99))
+
 ## [3.10.2](https://github.com/joaorr3/react-slip-and-slide/compare/v3.10.1...v3.10.2) (2023-12-21)
 
 ## [3.10.1](https://github.com/joaorr3/react-slip-and-slide/compare/v3.10.0...v3.10.1) (2023-12-20)
