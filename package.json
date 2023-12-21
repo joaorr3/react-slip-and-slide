@@ -93,6 +93,7 @@
     "nx": "17.2.6",
     "patch-package": "^8.0.0",
     "prettier": "^2.6.2",
+    "react-native-config": "^1.5.1",
     "react-native-monorepo-tools": "^1.2.1",
     "react-native-svg": "13.9.0",
     "react-native-svg-transformer": "1.0.0",

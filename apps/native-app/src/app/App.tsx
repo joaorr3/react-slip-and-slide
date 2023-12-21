@@ -82,23 +82,23 @@ const App = () => {
   const ref = React.useRef<ReactSlipAndSlideRef>(null);
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#ffffff' }}>
+      <SafeAreaView style={{ flex: 1 }}>
         <View style={{ height: 40 }} />
 
         <View style={{ display: 'flex', flexDirection: 'row' }}>
           <ReactSlipAndSlide
             ref={ref}
             data={data}
-            // snap
-            // centered
+            snap
+            centered
             // infinite
-            // itemWidth={320}
-            // itemHeight={200}
-            // interpolators={{
-            //   opacity: 0.6,
-            //   scale: 0.9,
-            // }}
+            itemWidth={320}
+            itemHeight={200}
+            interpolators={{
+              opacity: 0.6,
+              scale: 0.9,
+            }}
             initialIndex={{
               index: 4,
               centered: true,
@@ -113,31 +113,31 @@ const App = () => {
             //   setOnEdgeStart(start);
             //   setOnEdgeEnd(end);
             // }}
-            renderItem={(props) => {
-              return <Item active={props.index === activeItem} {...props} />;
-            }}
-
-            // renderItem={({ index: _index, item: { width } }) => {
-            //   return (
-            //     <View
-            //       style={{
-            //         width: 320,
-            //         height: 200,
-            //         backgroundColor: '#58a8d9',
-            //         borderRadius: 20,
-            //         justifyContent: 'center',
-            //         alignItems: 'center',
-            //       }}
-            //     >
-            //       <Text style={{ fontSize: 20 }}>{_index}</Text>
-            //     </View>
-            //   );
+            // renderItem={(props) => {
+            //   return <Item active={props.index === activeItem} {...props} />;
             // }}
+
+            renderItem={({ index: _index, item: { width } }) => {
+              return (
+                <View
+                  style={{
+                    width: 320,
+                    height: 200,
+                    backgroundColor: '#cc58d9',
+                    borderRadius: 20,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Text style={{ fontSize: 20 }}>{_index}</Text>
+                </View>
+              );
+            }}
           />
         </View>
 
-        {/* <Text style={{ fontSize: 32 }}>{index}</Text>
-        <Text style={{ fontSize: 22 }}>
+        {/* <Text style={{ fontSize: 32, color: '#000000' }}>{index}</Text>
+        <Text style={{ fontSize: 22, color: '#000000' }}>
           {JSON.stringify({ start: onEdgeStart, end: onEdgeEnd })}
         </Text>
 
