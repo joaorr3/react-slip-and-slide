@@ -3,7 +3,7 @@
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
     "declaration": true,
-    "types": ["node", "@types/styled-components-react-native"],
+    "types": ["node"],
     "noImplicitReturns": false
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
