@@ -25,14 +25,17 @@ export const GestureContainerComponent = (
     state: { OffsetX },
   } = Context.useDataContext<any>();
 
+  const handleOnPressStart = () => {
+    if (OffsetX.isAnimating && OffsetX.get() !== lastOffset.current) {
+      lastOffset.current = OffsetX.get();
+      OffsetX.stop();
+    }
+  };
+
   const panGesture = Gesture.Pan()
     .runOnJS(true)
+    .onTouchesDown(handleOnPressStart)
     .onUpdate(({ translationX, velocityX, state }) => {
-      if (translationX === 0) {
-        onRelease({ offset: lastOffset.current, velocity: velocityX * 100 });
-        return;
-      }
-
       const dir = velocityX > 0 ? 'right' : velocityX < 0 ? 'left' : false;
       direction.current = dir;
 
@@ -59,22 +62,9 @@ export const GestureContainerComponent = (
       onRelease({ offset, velocity });
     });
 
-  const handleOnPressStart = () => {
-    if (OffsetX.isAnimating && OffsetX.get() !== lastOffset.current) {
-      lastOffset.current = OffsetX.get();
-      OffsetX.stop();
-    }
-  };
-
   return (
     <GestureDetector gesture={panGesture}>
-      <Wrapper
-        ref={ref}
-        willMeasure
-        style={style}
-        styles={styles}
-        onPressStart={handleOnPressStart}
-      >
+      <Wrapper ref={ref} willMeasure style={style} styles={styles}>
         {children}
       </Wrapper>
     </GestureDetector>
