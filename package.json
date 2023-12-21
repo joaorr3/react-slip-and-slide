@@ -1,6 +1,6 @@
 {
   "name": "root-react-slip-and-slide",
-  "version": "3.10.1",
+  "version": "3.10.2",
   "license": "MIT",
   "scripts": {
     "bundle": "npx nx run react-slip-and-slide:esbuild",
