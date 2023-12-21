@@ -15,28 +15,7 @@
         "updateBuildableProjectDepsInPackageJson": true,
         "skipTypings": false,
         "format": [],
-        "clean": false,
-        "excludeDeps": [
-          "react-dom",
-          "tslib",
-          "@react-spring/native",
-          "@react-spring/shared",
-          "@react-spring/web",
-          "@use-gesture/react",
-          "core-js",
-          "dequal",
-          "immer",
-          "lodash",
-          "react",
-          "react-dom",
-          "react-is",
-          "react-native",
-          "react-native-gesture-handler",
-          "react-spring",
-          "rxjs",
-          "styled-components",
-          "lethargy-ts"
-        ]
+        "clean": false
       }
     },
     "publish": {

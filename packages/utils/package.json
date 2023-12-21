@@ -7,23 +7,10 @@
   },
   "peerDependencies": {
     "react-native": ">=0.72",
-    "@react-spring/native": ">=9.6",
-    "@react-spring/web": ">=9.6",
-    "styled-components": ">=5",
-    "@use-gesture/react": ">=10",
-    "immer": ">=9",
-    "rxjs": ">=7",
-    "react-native-gesture-handler": ">=2",
-    "core-js": ">=3"
+    "react": ">=18"
   },
   "peerDependenciesMeta": {
     "react-native": {
-      "optional": true
-    },
-    "@react-spring/native": {
-      "optional": true
-    },
-    "@react-spring/web": {
       "optional": true
     }
   }

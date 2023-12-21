@@ -24,5 +24,14 @@
     "url": "https://github.com/joaorr3/react-slip-and-slide/issues"
   },
   "homepage": "https://github.com/joaorr3/react-slip-and-slide#readme",
-  "license": "MIT"
+  "license": "MIT",
+  "peerDependencies": {
+    "react-native": ">=0.72",
+    "react": ">=18"
+  },
+  "peerDependenciesMeta": {
+    "react-native": {
+      "optional": true
+    }
+  }
 }

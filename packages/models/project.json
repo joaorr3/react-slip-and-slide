@@ -14,8 +14,7 @@
         "assets": ["packages/models/*.md"],
         "updateBuildableProjectDepsInPackageJson": true,
         "skipTypings": false,
-        "format": [],
-        "excludeDeps": ["react-dom", "tslib"]
+        "format": []
       }
     },
     "publish": {
