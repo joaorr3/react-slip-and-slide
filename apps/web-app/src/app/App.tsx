@@ -15,6 +15,15 @@ const data = [
   { width: 400 },
   { width: 400 },
   { width: 400 },
+  { width: 400 },
+  { width: 400 },
+  { width: 400 },
+  { width: 400 },
+  { width: 400 },
+  { width: 400 },
+  { width: 400 },
+  { width: 400 },
+  { width: 400 },
 ];
 
 const props0: ReactSlipAndSlideProps<{ width: number }> = {

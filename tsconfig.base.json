@@ -25,9 +25,6 @@
     "paths": {
       "@react-slip-and-slide/models": ["packages/models/src/index.ts"],
       "@react-slip-and-slide/utils": ["packages/utils/src/index.ts"],
-      "@react-slip-and-slide/utils/src/index.native": [
-        "packages/utils/src/index.native.ts"
-      ],
       "react-slip-and-slide": ["packages/react-slip-and-slide/src/index.ts"]
     }
   },

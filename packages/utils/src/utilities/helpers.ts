@@ -11,7 +11,6 @@ import {
   type TypedMemo,
   type ValidDirection,
 } from '@react-slip-and-slide/models';
-import { dequal } from 'dequal';
 import { clamp } from 'lodash';
 import React from 'react';
 
@@ -210,21 +209,6 @@ export const processClampOffsets = ({
     MAX,
   };
 };
-
-export function useValueChangeReaction<T>(
-  prop: T,
-  cb?: (next: T) => void
-): void {
-  const prevProp = usePreviousValue(prop);
-  const deps: React.DependencyList = [cb, prevProp, prop];
-
-  React.useEffect(() => {
-    if (!dequal(prop, prevProp)) {
-      cb?.(prop);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps);
-}
 
 export const derive = <T>(fn: () => T): T => fn();
 

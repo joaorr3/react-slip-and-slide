@@ -36,7 +36,7 @@ export const GestureContainerComponent = (
   ref: React.Ref<BoxRef>
 ): JSX.Element => {
   const {
-    state: { OffsetX, shouldAnimatedStartup },
+    state: { OffsetX },
   } = Context.useDataContext<any>();
 
   const internalRef = React.useRef<BoxRef>(null);
