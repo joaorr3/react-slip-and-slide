@@ -153,19 +153,10 @@ export function App() {
         // containerHeight={200}
         itemHeight={200}
         infinite
-        animateStartup={false}
+        // animateStartup={false}
         // momentumMultiplier={2}
-        // useWheel
-        // pressToSlide
-        // This ↓ is essentially the same as passing pressToSlide={true}
-        onItemPress={({ currentIndex, pressedItemIndex }) => {
-          if (pressedItemIndex > index.current || pressedItemIndex === 0) {
-            ref.current?.next();
-          } else if (pressedItemIndex < index.current) {
-            ref.current?.previous();
-          }
-          index.current = pressedItemIndex;
-        }}
+        useWheel
+        pressToSlide
         // onChange={(i) => {
         //   setCurrIndex(i);
         // }}

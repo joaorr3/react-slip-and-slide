@@ -101,6 +101,7 @@ export function initializeContextData<T extends object>(
     momentumMultiplier = 2,
     animateStartup = true,
     initialIndex,
+    loadingTime,
   } = props;
 
   const itemDimensionMode: ItemDimensionMode =
@@ -113,9 +114,10 @@ export function initializeContextData<T extends object>(
     infinite || loadingType === 'lazy' ? 'multi' : 'single';
 
   const shouldAnimatedStartup =
+    !!animateStartup ||
     !!initialIndex ||
-    itemDimensionMode === 'dynamic' ||
-    (!!animateStartup && loadingType === 'eager');
+    !!loadingTime ||
+    itemDimensionMode === 'dynamic';
 
   /**
    * Will be true if we have no way of knowing the item dimensions or the container height in advance.
