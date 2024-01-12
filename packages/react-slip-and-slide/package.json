@@ -1,6 +1,6 @@
 {
   "name": "react-slip-and-slide",
-  "version": "3.10.4",
+  "version": "3.10.5",
   "main": "./src/index.js",
   "module": "./react-slip-and-slide.esm.js",
   "react-native": {
