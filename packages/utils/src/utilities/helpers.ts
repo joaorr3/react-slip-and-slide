@@ -14,7 +14,6 @@ import {
 import { dequal } from 'dequal';
 import { clamp } from 'lodash';
 import React from 'react';
-import { type CSSProperties } from '../styled-components';
 
 export const typedMemo: TypedMemo = React.memo;
 
@@ -233,7 +232,7 @@ export const elementDimensionStyles = ({
   width,
   height,
 }: Required<BaseDimensions>): Pick<
-  CSSProperties,
+  React.CSSProperties,
   'width' | 'height' | 'minWidth' | 'minHeight'
 > => {
   return {

@@ -5,7 +5,7 @@ import { throttle } from 'lodash';
 import React from 'react';
 import { Context } from '../../../context';
 import { mergeRefs } from '../../../utilities';
-import { Wrapper } from '../../Styled';
+import { AnimatedBox } from '../../AnimatedBox';
 import { type GestureContainerProps } from '../models';
 
 type HandleGesture = {
@@ -36,7 +36,7 @@ export const GestureContainerComponent = (
   ref: React.Ref<BoxRef>
 ): JSX.Element => {
   const {
-    state: { OffsetX },
+    state: { OffsetX, shouldAnimatedStartup },
   } = Context.useDataContext<any>();
 
   const internalRef = React.useRef<BoxRef>(null);
@@ -166,17 +166,20 @@ export const GestureContainerComponent = (
   );
 
   return (
-    <Wrapper
+    <AnimatedBox
       ref={refs}
       willMeasure
       style={style}
       styles={{
+        display: 'flex',
+        position: 'relative',
+        flexDirection: 'row',
         ...styles,
         touchAction: 'pan-y',
       }}
     >
       {children}
-    </Wrapper>
+    </AnimatedBox>
   );
 };
 

@@ -4,11 +4,10 @@ import {
 } from '@react-slip-and-slide/models';
 import {
   Context,
-  elementDimensionStyles,
   GestureContainer,
+  elementDimensionStyles,
   typedMemo,
   useEngine,
-  type CSSProperties,
 } from '@react-slip-and-slide/utils';
 import React from 'react';
 import { Engine } from './Engine';
@@ -48,7 +47,7 @@ function ReactSlipAndSlideComponent<T extends object>(
     onItemPress,
   });
 
-  const gestureContainerStyles: CSSProperties = {
+  const gestureContainerStyles: React.CSSProperties = {
     justifyContent: state.centered ? 'center' : 'flex-start',
     ...elementDimensionStyles(state.container),
     width: containerWidth || '100%',

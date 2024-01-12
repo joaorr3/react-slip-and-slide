@@ -23,6 +23,7 @@
     "core-js": "*",
     "lodash": "*",
     "lethargy-ts": "*",
-    "dequal": "*"
+    "dequal": "*",
+    "css-to-react-native": "*"
   }
 }

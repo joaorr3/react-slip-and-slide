@@ -2,21 +2,15 @@ import {
   type BoxMeasurements,
   type BoxRef,
 } from '@react-slip-and-slide/models';
-import { merge } from 'lodash';
 import React from 'react';
 import {
-  TouchableWithoutFeedback,
+  Pressable,
   View,
   type LayoutChangeEvent,
+  type ViewStyle,
 } from 'react-native';
-import { styled } from '../../../styled-components/index.native';
-import { type BoxProps, type StyledBoxProps } from '../models';
-
-const StyledBox = styled(View)<StyledBoxProps>`
-  ${({ styles }) => ({
-    ...styles,
-  })}
-`;
+import { cssToNativeStyle } from '../../../utilities';
+import { type BoxProps } from '../models';
 
 export const BoxBase = (
   {
@@ -27,13 +21,14 @@ export const BoxBase = (
     onPressStart,
     native,
     web: _,
+    style,
     ...rest
-  }: BoxProps,
+  }: BoxProps & { style?: ViewStyle },
   ref: React.Ref<BoxRef>
 ): JSX.Element => {
   const viewRef = React.useRef<View>(null);
 
-  const [measurements, setMeasurements] = React.useState<BoxMeasurements>({
+  const measurements = React.useRef<BoxMeasurements>({
     width: 0,
     height: 0,
   });
@@ -44,8 +39,8 @@ export const BoxBase = (
         if (willMeasure && viewRef.current) {
           viewRef.current.measure((_, __, width, height) => {
             res({
-              width: measurements?.width || width,
-              height: measurements?.height || height,
+              width: measurements.current?.width || width,
+              height: measurements.current?.height || height,
             });
           });
         } else {
@@ -61,33 +56,33 @@ export const BoxBase = (
   const handleOnLayout = React.useCallback(
     (event: LayoutChangeEvent) => {
       if (willMeasure) {
-        const {
-          nativeEvent: {
-            layout: { height, width },
-          },
-        } = event;
-
-        setMeasurements({
-          width,
-          height,
-        });
+        measurements.current = {
+          width: event.nativeEvent.layout.width,
+          height: event.nativeEvent.layout.height,
+        };
       }
     },
     [willMeasure]
   );
 
+  const $style = React.useMemo(
+    () => ({ ...cssToNativeStyle(styles), ...style }),
+    [styles, style]
+  );
+
   return (
-    <TouchableWithoutFeedback onPress={onPress}>
-      <StyledBox
-        ref={viewRef}
-        styles={styles}
-        onLayout={handleOnLayout}
-        onTouchStart={onPressStart}
-        {...merge(native, rest)}
-      >
-        {children}
-      </StyledBox>
-    </TouchableWithoutFeedback>
+    <Pressable
+      ref={viewRef}
+      {...native}
+      // GestureDetector injects the collapsable props. rest === { "collapsable": false }
+      {...rest}
+      style={$style}
+      onLayout={handleOnLayout}
+      onTouchStart={onPressStart}
+      onPress={onPress}
+    >
+      {children}
+    </Pressable>
   );
 };
 

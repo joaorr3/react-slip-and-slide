@@ -2,16 +2,8 @@ import {
   type BoxMeasurements,
   type BoxRef,
 } from '@react-slip-and-slide/models';
-import { merge } from 'lodash';
-import React from 'react';
-import { styled } from '../../../styled-components';
-import { type BoxProps, type StyledBoxProps } from '../models';
-
-const StyledBox = styled.div<StyledBoxProps>`
-  ${({ styles }) => ({
-    ...styles,
-  })}
-`;
+import React, { CSSProperties } from 'react';
+import { type BoxProps } from '../models';
 
 export const BoxBase = (
   {
@@ -22,11 +14,12 @@ export const BoxBase = (
     onPressStart,
     web,
     native: _,
-    ...rest
-  }: BoxProps,
+    style,
+  }: BoxProps & { style?: CSSProperties },
   ref: React.Ref<BoxRef>
 ): JSX.Element => {
   const divRef = React.useRef<HTMLDivElement>(null);
+
   React.useImperativeHandle<BoxRef, BoxRef>(ref, () => ({
     measure: () => {
       return new Promise<BoxMeasurements>((res) => {
@@ -41,26 +34,30 @@ export const BoxBase = (
         }
       });
     },
-    addEventListener: (...props) => {
-      divRef.current?.addEventListener(...props);
+    addEventListener: (type, listener, options) => {
+      divRef.current?.addEventListener(type, listener, options);
     },
-    removeEventListener: (...props) => {
-      divRef.current?.removeEventListener(...props);
+    removeEventListener: (type, listener, options) => {
+      divRef.current?.removeEventListener(type, listener, options);
     },
     dispatchEvent: (e) => !!divRef.current?.dispatchEvent(e),
   }));
 
   return (
-    <StyledBox
+    <div
       ref={divRef}
       onClick={onPress}
-      styles={styles}
+      {...web}
+      style={{
+        ...styles,
+        ...web?.style,
+        ...style,
+      }}
       onMouseDown={onPressStart}
       onTouchStart={onPressStart}
-      {...merge(web, rest)}
     >
       {children}
-    </StyledBox>
+    </div>
   );
 };
 

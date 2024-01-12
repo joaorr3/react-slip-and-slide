@@ -4,20 +4,8 @@ import {
   type ReactSlipAndSlideProps,
   type ReactSlipAndSlideRef,
 } from 'react-slip-and-slide';
-import styled from 'styled-components';
 // import { Example } from './Example';
 import { random, range } from 'lodash';
-import { Example2 } from './Example2';
-import { Example } from './Example';
-
-const StyledApp = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  height: 200vh;
-  /* background-color: #0f0f0f; */
-  align-items: center;
-`;
 
 const data = [
   { width: 400 },
@@ -27,20 +15,6 @@ const data = [
   { width: 400 },
   { width: 400 },
   { width: 400 },
-  { width: 400 },
-  { width: 400 },
-  { width: 400 },
-  // { width: 400 },
-  // { width: 400 },
-  // { width: 400 },
-  // { width: 400 },
-  // { width: 400 },
-  // { width: 400 },
-  // { width: 400 },
-  // { width: 400 },
-  // { width: 400 },
-  // { width: 400 },
-  // { width: 400 },
 ];
 
 const props0: ReactSlipAndSlideProps<{ width: number }> = {
@@ -156,6 +130,8 @@ export function App() {
   //   </StyledApp>
   // );
 
+  const index = React.useRef<number>(0);
+
   return (
     <React.Fragment>
       <ReactSlipAndSlide
@@ -164,24 +140,26 @@ export function App() {
         snap
         centered
         initialIndex={3}
-        itemWidth={width}
+        itemWidth={200}
         // containerHeight={200}
-        // itemHeight={200}
-        // infinite
+        itemHeight={200}
+        infinite
+        animateStartup={false}
         // momentumMultiplier={2}
-        useWheel
+        // useWheel
         // pressToSlide
         // This ↓ is essentially the same as passing pressToSlide={true}
-        // onItemPress={({ currentIndex, pressedItemIndex }) => {
-        //   if (pressedItemIndex > currentIndex) {
-        //     ref.current?.next();
-        //   } else if (pressedItemIndex < currentIndex) {
-        //     ref.current?.previous();
-        //   }
-        // }}
-        onChange={(i) => {
-          setCurrIndex(i);
+        onItemPress={({ currentIndex, pressedItemIndex }) => {
+          if (pressedItemIndex > index.current || pressedItemIndex === 0) {
+            ref.current?.next();
+          } else if (pressedItemIndex < index.current) {
+            ref.current?.previous();
+          }
+          index.current = pressedItemIndex;
         }}
+        // onChange={(i) => {
+        //   setCurrIndex(i);
+        // }}
         renderItem={({ index }) => {
           return (
             <div
@@ -228,7 +206,16 @@ export function App() {
   );
 
   return (
-    <StyledApp>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 24,
+        height: '200vh',
+        /* background-color: "#0f0f0f", */
+        alignItems: 'center',
+      }}
+    >
       <p>infinite</p>
       <ReactSlipAndSlide {...props0} />
 
@@ -243,7 +230,7 @@ export function App() {
 
       <p>align-start</p>
       <ReactSlipAndSlide {...props4} />
-    </StyledApp>
+    </div>
   );
 }
 

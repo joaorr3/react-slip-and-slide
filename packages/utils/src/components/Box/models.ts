@@ -1,9 +1,8 @@
 import type React from 'react';
 import type { ViewProps } from 'react-native';
-import { type CSSProperties } from '../../styled-components';
 
 export type BoxProps = React.PropsWithChildren<{
-  styles?: CSSProperties;
+  styles?: React.CSSProperties;
   willMeasure?: boolean;
   onPress?: (e?: any) => void;
   onPressStart?: (e?: any) => void;

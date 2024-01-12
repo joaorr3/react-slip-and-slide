@@ -2,7 +2,7 @@ import { type BoxRef } from '@react-slip-and-slide/models';
 import React from 'react';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { Context } from '../../../context';
-import { Wrapper } from '../../Styled';
+import { AnimatedBox } from '../../AnimatedBox';
 import { type GestureContainerProps } from '../models';
 
 export const GestureContainerComponent = (
@@ -64,9 +64,19 @@ export const GestureContainerComponent = (
 
   return (
     <GestureDetector gesture={panGesture}>
-      <Wrapper ref={ref} willMeasure style={style} styles={styles}>
+      <AnimatedBox
+        ref={ref}
+        willMeasure
+        style={style}
+        styles={{
+          display: 'flex',
+          position: 'relative',
+          flexDirection: 'row',
+          ...styles,
+        }}
+      >
         {children}
-      </Wrapper>
+      </AnimatedBox>
     </GestureDetector>
   );
 };

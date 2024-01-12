@@ -1,6 +1,6 @@
 import { type ReactSlipAndSlideRef } from '@react-slip-and-slide/models';
 import React from 'react';
-import { Button, SafeAreaView, Text, View } from 'react-native';
+import { Button, SafeAreaView, Text, View, Dimensions } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ReactSlipAndSlide } from 'react-slip-and-slide';
 
@@ -93,16 +93,17 @@ const App = () => {
             snap
             centered
             // infinite
-            itemWidth={320}
-            itemHeight={200}
-            interpolators={{
-              opacity: 0.6,
-              scale: 0.9,
-            }}
-            initialIndex={{
-              index: 4,
-              centered: true,
-            }}
+            // itemWidth={320}
+            // itemHeight={200}
+            // interpolators={{
+            //   opacity: 0.6,
+            //   scale: 0.9,
+            // }}
+            containerWidth={Dimensions.get('window').width}
+            // initialIndex={{
+            //   index: 4,
+            //   centered: true,
+            // }}
             momentumMultiplier={0.8}
             // onChange={setIndex}
             onItemPress={({ pressedItemIndex }) => {
@@ -121,12 +122,15 @@ const App = () => {
               return (
                 <View
                   style={{
-                    width: 320,
+                    // width: 320,
+                    width: Dimensions.get('window').width,
                     height: 200,
                     backgroundColor: '#cc58d9',
                     borderRadius: 20,
                     justifyContent: 'center',
                     alignItems: 'center',
+                    // borderWidth: 1,
+                    // borderColor: 'white',
                   }}
                 >
                   <Text style={{ fontSize: 20 }}>{_index}</Text>
@@ -136,7 +140,7 @@ const App = () => {
           />
         </View>
 
-        {/* <Text style={{ fontSize: 32, color: '#000000' }}>{index}</Text>
+        <Text style={{ fontSize: 32, color: '#000000' }}>{index}</Text>
         <Text style={{ fontSize: 22, color: '#000000' }}>
           {JSON.stringify({ start: onEdgeStart, end: onEdgeEnd })}
         </Text>
@@ -148,7 +152,7 @@ const App = () => {
         <Button
           title="GoTo"
           onPress={() => ref.current?.goTo({ index: 3, animated: false })}
-        /> */}
+        />
       </SafeAreaView>
     </GestureHandlerRootView>
   );

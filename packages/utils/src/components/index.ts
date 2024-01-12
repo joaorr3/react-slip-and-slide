@@ -1,4 +1,3 @@
-import { Item, Wrapper } from './Styled';
 export { AnimatedBox } from './AnimatedBox';
 export { Box, BoxBase, type BoxProps } from './Box';
 export {
@@ -6,8 +5,3 @@ export {
   type GestureContainerProps,
 } from './GestureContainer';
 export { LazyLoad } from './LazyLoad';
-
-export const Styled = {
-  Item,
-  Wrapper,
-};

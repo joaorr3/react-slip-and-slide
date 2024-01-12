@@ -3,7 +3,6 @@ import {
   Box,
   Context,
   elementDimensionStyles,
-  type CSSProperties,
 } from '@react-slip-and-slide/utils';
 import React from 'react';
 
@@ -20,7 +19,7 @@ export const LayoutManager = <T extends object>({
    * itemDimensionMode = 'fixed' | 'dynamic'
    */
   if (engineMode === 'single') {
-    const dynamicCenteredCorrectionStyles: CSSProperties = {
+    const dynamicCenteredCorrectionStyles: React.CSSProperties = {
       transform:
         itemDimensionMode === 'dynamic' && centered
           ? `translateX(${itemDimensions.width / 2}px)`

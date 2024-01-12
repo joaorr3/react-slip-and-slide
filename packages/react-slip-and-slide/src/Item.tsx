@@ -9,7 +9,6 @@ import {
   elementDimensionStyles,
   useInterpolation,
   useSpringValue,
-  type CSSProperties,
 } from '@react-slip-and-slide/utils';
 import React from 'react';
 
@@ -40,7 +39,7 @@ function ItemBaseComponent<T extends object>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLazy]);
 
-  const itemStyles = React.useRef<CSSProperties>({
+  const itemStyles = React.useRef<React.CSSProperties>({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',

@@ -3,7 +3,6 @@ import {
   ReactSlipAndSlide,
   type ReactSlipAndSlideRef,
 } from 'react-slip-and-slide';
-import { type CSSProperties } from 'styled-components';
 
 const loremIpsumText =
   'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eu purus lacinia, pretium ipsum in, vestibulum dolor. Fusce lobortis eu erat id aliquet. Donec sit amet ex dolor. Ut et tempus velit. Vestibulum lobortis enim mi. Donec vel velit condimentum, rhoncus mauris ut, faucibus nisi. Aenean vestibulum leo et lacus efficitur vehicula. Cras sagittis enim lectus, eget laoreet mauris faucibus eget. Nullam sit amet feugiat mi. Nunc vel rutrum erat. In et ullamcorper nibh. Mauris quam erat, congue ac risus et, vehicula fermentum magna. Maecenas pellentesque orci vitae neque tincidunt aliquet. Vestibulum justo nibh, condimentum non mollis eu, maximus quis lacus. Proin urna ipsum, luctus sit amet tincidunt nec, tincidunt nec orci.';
@@ -43,7 +42,7 @@ const data = [
 
 export type NavButtonProps = {
   direction: 'prev' | 'next';
-  styles?: CSSProperties;
+  styles?: React.CSSProperties;
   onPress?: () => void;
   hide?: boolean;
 };

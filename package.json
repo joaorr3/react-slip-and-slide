@@ -21,6 +21,7 @@
   "dependencies": {
     "@use-gesture/react": "^10.3.0",
     "core-js": "^3.34.0",
+    "css-to-react-native": "^3.2.0",
     "dequal": "^2.0.3",
     "immer": "^10.0.3",
     "lethargy-ts": "^0.0.5",
@@ -32,7 +33,6 @@
     "react-native-gesture-handler": "^2.14.0",
     "react-spring": "^9.7.3",
     "rxjs": "^7.8.0",
-    "styled-components": "^6.1.1",
     "tslib": "^2.6.2"
   },
   "devDependencies": {

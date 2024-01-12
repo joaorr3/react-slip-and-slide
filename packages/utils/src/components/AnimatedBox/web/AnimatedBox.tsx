@@ -1,15 +1,14 @@
-import { animated } from '../../../spring';
+import { type BoxRef } from '@react-slip-and-slide/models';
 import React from 'react';
-import { BoxBase } from '../../Box';
+import { animated } from '../../../spring';
+import { Box } from '../../Box';
+import { springTransformsStyles } from '../helpers';
 import {
   type AnimatedBoxComponentType,
   type AnimatedBoxProps,
 } from '../models';
-import { type BoxRef } from '@react-slip-and-slide/models';
-import { springTransformsStyles } from '../helpers';
 
-const BaseAnimatedBox = React.forwardRef(BoxBase);
-const AnimatedProxy = animated(BaseAnimatedBox);
+const AnimatedProxy = animated(Box);
 
 export const AnimatedBox = React.forwardRef(
   (
