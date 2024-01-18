@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.11.0](https://github.com/joaorr3/react-slip-and-slide/compare/v3.10.6...v3.11.0) (2024-01-18)
+
+
+### Features
+
+* **useEngine:** improve pressToSlide when infinite is true ([03c0d27](https://github.com/joaorr3/react-slip-and-slide/commit/03c0d2724ae79276b491a5f6ea6667bdec040ced))
+
 ## [3.10.6](https://github.com/joaorr3/react-slip-and-slide/compare/v3.10.5...v3.10.6) (2024-01-12)
 
 
