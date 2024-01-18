@@ -120,12 +120,12 @@ export const useEngine = <T extends object>({
       containerRef.current?.measure().then(({ width, height }) => {
         setContainerDimensions({
           height: container.height || height,
-          width: containerWidthProp ?? width,
+          width: containerWidthProp || width,
         });
       });
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [container, screenWidth]);
+  }, [container, screenWidth, initId]);
 
   const setActionType = (type: ActionType) => {
     actionType.current = type;
@@ -284,6 +284,9 @@ export const useEngine = <T extends object>({
 
   const spring = React.useCallback(
     ({ offset, immediate, onRest }: Omit<SpringIt, 'actionType'>) => {
+      if (offset === lastOffset.current) {
+        return;
+      }
       const clampedReleaseOffset = clampReleaseOffset(offset);
       OffsetX.start({
         to: checkActionType(['drag', 'correction'])
@@ -607,13 +610,30 @@ export const useEngine = <T extends object>({
     [isReady, navigateByIndex]
   );
 
+  const getOffset = ({
+    current,
+    target,
+  }: {
+    current: number;
+    target: number;
+  }) => {
+    if (Math.abs(target - current) >= dataLength / 2) {
+      const off = current > dataLength / 2 ? dataLength : -dataLength;
+      return off + (target - current);
+    }
+    return target - current;
+  };
+
   const handlePressToSlide = React.useCallback(
-    (index: number) => {
+    (_index: number) => {
       if (!pressToSlide || isDragging.current) {
         return;
       }
 
-      navigate({ index });
+      if (!OffsetX.isAnimating) {
+        const res = getOffset({ target: _index, current: index.current || 0 });
+        move(-(itemWidth * res));
+      }
     },
     [navigate, pressToSlide]
   );
@@ -629,14 +649,6 @@ export const useEngine = <T extends object>({
   );
 
   //region FX
-
-  // If we don't need to wait for measurements and there's a new initialization and we're not ready?
-  React.useEffect(() => {
-    if (itemDimensionMode === 'static' && !isReady) {
-      setIsReady(true);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initId]);
 
   // If we're ready but opacity is 0? (agnostic)
   React.useEffect(() => {

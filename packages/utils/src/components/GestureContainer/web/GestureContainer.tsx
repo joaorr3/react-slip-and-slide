@@ -90,7 +90,7 @@ export const GestureContainerComponent = (
   );
 
   const handleOnPressStart = () => {
-    if (OffsetX.isAnimating && OffsetX.get() !== lastOffset.current) {
+    if (!snap && OffsetX.isAnimating && OffsetX.get() !== lastOffset.current) {
       lastOffset.current = OffsetX.get();
       OffsetX.stop();
     }

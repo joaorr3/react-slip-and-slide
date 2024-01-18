@@ -34,6 +34,7 @@ const useProducer = (initialData: ContextModel) => {
           }
           if (width) {
             draft.container.width = width;
+            draft.isReady = true;
           }
           break;
         }

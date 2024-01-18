@@ -128,7 +128,7 @@ export function App() {
   const [width, setWidth] = React.useState<number>(400);
   const [currIndex, setCurrIndex] = React.useState<number>(0);
 
-  const [data1, setData1] = React.useState<typeof data>(data);
+  const [data1, setData1] = React.useState<typeof data>(data.slice(7));
 
   // return <Example2 />;
 
@@ -149,17 +149,21 @@ export function App() {
         snap
         centered
         initialIndex={3}
+        // fullWidthItem
         itemWidth={200}
         // containerHeight={200}
         itemHeight={200}
         infinite
         // animateStartup={false}
         // momentumMultiplier={2}
-        useWheel
+        // useWheel
         pressToSlide
         // onChange={(i) => {
         //   setCurrIndex(i);
         // }}
+        onReady={(isReady) => {
+          console.log('isReady: ', isReady);
+        }}
         renderItem={({ index }) => {
           return (
             <div

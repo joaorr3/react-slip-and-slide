@@ -139,12 +139,12 @@ export function initializeContextData<T extends object>(
     infinite,
     itemDimensionMode,
     loadingType,
-    isReady: itemDimensionMode === 'static',
+    isReady: false,
     shouldAnimatedStartup,
     engineMode,
     data: props.data,
     itemDimensions: {
-      width: props.itemWidth || 0,
+      width: props.itemWidth || (fullWidthItem ? containerWidth : 0) || 0,
       height: props.itemHeight || 0,
     },
     container: {

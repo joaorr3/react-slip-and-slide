@@ -17,7 +17,13 @@ function ItemBaseComponent<T extends object>(
   ref?: React.Ref<BoxRef>
 ) {
   const {
-    state: { itemDimensions, engineMode, loadingType, itemDimensionMode },
+    state: {
+      itemDimensions,
+      engineMode,
+      loadingType,
+      itemDimensionMode,
+      isReady,
+    },
   } = Context.useDataContext<T>();
 
   const isLazy = loadingType === 'lazy';
@@ -48,7 +54,7 @@ function ItemBaseComponent<T extends object>(
   if (engineMode === 'multi') {
     itemStyles.current = {
       ...itemStyles.current,
-      position: 'absolute',
+      position: isReady ? 'absolute' : 'static',
       flexShrink: 0,
       ...elementDimensionStyles(itemDimensions),
     };
