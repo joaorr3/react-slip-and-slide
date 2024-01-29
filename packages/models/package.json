@@ -1,6 +1,6 @@
 {
   "name": "@react-slip-and-slide/models",
-  "version": "3.11.0",
+  "version": "3.12.0",
   "peerDependencies": {
     "react-native": ">=0.72",
     "react": ">=18",
