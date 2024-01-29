@@ -29,7 +29,10 @@
     "react-native": ">=0.72",
     "react": ">=18",
     "@use-gesture/react": ">=10",
-    "react-spring": ">=9"
+    "react-spring": ">=9",
+    "@react-spring/native": ">=9",
+    "@react-spring/web": ">=9",
+    "@react-spring/shared": ">=9"
   },
   "peerDependenciesMeta": {
     "react-native": {

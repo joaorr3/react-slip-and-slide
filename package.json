@@ -8,6 +8,7 @@
     "prebuild": "npm run bundle",
     "version": "npx nx run root:version --syncVersions --exclude=root,web-app,native-app",
     "publish": "npx nx run-many --target=publish --exclude root web-app native-app",
+    "lint": "npx nx run-many --target=lint --exclude root web-app native-app",
     "web": "npx nx run web-app:serve",
     "web:build": "npx nx run web-app:build-app",
     "clear": "watchman watch-del-all && rm -rf $TMPDIR/metro-cache",
@@ -30,6 +31,9 @@
     "react-native": "0.72.6",
     "react-native-gesture-handler": "^2.14.0",
     "react-spring": "^9.7.3",
+    "@react-spring/native": "^9.7.3",
+    "@react-spring/web": "^9.7.3",
+    "@react-spring/shared": "^9.7.3",
     "rxjs": "^7.8.0"
   },
   "devDependencies": {

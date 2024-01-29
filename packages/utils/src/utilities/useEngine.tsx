@@ -286,9 +286,6 @@ export const useEngine = <T extends object>({
 
   const spring = React.useCallback(
     ({ offset, immediate, onRest }: Omit<SpringIt, 'actionType'>) => {
-      if (offset === lastOffset.current) {
-        return;
-      }
       const clampedReleaseOffset = clampReleaseOffset(offset);
       OffsetX.start({
         to: checkActionType(['drag', 'correction'])
@@ -474,6 +471,7 @@ export const useEngine = <T extends object>({
   const release = React.useCallback(
     ({ offset, velocity: v }: { offset: number; velocity: number }) => {
       let offsetX = 0;
+      isDragging.current = false;
 
       if (snap) {
         if (isIntentionalDrag.current) {
@@ -488,8 +486,6 @@ export const useEngine = <T extends object>({
       } else {
         offsetX = withMomentum({ offset, v });
       }
-
-      isDragging.current = false;
 
       springIt({
         offset: offsetX,
