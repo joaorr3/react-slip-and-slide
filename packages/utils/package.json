@@ -1,6 +1,6 @@
 {
   "name": "@react-slip-and-slide/utils",
-  "version": "3.12.0",
+  "version": "3.12.1",
   "main": "./src/index.js",
   "react-native": {
     "./src/index.js": "./src/index.native.js"
