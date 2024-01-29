@@ -77,6 +77,12 @@ const useProducer = (initialData: ContextModel) => {
           }
           break;
         }
+        case ActionTypes.SET_CURRENT_INDEX: {
+          if (draft.currentIndex !== action.payload) {
+            draft.currentIndex = action.payload;
+          }
+          break;
+        }
         default: {
           return nothing;
         }
@@ -120,13 +126,18 @@ export function DataProvider({ props, children }: DataProviderProps) {
         dispatch({ type: ActionTypes.SET_RANGES, payload }),
       setIsReady: (payload) =>
         dispatch({ type: ActionTypes.SET_IS_READY, payload }),
+      setCurrentIndex: (payload) =>
+        dispatch({ type: ActionTypes.SET_CURRENT_INDEX, payload }),
     }),
     [dispatch]
   );
 
   React.useEffect(() => {
     if (!isFirstRender) {
-      actions.init(initializeContextData(props));
+      actions.init({
+        ...initializeContextData(props),
+        currentIndex: state.currentIndex,
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -138,7 +149,8 @@ export function DataProvider({ props, children }: DataProviderProps) {
     props.visibleItems,
     props.containerWidth,
     props.containerHeight,
-    props.interpolators,
+    props.interpolators?.opacity,
+    props.interpolators?.scale,
     props.centered,
     props.momentumMultiplier,
     props.intentionalDragThreshold,

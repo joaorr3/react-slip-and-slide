@@ -47,7 +47,7 @@ export const useEngine = <T extends object>({
   pressToSlide,
   rubberbandElasticity,
   instanceRef,
-  initialIndex: _initialIndex,
+  initialIndex,
   loadingTime,
   animateStartup,
   onChange,
@@ -74,16 +74,14 @@ export const useEngine = <T extends object>({
       isReady,
       shouldAnimatedStartup,
       initId,
+      currentIndex,
     },
-    actions: { setContainerDimensions, setIsReady, reInit },
+    actions: { setContainerDimensions, reInit, setCurrentIndex },
   } = Context.useDataContext<T>();
 
   const isFirstRender = useIsFirstRender();
 
-  const initialIndex =
-    typeof _initialIndex === 'number' ? _initialIndex : _initialIndex?.index;
-
-  const index = React.useRef(initialIndex);
+  const index = React.useRef(currentIndex);
 
   const [_, reRender] = React.useState<number>(0);
   const lastOffset = React.useRef(0);
@@ -211,13 +209,13 @@ export const useEngine = <T extends object>({
   );
 
   const onCallbacks = React.useCallback(() => {
-    if (index.current !== undefined) {
-      onChange?.(index.current);
+    if (currentIndex !== undefined) {
+      onChange?.(currentIndex);
     }
     if (!infinite && !isFirstRender) {
       onEdges?.(checkEdges({ offset: lastOffset.current }));
     }
-  }, [checkEdges, infinite, isFirstRender, onChange, onEdges]);
+  }, [checkEdges, currentIndex, infinite, isFirstRender, onChange, onEdges]);
 
   const onEdge = React.useMemo(
     () =>
@@ -240,11 +238,12 @@ export const useEngine = <T extends object>({
     }
   }, [checkActionType, checkEdges, onEdge]);
 
-  const handleOnSpringRest = React.useCallback(() => {
+  React.useEffect(() => {
     if (checkActionType(['release', 'navigate', 'correction', 'wheelSnap'])) {
       onCallbacks();
     }
-  }, [checkActionType, onCallbacks]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentIndex]);
 
   const handleOnSpringRelease = React.useCallback(
     (clampedReleaseOffset: number) => {
@@ -265,6 +264,8 @@ export const useEngine = <T extends object>({
           );
         }
 
+        setCurrentIndex(index.current);
+
         if (loadingType === 'lazy') {
           reRender(index.current);
         }
@@ -279,6 +280,7 @@ export const useEngine = <T extends object>({
       loadingType,
       rangeOffsetPosition,
       ranges,
+      setCurrentIndex,
     ]
   );
 
@@ -300,8 +302,6 @@ export const useEngine = <T extends object>({
           onRest?.(x);
         },
         config: springConfigByActionType[actionType.current],
-      }).then(() => {
-        handleOnSpringRest();
       });
 
       handleOnSpringRelease(clampedReleaseOffset);
@@ -312,7 +312,6 @@ export const useEngine = <T extends object>({
       checkActionType,
       handleOnSpringRelease,
       handleOnSpringStart,
-      handleOnSpringRest,
     ]
   );
 
@@ -381,9 +380,9 @@ export const useEngine = <T extends object>({
         const nextIndex = nextIndexByDirection(currentIndex, direction);
         targetOffset = -nextIndex * itemWidth;
       } else {
-        if (index.current !== undefined) {
+        if (currentIndex !== undefined) {
           const nextIndex = clampIdx(
-            nextIndexByDirection(index.current, direction)
+            nextIndexByDirection(currentIndex, direction)
           );
 
           targetOffset = -ranges[nextIndex].range[rangeOffsetPosition];
@@ -399,6 +398,7 @@ export const useEngine = <T extends object>({
     [
       OffsetX,
       clampIdx,
+      currentIndex,
       getCurrentIndex,
       itemDimensionMode,
       itemWidth,
@@ -567,13 +567,13 @@ export const useEngine = <T extends object>({
   );
 
   const initialNavigation = React.useCallback(() => {
-    if (initialIndex !== undefined) {
+    if (initialIndex !== 0) {
       const alignCentered =
-        typeof _initialIndex === 'object' ? _initialIndex.centered : undefined;
+        typeof initialIndex === 'object' ? initialIndex.centered : undefined;
 
-      navigate({ index: initialIndex, immediate: true, alignCentered });
+      navigate({ index: currentIndex, immediate: true, alignCentered });
     }
-  }, [initialIndex, navigate]);
+  }, [currentIndex, initialIndex, navigate]);
 
   /**
    * Depends on `isReady`
@@ -610,19 +610,16 @@ export const useEngine = <T extends object>({
     [isReady, navigateByIndex]
   );
 
-  const getOffset = ({
-    current,
-    target,
-  }: {
-    current: number;
-    target: number;
-  }) => {
-    if (Math.abs(target - current) >= dataLength / 2) {
-      const off = current > dataLength / 2 ? dataLength : -dataLength;
-      return off + (target - current);
-    }
-    return target - current;
-  };
+  const getOffset = React.useCallback(
+    ({ current, target }: { current: number; target: number }) => {
+      if (Math.abs(target - current) >= dataLength / 2) {
+        const off = current > dataLength / 2 ? dataLength : -dataLength;
+        return off + (target - current);
+      }
+      return target - current;
+    },
+    [dataLength]
+  );
 
   const handlePressToSlide = React.useCallback(
     (_index: number) => {
@@ -631,21 +628,28 @@ export const useEngine = <T extends object>({
       }
 
       if (!OffsetX.isAnimating) {
-        const res = getOffset({ target: _index, current: index.current || 0 });
+        const res = getOffset({ target: _index, current: currentIndex });
         move(-(itemWidth * res));
       }
     },
-    [navigate, pressToSlide]
+    [
+      OffsetX.isAnimating,
+      currentIndex,
+      getOffset,
+      itemWidth,
+      move,
+      pressToSlide,
+    ]
   );
 
   const handleOnItemPress = React.useCallback(
     (idx: number) => {
-      if (index.current !== undefined) {
+      if (currentIndex !== undefined) {
         handlePressToSlide(idx);
-        onItemPress?.({ currentIndex: index.current, pressedItemIndex: idx });
+        onItemPress?.({ currentIndex: currentIndex, pressedItemIndex: idx });
       }
     },
-    [handlePressToSlide, onItemPress]
+    [currentIndex, handlePressToSlide, onItemPress]
   );
 
   //region FX
@@ -677,14 +681,6 @@ export const useEngine = <T extends object>({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isReady]);
-
-  // We should react to itemWidth changes because it messes the whole logic
-  React.useEffect(() => {
-    if (!isFirstRender && isReady) {
-      navigate({ index: index.current, immediate: true });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [itemWidth]);
 
   // Fixes initial offset when: mode === dynamic and centered is true
   // I think this isn't needed anymore, but let's leave it here just in case.

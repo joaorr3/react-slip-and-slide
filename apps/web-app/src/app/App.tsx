@@ -1,32 +1,16 @@
+import { type RenderItem } from '@react-slip-and-slide/models';
+import { random, range } from 'lodash';
 import React from 'react';
 import {
+  Context,
   ReactSlipAndSlide,
   type ReactSlipAndSlideProps,
   type ReactSlipAndSlideRef,
 } from 'react-slip-and-slide';
-// import { Example } from './Example';
-import { random, range } from 'lodash';
 
-const data = [
-  { width: 400 },
-  { width: 400 },
-  { width: 400 },
-  { width: 400 },
-  { width: 400 },
-  { width: 400 },
-  { width: 400 },
-  { width: 400 },
-  { width: 400 },
-  { width: 400 },
-  { width: 400 },
-  { width: 400 },
-  { width: 400 },
-  { width: 400 },
-  { width: 400 },
-  { width: 400 },
-];
+const data = range(10).map((_, i) => ({ value: i }));
 
-const props0: ReactSlipAndSlideProps<{ width: number }> = {
+const props0: ReactSlipAndSlideProps<{ value: number }> = {
   _testId: 'fixed',
   data,
   snap: true,
@@ -39,11 +23,11 @@ const props0: ReactSlipAndSlideProps<{ width: number }> = {
     opacity: 0.4,
     scale: 0.82,
   },
-  renderItem: ({ index, item: { width } }) => {
+  renderItem: ({ index, item: { value } }) => {
     return (
       <div
         style={{
-          width,
+          width: value,
           height: 100,
           backgroundColor: '#767676',
           color: '#000000',
@@ -60,31 +44,31 @@ const props0: ReactSlipAndSlideProps<{ width: number }> = {
   },
 };
 
-const props1: ReactSlipAndSlideProps<{ width: number }> = {
+const props1: ReactSlipAndSlideProps<{ value: number }> = {
   ...props0,
   infinite: false,
 };
 
-const props2: ReactSlipAndSlideProps<{ width: number; height: number }> = {
+const props2: ReactSlipAndSlideProps<{ value: number; height: number }> = {
   ...props1,
   _testId: 'dynamic_same_width',
   data: [
-    { width: 400, height: 100 },
-    { width: 400, height: 200 },
-    { width: 400, height: 100 },
-    { width: 400, height: 300 },
-    { width: 400, height: 100 },
-    { width: 400, height: 200 },
+    { value: 400, height: 100 },
+    { value: 400, height: 200 },
+    { value: 400, height: 100 },
+    { value: 400, height: 300 },
+    { value: 400, height: 100 },
+    { value: 400, height: 200 },
   ],
   useWheel: true,
   centered: true,
   itemWidth: undefined,
   itemHeight: undefined,
-  renderItem: ({ index, item: { width, height } }) => {
+  renderItem: ({ index, item: { value, height } }) => {
     return (
       <div
         style={{
-          width,
+          width: value,
           height,
           backgroundColor: '#858585',
           color: '#000000',
@@ -101,34 +85,63 @@ const props2: ReactSlipAndSlideProps<{ width: number; height: number }> = {
   },
 };
 
-const props3: ReactSlipAndSlideProps<{ width: number }> = {
+const props3: ReactSlipAndSlideProps<{ value: number }> = {
   ...props1,
   _testId: 'dynamic_MULTI_width',
   data: [
-    { width: 800 },
-    { width: 200 },
-    { width: 300 },
-    { width: 400 },
-    { width: 500 },
-    { width: 800 },
+    { value: 800 },
+    { value: 200 },
+    { value: 300 },
+    { value: 400 },
+    { value: 500 },
+    { value: 800 },
   ],
   centered: true,
   itemWidth: undefined,
   itemHeight: undefined,
 };
 
-const props4: ReactSlipAndSlideProps<{ width: number }> = {
+const props4: ReactSlipAndSlideProps<{ value: number }> = {
   ...props1,
   centered: false,
   interpolators: undefined,
 };
 
+const Item: RenderItem<{
+  value: any;
+}> = ({ item }) => {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: 200,
+        backgroundColor: '#85858573',
+        color: '#000000',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: '32px',
+        userSelect: 'none',
+      }}
+    >
+      <p className="item-text">{item.value}</p>
+    </div>
+  );
+};
+
+const Child = () => {
+  const {
+    state: { currentIndex },
+  } = Context.useDataContext();
+  return <p>{currentIndex}</p>;
+};
+
 export function App() {
   const ref = React.useRef<ReactSlipAndSlideRef>(null);
-  const [width, setWidth] = React.useState<number>(400);
-  const [currIndex, setCurrIndex] = React.useState<number>(0);
+  const [width, setWidth] = React.useState<number>(200);
+  const [currIndex, setCurrIndex] = React.useState<number>(5);
 
-  const [data1, setData1] = React.useState<typeof data>(data.slice(7));
+  const [data1, setData1] = React.useState<typeof data>(data);
 
   // return <Example2 />;
 
@@ -139,8 +152,6 @@ export function App() {
   //   </StyledApp>
   // );
 
-  const index = React.useRef<number>(0);
-
   return (
     <React.Fragment>
       <ReactSlipAndSlide
@@ -148,9 +159,9 @@ export function App() {
         data={data1}
         snap
         centered
-        initialIndex={3}
+        initialIndex={5}
         // fullWidthItem
-        itemWidth={200}
+        itemWidth={width}
         // containerHeight={200}
         itemHeight={200}
         infinite
@@ -158,38 +169,25 @@ export function App() {
         // momentumMultiplier={2}
         // useWheel
         pressToSlide
-        // onChange={(i) => {
-        //   setCurrIndex(i);
-        // }}
-        onReady={(isReady) => {
-          console.log('isReady: ', isReady);
+        // interpolators={interpolators}
+        interpolators={{
+          scale: 0.92,
+          opacity: 0.5,
         }}
-        renderItem={({ index }) => {
-          return (
-            <div
-              style={{
-                width: '100%',
-                height: 200,
-                backgroundColor: '#85858573',
-                color: '#000000',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                borderRadius: '32px',
-                userSelect: 'none',
-              }}
-            >
-              <p className="item-text">{index}</p>
-            </div>
-          );
+        // onChange={handleOnChange}
+        onChange={(i) => {
+          setCurrIndex(i);
         }}
-      />
+        renderItem={Item}
+      >
+        <Child />
+      </ReactSlipAndSlide>
       <button onClick={() => ref.current?.previous()}>Prev</button>
       <button onClick={() => ref.current?.next()}>Next</button>
       <button onClick={() => setWidth(random(100, 400))}>set width</button>
       <button
         onClick={() => {
-          const nextData = range(random(3, 20)).map(() => ({ width: 400 }));
+          const nextData = range(random(3, 20)).map((_, i) => ({ value: i }));
           setData1(nextData);
         }}
       >
@@ -199,7 +197,12 @@ export function App() {
       <div>
         {data1.map((_, index) => {
           return (
-            <button onClick={() => ref.current?.goTo({ index })}>
+            <button
+              onClick={() => {
+                ref.current?.goTo({ index });
+                setCurrIndex(index);
+              }}
+            >
               Go To {index}
             </button>
           );
@@ -209,6 +212,7 @@ export function App() {
     </React.Fragment>
   );
 
+  // eslint-disable-next-line no-unreachable
   return (
     <div
       style={{

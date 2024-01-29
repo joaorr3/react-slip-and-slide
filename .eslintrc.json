@@ -1,23 +1,25 @@
 {
   "root": true,
   "ignorePatterns": ["**/*"],
-  "plugins": ["@nx/nx", "react"],
+  "plugins": ["@nx", "react", "react-hooks"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.base.json"
+  },
   "overrides": [
     {
-      "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
-      "extends": ["plugin:@nx/nx/typescript", "plugin:@nx/nx/react"],
+      "files": ["*.ts", "*.tsx"],
+      "extends": [
+        "plugin:react-hooks/recommended",
+        "plugin:@nx/typescript",
+        "plugin:@nx/react"
+      ],
       "rules": {
-        "@nx/nx/enforce-module-boundaries": [
+        "@nx/enforce-module-boundaries": [
           "error",
           {
             "enforceBuildableLibDependency": true,
-            "allow": [],
-            "depConstraints": [
-              {
-                "sourceTag": "*",
-                "onlyDependOnLibsWithTags": ["*"]
-              }
-            ]
+            "banTransitiveDependencies": true
           }
         ],
         "@typescript-eslint/consistent-type-imports": [
@@ -45,17 +47,5 @@
         ]
       }
     }
-    // {
-    //   "files": ["*.ts", "*.tsx"],
-    //   "extends": ["plugin:@nx/nx/typescript"],
-    //   "rules": {
-    //     // "@typescript-eslint/no-explicit-any": "off"
-    //   }
-    // },
-    // {
-    //   "files": ["*.js", "*.jsx"],
-    //   "extends": ["plugin:@nx/nx/javascript"],
-    //   "rules": {}
-    // }
   ]
 }

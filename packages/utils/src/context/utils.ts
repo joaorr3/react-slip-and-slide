@@ -165,6 +165,10 @@ export function initializeContextData<T extends object>(
     interpolators,
     rangeOffsetPosition: centered ? 'center' : 'start',
     momentumMultiplier: clamp(momentumMultiplier, 0, 10),
+    currentIndex:
+      typeof initialIndex === 'number'
+        ? initialIndex
+        : initialIndex?.index || 0,
     OffsetX: null as unknown as SpringValue<number>,
   };
 

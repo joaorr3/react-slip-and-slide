@@ -41,6 +41,7 @@ export type ContextModel<T extends object = object> = Required<
   interpolators?: Interpolators<number>;
   rangeOffsetPosition: RangeOffsetPosition;
   OffsetX: SpringValue<number>;
+  currentIndex: number;
 };
 
 export enum ActionTypes {
@@ -51,6 +52,7 @@ export enum ActionTypes {
   SET_ITEM_DIMENSION_MAP = 'SET_ITEM_DIMENSION_MAP',
   SET_RANGES = 'SET_RANGES',
   SET_IS_READY = 'SET_IS_READY',
+  SET_CURRENT_INDEX = 'SET_CURRENT_INDEX',
 }
 
 export type InitActionType = {
@@ -88,6 +90,11 @@ export type SetIsReadyActionType = {
   payload: boolean;
 };
 
+export type SetCurrentIndexActionType = {
+  type: ActionTypes.SET_CURRENT_INDEX;
+  payload: number;
+};
+
 export type Actions =
   | InitActionType
   | ReInitActionType
@@ -95,7 +102,8 @@ export type Actions =
   | SetWrapperWidthActionType
   | SetItemDimensionMapActionType
   | SetRangesActionType
-  | SetIsReadyActionType;
+  | SetIsReadyActionType
+  | SetCurrentIndexActionType;
 
 export type ContextHandlers<T extends object> = {
   state: ContextModel<T>;
@@ -112,5 +120,6 @@ export type ContextHandlers<T extends object> = {
     ) => void;
     setRanges: (payload: SetRangesActionType['payload']) => void;
     setIsReady: (payload: SetIsReadyActionType['payload']) => void;
+    setCurrentIndex: (payload: SetCurrentIndexActionType['payload']) => void;
   };
 };
