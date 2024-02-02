@@ -34,7 +34,9 @@ const useProducer = (initialData: ContextModel) => {
           }
           if (width) {
             draft.container.width = width;
-            draft.isReady = true;
+            if (draft.itemDimensionMode === 'static') {
+              draft.isReady = true;
+            }
           }
           break;
         }

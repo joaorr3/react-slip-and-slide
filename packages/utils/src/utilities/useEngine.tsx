@@ -153,9 +153,9 @@ export const useEngine = <T extends object>({
           ? Math.abs(modIndex)
           : Math.abs(modIndex > 0 ? dataLength - modIndex : 0);
       }
-      return 0;
+      return currentIndex || 0;
     },
-    [dataLength, itemWidth]
+    [currentIndex, dataLength, itemWidth]
   );
 
   const getCurrentIndex = React.useCallback(
@@ -562,6 +562,9 @@ export const useEngine = <T extends object>({
     [isReady, navigateByIndex, navigateByDirection]
   );
 
+  /**
+   * Depends on `isReady`
+   */
   const initialNavigation = React.useCallback(() => {
     if (initialIndex !== 0) {
       const alignCentered =
@@ -678,25 +681,10 @@ export const useEngine = <T extends object>({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isReady]);
 
-  // Fixes initial offset when: mode === dynamic and centered is true
-  // I think this isn't needed anymore, but let's leave it here just in case.
-  React.useEffect(() => {
-    if (itemDimensionMode === 'dynamic' && centered) {
-      const firstDynamicOffset = -(ranges[0]?.range[rangeOffsetPosition] || 0);
-
-      springIt({
-        offset: firstDynamicOffset,
-        actionType: 'release',
-        immediate: true,
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [centered, itemDimensionMode, ranges]);
-
   // Reset to new clampOffset.MAX if is at the end edge and page is resized
   React.useEffect(() => {
     const { end } = checkEdges({ offset: OffsetX.get() });
-    if (end) {
+    if (end && isReady) {
       springIt({
         offset: clampOffset.MAX,
         actionType: 'release',
