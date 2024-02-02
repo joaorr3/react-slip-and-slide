@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.12.2](https://github.com/joaorr3/react-slip-and-slide/compare/v3.12.1...v3.12.2) (2024-02-02)
+
+
+### Bug Fixes
+
+* **useEngine:** fix initial navigation when itemDimensionMode is dynamic or fullWidthItem is true ([f0917c3](https://github.com/joaorr3/react-slip-and-slide/commit/f0917c31565ca7e228d90940759cbdb33f2ad87f))
+
 ## [3.12.1](https://github.com/joaorr3/react-slip-and-slide/compare/v3.12.0...v3.12.1) (2024-01-29)
 
 
